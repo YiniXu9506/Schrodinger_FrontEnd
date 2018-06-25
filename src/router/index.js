@@ -20,7 +20,7 @@ export default new Router({
       component: NotFoundView
     },
     {
-      path: '/creatcase',
+      path: '/createcase',
       name: 'CreateCase',
       component: CreateCase
     },
