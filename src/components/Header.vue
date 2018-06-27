@@ -9,9 +9,9 @@
 
     <div id="tabs">
       <Tabs type="card" v-model="activeTab" @on-click="tabClicked">
-        <TabPane label="Create Case" icon="compose" name="createcase"></TabPane>
-        <TabPane label="Create Box" icon="ios-box-outline" name="createbox"></TabPane>
         <TabPane label="Box Instance" icon="ios-box" name="boxinstance"></TabPane>
+        <TabPane label="Create Box" icon="ios-box-outline" name="createbox"></TabPane>
+        <TabPane label="Create Case" icon="compose" name="createtesttemplate"></TabPane>
       </Tabs>
     </div>
   </div>
@@ -19,7 +19,7 @@
 <script>
   export default {
     data() {
-      let activeTab = 'createcase';
+      let activeTab = 'boxinstance';
       location.hash && (activeTab = location.hash.slice(2));
       console.log('active Tab', activeTab)
       return {

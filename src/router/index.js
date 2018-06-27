@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import CreateCase from '@/views/CreateCase'
+import CreateCase from '@/views/CreateTestTemplate'
 import CreateBox from '@/views/CreateBox'
 import BoxInstance from '@/views/BoxInstance'
 
@@ -13,15 +13,15 @@ const NotFoundView = Vue.component('NotFoundView', {
 export default new Router({
   // mode: 'history',
   routes: [
-    { path: '/', redirect: '/createcase' },
+    { path: '/', redirect: '/boxinstance' },
     {
       path: '/404',
       name: 'NotFoundView',
       component: NotFoundView
     },
     {
-      path: '/createcase',
-      name: 'CreateCase',
+      path: '/createtesttemplate',
+      name: 'CreateTestTemplate',
       component: CreateCase
     },
     {

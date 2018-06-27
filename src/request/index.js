@@ -2,7 +2,7 @@ import Mock from 'mockjs'
 import axios from 'axios'
 const Proxy = '/api'
 
-Mock.mock(`${Proxy}/cases`, 'get', {
+Mock.mock(`${Proxy}/tests/templates`, 'get', {
   'code': 200,
   'message': '',
   'data|5-10': [{
@@ -23,7 +23,7 @@ Mock.mock(`${Proxy}/cases`, 'get', {
   }]
 })
 
-Mock.mock(`${Proxy}/cases`, 'post', {
+Mock.mock(`${Proxy}/tests/templates`, 'post', {
   'status': 200,
   'message': '',
   'data': {
@@ -44,24 +44,28 @@ Mock.mock(`${Proxy}/cases`, 'post', {
   }
 })
 class Ajax {
-  getCreatedCase () {
-    return axios.get(`${Proxy}/cases`)
+  getTestTemplate () {
+    return axios.get(`${Proxy}/tests/templates`)
   }
 
-  getCreatedCaseDetailByID (caseID) {
-    return axios.get(`${Proxy}/cases/${caseID}`)
+  getTestTemplateDetailByName (testTemplateName) {
+    return axios.get(`${Proxy}/tests/templates/${testTemplateName}`)
   }
 
-  updateCreatedCase (caseData) {
-    return axios.put(`${Proxy}/cases`, caseData)
+  updateTestTemplate (testTemplateName, caseData) {
+    return axios.put(`${Proxy}/tests/templates/${testTemplateName}`, caseData)
   }
 
-  createCase () {
-    return axios.post(`${Proxy}/cases`)
+  createTestTemplate () {
+    return axios.post(`${Proxy}/tests/templates/`)
   }
 
-  deleteCreatedCaseByID (caseID) {
-    return axios.delete(`$${Proxy}/cases/${caseID}`)
+  deleteTestTemplateByName (testTemplateName) {
+    return axios.delete(`$${Proxy}/tests/templates/${testTemplateName}`)
+  }
+
+  getBox () {
+    return axios.get(`${Proxy}/boxes`)
   }
 
   createBox (boxData) {
@@ -72,8 +76,16 @@ class Ajax {
     return axios.put(`${Proxy}/boxes/${boxID}`, boxData)
   }
 
+  deleteBoxByID (boxID) {
+    return axios.delete(`${Proxy}/boxes/${boxID}`)
+  }
+
   stopBoxByID (boxID) {
     return axios.post(`${Proxy}/boxes/${boxID}/stop`)
+  }
+
+  triggerBoxByID (boxID) {
+    return axios.post(`${Proxy}/boxes/${boxID}/trigger`)
   }
 
   getBoxDetailByID (boxID) {
@@ -92,16 +104,16 @@ class Ajax {
     return axios.post(`${Proxy}/boxes/${boxID}/experiments/${experimentID}/stop`)
   }
 
-  replayExperimentByID (boxID, experimentID) {
-    return axios.post(`${Proxy}/boxes/${boxID}/experiments/${experimentID}/replay`)
+  redoExperimentByID (boxID, experimentID) {
+    return axios.post(`${Proxy}/boxes/${boxID}/experiments/${experimentID}/redo`)
   }
 
   getTestByID (boxID, experimentID) {
     return axios.get(`${Proxy}/boxes/${boxID}/experiments/${experimentID}/tests`)
   }
 
-  getTestDetailByID (boxID, experimentID, testID) {
-    return axios.get(`${Proxy}/boxes/${boxID}/experiments/${experimentID}/tests/${testID}`)
+  getTestDetailByName (boxID, experimentID, testName) {
+    return axios.get(`${Proxy}/boxes/${boxID}/experiments/${experimentID}/tests/${testName}`)
   }
 }
 export default new Ajax()

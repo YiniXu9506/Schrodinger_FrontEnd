@@ -4,7 +4,7 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <strong><span style="font-size:15px;">Created Case Pool</span></strong>
-        <el-button style="float: right;" type="primary" @click="clickCreateCase()">Create New Case</el-button>
+        <el-button style="float: right;" type="primary" @click="clickCreateTestTemplate()">Create New Case</el-button>
       </div>
       <div style="margin-bottom: 20px">
         <el-input placeholder="search created case" >
@@ -12,7 +12,7 @@
         </el-input>
       </div>
       <el-popover v-for="(item, index) in createdCasesNames" :key="index" trigger="hover" placement="right" width="150" content="this is content">
-        <el-button style="margin-left: 20px; margin-bottom: 20px" slot="reference" @dblclick.native="clickUpdateCase(item)">
+        <el-button style="margin-left: 20px; margin-bottom: 20px" slot="reference" @dblclick.native="clickUpdateTestTemplate(item)">
           <!-- <el-tag style="margin-left: 20px; margin-bottom: 20px" slot="reference" :closable="true" :close-transition="false" @dblclick.native="clickUpdateCase()" @close="handleClose(item)"> -->
             {{item}}
           <!-- </el-tag> -->
@@ -216,12 +216,12 @@ export default {
   },
 
   created() {
-    this.fetchCreatedCases()
+    this.fetchTestTemplates()
   },
 
   methods: {
-    fetchCreatedCases: function() {
-      ajax.getCreatedCase().then((result) => {
+    fetchTestTemplates: function() {
+      ajax.getTestTemplate().then((result) => {
         console.log(result.data.data)
         this.createdCasesList = result.data.data
         const res = _.values(this.createdCasesList)
@@ -233,14 +233,14 @@ export default {
       })
     },
 
-    clickCreateCase: function() {
+    clickCreateTestTemplate: function() {
       this.clearCaseForm()
       this.resetForm('caseForm')
       this.createCaseDialog = true
     },
 
-    clickUpdateCase: function(caseID) {
-      ajax.getCreatedCaseDetailByID(caseID).then((result) => {
+    clickUpdateTestTemplate: function(testTemplateName) {
+      ajax.getTestTemplateDetailByName(testTemplateName).then((result) => {
         this.createdCaseDetail = result.data.data
       })
       console.log('createdCase detial, ', this.createdCaseDetail)
@@ -260,8 +260,8 @@ export default {
       this.updateCaseDialog = true
     },
 
-    createCaseTemplate: function () {
-      ajax.createCase({
+    createTestTemplate: function () {
+      ajax.createTestTemplate({
         name: this.caseForm.name,
         creator: this.caseForm.creator,
         type: this.caseForm.type,
@@ -305,8 +305,8 @@ export default {
       })
     },
 
-    updateCaseTemplate: function () {
-      ajax.updateCreatedCase({
+    updateTestTemplate: function () {
+      ajax.updateTestTemplate (testTemplateName, {
         id: this.createdCaseDetail.id,
         name: this.caseForm.name,
         creator: this.caseForm.creator,
@@ -338,7 +338,7 @@ export default {
           type: 'success',
           message: 'Update Case Template Success!'
         });
-        ajax.getCreatedCase().then((result) => {
+        ajax.getTestTemplate().then((result) => {
           this.createdCasesList = result.data.data;
           this.caseCount = this.createdCasesList.length;
         }).catch(() => {})
@@ -358,10 +358,10 @@ export default {
         if (valid) {
           switch (type) {
             case "new":
-              this.createCaseTemplate()
+              this.createTestTemplate()
               break
             case "update":
-              this.updateCaseTemplate()
+              this.updateTestTemplate()
               break
             default:
               alert("Error");
