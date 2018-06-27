@@ -53,16 +53,16 @@
     </el-collapse-item>
     <el-collapse-item title="Tests">
       <el-form :model="testForm" :rules="rules" ref="testForm" label-width="7rem" class="demo-form-inline">
-        <el-form-item v-for="(item, index) in testForm.items" :key="index" :label="'Test ' + item.index"
-        :prop="'items.' + index + '.value'" :rules="{required: true, message: 'Item ' + item.index +' can not be empty', trigger: 'blur'}">
+        <el-form-item v-for="(test_item, index) in testForm.testItems" :key="index" :label="'Test ' + index"
+          :prop="'testItems.' + index + '.test'" :rules="{required: true, message: 'Item ' + index +' can not be empty', trigger: 'blur'}">
           <Row>
             <Col span="10">
-              <Select v-model="testTemplateNames" placeholder="Select Test Template">
-                <Option v-for="(item, i) in testTemplateNames" :key="i" :value="item.value">{{item}}</Option>
+              <Select v-model="test_item.test" placeholder="Select Test Template">
+                <Option v-for="(item, index) in testTemplateList" :key="index" :value="item.name"></Option>
               </Select>
             </Col>
             <Col span="4" offset="1">
-              <Button @click="handleRemove(index)">Delete</Button>
+              <Button @click="handleRemove(test_item)">Delete</Button>
             </Col>
           </Row>
         </el-form-item>
@@ -95,13 +95,7 @@ export default {
   data() {
     return {
       activeName: '1',
-      // index: 1,
       testTemplateList: [],
-      testTemplateNames:[{
-        value: '',
-        label: '',
-      }],
-      selectedTest: [],
       miscConfigForm: {
         name: '',
         slackChannel: '',
@@ -122,8 +116,8 @@ export default {
         },
 
       testForm: {
-        items: [{
-          value: ''
+        testItems: [{
+          test: []
         }]
       },
 
@@ -146,32 +140,28 @@ export default {
     fetchTestTemplates: function() {
       ajax.getTestTemplate().then((result) => {
         console.log(result.data.data)
-        this.testTemplateList = result.data.data
-        const res = _.values(this.testTemplateList)
-        res.forEach(item => {
-          var i = item
-          // console.log("i is", i)
-          // debugger
-          // this.testTemplateNames.value = i.name
-          // this.testTemplateNames.label = i.name
-
-          this.testTemplateNames.value.push(i.name)
-          this.testTemplateNames.label.push(i.name)
-        })
-        console.log(this.testTemplateNames)
+        this.testTemplateList = _.values(result.data.data)
+        console.log('the testTemplateList is ', this.testTemplateList)
       })
     },
 
     handleAdd() {
-      this.testForm.items.push({
-        value: '',
+      console.log('this.testForm.testItems: ', this.testForm.testItems)
+      this.testForm.testItems.push({
+        test: ''
       })
     },
 
-    handleRemove(index) {
-      // this.index--
-      const i = index
-      this.testForm.items.splice(i, 1)
+    handleRemove(test_item) {
+      console.log('the test item will be removed: ', test_item)
+      var index = this.testForm.testItems.indexOf(test_item)
+      console.log('index in remove ', index)
+      console.log('before remove testItems are ', this.testForm.testItems)
+      if(index !== -1) {
+        console.log('hello inside index check')
+        this.testForm.testItems.splice(index, 1)
+      }
+      console.log('after remove testItems are ', this.testForm.testItems)
     }
   }
 }
