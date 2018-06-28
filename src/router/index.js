@@ -13,7 +13,10 @@ const NotFoundView = Vue.component('NotFoundView', {
 export default new Router({
   // mode: 'history',
   routes: [
-    { path: '/', redirect: '/boxinstance' },
+    {
+      path: '/'
+      // component: BoxInstance
+    },
     {
       path: '/404',
       name: 'NotFoundView',

@@ -160,7 +160,12 @@ export default {
         git_repo: '',
         git_value: '',
         args: '',
-        image: ''
+        image: '',
+        source: {
+          binary_name: '',
+          image: '',
+          type: '',
+        }
       },
       rules: {
         name: [{
@@ -276,10 +281,11 @@ export default {
           image: this.caseForm.image
         }
       }).then((result) => {
+        console.log('hhhhh result.data.code, ', result.data.code)
+        console.log('hhhhh result.data.messsage, ', result.data.message)
         if (result.data.code != 200) {
-          this.$notify({
-            title: "ERROR",
-            type: 'error',
+          this.$notify.error({
+            title: "ERROR 1",
             message: result.data.message,
             duration: 0
           });
@@ -297,7 +303,7 @@ export default {
         this.clearCaseForm()
       }).catch((resp) => {
         this.$notify({
-          title: "ERROR",
+          title: "ERROR 2",
           type: 'error',
           message: resp.message,
           duration: 0
