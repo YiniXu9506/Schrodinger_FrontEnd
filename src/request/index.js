@@ -10,6 +10,8 @@ Mock.mock(`${Proxy}/tests/templates`, 'get', {
     'id|+1': 1,
     'name': '@name',
     'creator': 'yini',
+    'args': 'arg1',
+    'type': 'type1',
     'create_time': '2017-10-17 10:27:23',
     'update_time': '2017-10-17 10:27:23',
     'desc': 'bank template',
@@ -21,21 +23,19 @@ Mock.mock(`${Proxy}/tests/templates`, 'get', {
       'image': 'image1',
       'git_repo': 'git_repo'
     },
-    'args': '',
-    'type': 'type1',
     'status': ['@name']
   }]
 })
 
 // create a new test template
 Mock.mock(`${Proxy}/tests/templates`, 'post', {
-  'status': 200,
+  'code': 200,
   'message': '',
   'data': [{
     'name': '@name',
     'creator': 'yini',
-    'create_time': '2017-10-17 10:27:23',
-    'update_time': '2017-10-17 10:27:23',
+    'args': 'arg23',
+    'type': 'type23',
     'desc': 'bank template',
     'source': {
       'binary_name': 'bank2',
@@ -44,9 +44,7 @@ Mock.mock(`${Proxy}/tests/templates`, 'post', {
       'git_value': '',
       'image': 'image1',
       'git_repo': 'git_repo'
-    },
-    'args': '',
-    'type': 'type1'
+    }
   }]
 })
 
@@ -61,23 +59,23 @@ Mock.mock(/\/api\/tests\/templates\/[\w-]+/, 'get', {
     'create_time': '2017-10-17 10:27:23',
     'update_time': '2017-10-17 10:27:23',
     'desc': 'bank template',
+    'args': '0624',
+    'type': 'type1',
     'source': {
       'binary_name': 'bank2',
       'type': 'binary',
       'url': 'http://pingcap-dev.hk.ufileos.com/buildbot/pingcap/octopus/7fbccc0cfb535c19247aca515d5ea42f424d46d7/centos7/case-octopus-bank2.tar.gz',
-      'git_value': '',
+      'git_value': 'gitvalue',
       'image': 'image1',
       'git_repo': 'git_repo'
     },
-    'args': '',
-    'type': 'type1',
     'status': ['@name']
   }
 })
 
 // create a new box
 Mock.mock(`${Proxy}/boxes`, 'post', {
-  'status': 200,
+  'code': 200,
   'message': '',
   'data': {
     'name': 'box1',
@@ -113,6 +111,46 @@ Mock.mock(`${Proxy}/boxes`, 'post', {
       'data': 'data1'
     }
   }
+})
+
+// get all box instances
+Mock.mock(`${Proxy}/boxes`, 'get', {
+  'code': 200,
+  'message': '',
+  'data|10': [{
+    'name': '@name',
+    'cat': {
+      'pdVer': 'hash:838f93c075f91df943470970f3d71b593004de5b',
+      'tikvVer': 'hash:27eedda83505d55914c912ae482c182f0e598da8',
+      'tidbVer': 'hash:3857ee60db755291ff2de1999ccb4ef9bc77af0f',
+      'pdSize': 1,
+      'tidbSize': 2,
+      'tikvSize': 3,
+      'configMap': 'this.newBoxForm.catForm.configMap'
+    },
+    'rules|1-3': [{
+      'type': 'type1',
+      'value': 'value1'
+    }],
+    'tests': {
+      'in_order': true,
+      'tests|2-4': [{
+        'test': '@name'
+      }]
+    },
+    'config': {
+      'slack': 'this.newBoxForm.miscConfigForm.slackChannel',
+      'prepare|1-2': [
+        '@name'
+      ],
+      'stop': [
+        '@name'
+      ],
+      'destory_tidb_cluster': false,
+      'type': 'type1',
+      'data': 'data1'
+    }
+  }]
 })
 
 class Ajax {

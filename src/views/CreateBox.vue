@@ -98,10 +98,10 @@
                       :prop="'ruleForm.' + index + '.type'">
           <Row>
             <Col span="6">
-               <el-input v-model="newBoxForm.ruleForm.type"></el-input>
+               <el-input v-model="rule.type"></el-input>
             </Col>
             <Col span="6" offset="1">
-              <el-input v-model="newBoxForm.ruleForm.value"></el-input>
+              <el-input v-model="rule.value"></el-input>
             </Col>
             <Col span="3" offset="1">
               <el-button @click.prevent="handleRemove(rule)">Delete</el-button>
