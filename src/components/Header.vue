@@ -7,11 +7,11 @@
       <span>TiDB Cluster Stability Test</span>
     </div>
 
-    <div id="tabs">
+    <div class="tabs">
       <Tabs type="card" v-model="activeTab" @on-click="tabClicked">
         <TabPane label="Box Instance" icon="ios-box" name="boxinstance"></TabPane>
+        <TabPane label="Create Test Template" icon="compose" name="createtesttemplate"></TabPane>
         <TabPane label="Create Box" icon="ios-box-outline" name="createbox"></TabPane>
-        <TabPane label="Create Case" icon="compose" name="createtesttemplate"></TabPane>
       </Tabs>
     </div>
   </div>

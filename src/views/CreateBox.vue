@@ -1,8 +1,8 @@
 <template>
 <div>
-  <el-form :model="newBoxForm" :rules="validationRules" ref="newBoxForm" label-width="10rem" class="demo-form-inline">
+  <el-form :model="newBoxForm" inline :rules="validationRules" ref="newBoxForm" label-width="10rem" class="demo-form-inline">
     <el-collapse v-model="activeName">
-      <el-collapse-item title="Misc Config">
+      <el-collapse-item title="Misc Config" name="misConfig">
         <el-form-item label="Name:" prop="miscConfigForm.name">
           <el-input v-model="newBoxForm.miscConfigForm.name"></el-input>
         </el-form-item>
@@ -71,12 +71,12 @@
             </Row>
           </el-form-item>
         </el-form> -->
-        <div id="executionMethods" sytle="margin-bottom: 20px">
+        <div id="executionMethods">
           <Strong style="margin-right: 20px; font-size: 14px">Execution method:</Strong>
           <el-checkbox v-model="parallelChecked">Parallel execution</el-checkbox>
           <el-checkbox v-model="serialChecked">Serial execution</el-checkbox>
         </div>
-        <div>
+        <div style="position: relative; margin-top: 20px">
           <el-form-item label="Tests: " prop="testItems">
               <el-select v-model="newBoxForm.testForm.testItems" multiple placeholder="Please select test" style="width: 33rem;">
                 <el-option v-for="(item, index) in testTemplateList" :key="index" :value="item.name"></el-option>
@@ -88,33 +88,37 @@
         </div>
       </el-collapse-item>
       <el-collapse-item title="Rules">
-        <el-form-item>
-          <Row>
-            <Col span="6">Type</Col>
-            <Col span="6" offset="1">Value</Col>
-          </Row>
-        </el-form-item>
-        <el-form-item v-for="(rule, index) in newBoxForm.ruleForm" label-width="5rem" :key="rule.key" :label="'Rule ' + index"
+        <Row>
+          <Col span="2" offset="2"><Strong>Type</Strong></Col>
+          <Col span="4" offset="1"><Strong>Value</Strong></Col>
+        </Row>
+        <el-form-item v-for="(rule, index) in newBoxForm.ruleForm" label-width="7rem" :key="rule.key" :label="'Rule ' + index"
                       :prop="'ruleForm.' + index + '.type'">
           <Row>
             <Col span="6">
                <el-input v-model="rule.type"></el-input>
             </Col>
-            <Col span="6" offset="1">
+            <Col span="11" offset="1">
               <el-input v-model="rule.value"></el-input>
             </Col>
-            <Col span="3" offset="1">
+            <Col span="1" offset="1">
               <el-button @click.prevent="handleRemove(rule)">Delete</el-button>
             </Col>
           </Row>
+          <br>
         </el-form-item>
-        <el-form-item>
+        <Row>
+          <Col span="1" offset="1">
+            <Button type="dashed" @click="handleAdd()" icon="plus-round">Add rule</Button>
+          </Col>
+        </Row>
+        <!-- <el-form-item>
           <Row>
             <Col span="12">
               <Button type="dashed" @click="handleAdd()" icon="plus-round">Add rule</Button>
             </Col>
           </Row>
-        </el-form-item>
+        </el-form-item> -->
         <!-- <el-form-item>
           <el-button type="primary" @click="submitForm('newBoxForm')">Submit</el-button>
           <el-button @click="resetForm('newBoxForm')">Reset</el-button>
@@ -134,7 +138,7 @@ import ajax from '../request/index'
 export default {
   data() {
     return {
-      activeName: '1',
+      activeName: 'misConfig',
       parallelChecked: false,
       serialChecked: false,
       testTemplateList: [],

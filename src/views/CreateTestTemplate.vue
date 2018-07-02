@@ -7,11 +7,11 @@
         <el-button style="float: right;" type="primary" @click="clickCreateTestTemplate()">Create Test Template</el-button>
       </div>
       <div style="margin-bottom: 20px">
-        <el-input placeholder="search created test template" >
+        <el-input placeholder="search created test template" v-model='searchContent' @change="handleSearch">
           <el-button slot="prepend" icon="search"></el-button>
         </el-input>
       </div>
-      <el-popover v-for="(item, index) in createdTestTemplateNames" :key="index" trigger="hover" placement="right" width="150" >
+      <el-popover v-for="(item, index) in createdTestTemplateNames" :key="index" trigger="hover" content="this is content" placement="right" width="150" >
         <el-button style="margin-left: 20px; margin-bottom: 20px" slot="reference" @dblclick.native="clickUpdateTestTemplate(item)">
           <!-- <el-tag style="margin-left: 20px; margin-bottom: 20px" slot="reference" :closable="true" :close-transition="false" @dblclick.native="clickUpdateCase()" @close="handleClose(item)"> -->
             {{item}}
@@ -144,6 +144,8 @@ import _ from 'lodash'
 export default {
   data() {
     return {
+      searchContent: '',
+      filteredData: '',
       createdTestTemplateNames: [],
       createdTestTemplateList: [],
       createdTestTemplateDetail: '',
@@ -402,6 +404,16 @@ export default {
       }
     },
 
+    search: function(data, searchName) {
+      console.log('data in search', data)
+      console.log('searchName: ', searchName)
+    },
+
+    handleSearch: function() {
+      this.filteredData = this.createdTestTemplateNames
+      console.log('this.filtered data: ', this.filteredData)
+      this.filteredData = this.search(this.filteredData, this.searchContent)
+    }
     // Display all created cases using tags
     // handleClose(tag) {
     //   this.createdCasesNames.splice(this.createdCasesNames.indexOf(tag), 1)

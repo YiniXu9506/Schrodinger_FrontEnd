@@ -117,7 +117,7 @@ Mock.mock(`${Proxy}/boxes`, 'post', {
 Mock.mock(`${Proxy}/boxes`, 'get', {
   'code': 200,
   'message': '',
-  'data|10': [{
+  'data|20': [{
     'name': '@name',
     'cat': {
       'pdVer': 'hash:838f93c075f91df943470970f3d71b593004de5b',
