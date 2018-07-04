@@ -6,7 +6,7 @@ const Proxy = '/api'
 Mock.mock(`${Proxy}/tests/templates`, 'get', {
   'code': 200,
   'message': '',
-  'data|2-6': [{
+  'data|10': [{
     'id|+1': 1,
     'name': '@name',
     'creator': 'yini',
@@ -118,37 +118,50 @@ Mock.mock(`${Proxy}/boxes`, 'get', {
   'code': 200,
   'message': '',
   'data|20': [{
+    'id': 15306720822,
     'name': '@name',
+    'state': 'ONLINE',
+    'create_time': '2018-07-04 10:41:22',
+    'update_time': '2018-07-04 10:41:22',
     'cat': {
-      'pdVer': 'hash:838f93c075f91df943470970f3d71b593004de5b',
-      'tikvVer': 'hash:27eedda83505d55914c912ae482c182f0e598da8',
-      'tidbVer': 'hash:3857ee60db755291ff2de1999ccb4ef9bc77af0f',
-      'pdSize': 1,
-      'tidbSize': 2,
-      'tikvSize': 3,
-      'configMap': 'this.newBoxForm.catForm.configMap'
+      'labels': 'label1',
+      'pd_ver': 'branch:release-1.0',
+      'tikv_ver': 'branch:release-1.0',
+      'tidb_ver': 'branch:release-1.0',
+      'pd_size': 1,
+      'tidb_size': 1,
+      'tikv_size': 3,
+      'config_map': 'tidb-cluster-config-template'
     },
-    'rules|1-3': [{
-      'type': 'type1',
+    'rules': [{
+      'type': 'IMMEDIATELY',
       'value': 'value1'
+    },
+    {
+      'type': 'IMMEDIATELY',
+      'value': 'value2'
+    },
+    {
+      'type': 'IMMEDIATELY',
+      'value': 'value3'
     }],
     'tests': {
-      'in_order': true,
-      'tests|2-4': [{
-        'test': '@name'
-      }]
+      'in_order': false,
+      'tests': [
+        'bank',
+        'test1',
+        'test2',
+        'test3'
+      ]
     },
     'config': {
-      'slack': 'this.newBoxForm.miscConfigForm.slackChannel',
-      'prepare|1-2': [
-        '@name'
-      ],
-      'stop': [
-        '@name'
-      ],
-      'destory_tidb_cluster': false,
-      'type': 'type1',
-      'data': 'data1'
+      'slack': '#schrodinger-alert',
+      'prepare': null,
+      'stop': null,
+      'destory_tidb_cluster': true,
+      'timeout': 604800000000000,
+      'type': '',
+      'data': ''
     }
   }]
 })

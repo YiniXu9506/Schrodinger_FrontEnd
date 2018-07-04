@@ -87,6 +87,7 @@
           <el-tag v-for="(item, index) in newBoxForm.testForm.testItems" :key="index" type="primary">{{item}}</el-tag>
         </div>
       </el-collapse-item>
+
       <el-collapse-item title="Rules">
         <Row>
           <Col span="2" offset="2"><Strong>Type</Strong></Col>
@@ -112,17 +113,6 @@
             <Button type="dashed" @click="handleAdd()" icon="plus-round">Add rule</Button>
           </Col>
         </Row>
-        <!-- <el-form-item>
-          <Row>
-            <Col span="12">
-              <Button type="dashed" @click="handleAdd()" icon="plus-round">Add rule</Button>
-            </Col>
-          </Row>
-        </el-form-item> -->
-        <!-- <el-form-item>
-          <el-button type="primary" @click="submitForm('newBoxForm')">Submit</el-button>
-          <el-button @click="resetForm('newBoxForm')">Reset</el-button>
-        </el-form-item> -->
       </el-collapse-item>
     </el-collapse>
   </el-form>

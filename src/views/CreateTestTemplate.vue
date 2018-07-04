@@ -7,11 +7,11 @@
         <el-button style="float: right;" type="primary" @click="clickCreateTestTemplate()">Create Test Template</el-button>
       </div>
       <div style="margin-bottom: 20px">
-        <el-input placeholder="search created test template" v-model='searchContent' @change="handleSearch">
+        <el-input placeholder="search created test template" :autofocus='true' v-model='searchContent' @change="handleSearch">
           <el-button slot="prepend" icon="search"></el-button>
         </el-input>
       </div>
-      <el-popover v-for="(item, index) in createdTestTemplateNames" :key="index" trigger="hover" content="this is content" placement="right" width="150" >
+      <el-popover v-for="(item, index) in filteredData" :key="index" trigger="hover" content="this is content" placement="right" width="150" >
         <el-button style="margin-left: 20px; margin-bottom: 20px" slot="reference" @dblclick.native="clickUpdateTestTemplate(item)">
           <!-- <el-tag style="margin-left: 20px; margin-bottom: 20px" slot="reference" :closable="true" :close-transition="false" @dblclick.native="clickUpdateCase()" @close="handleClose(item)"> -->
             {{item}}
@@ -233,6 +233,7 @@ export default {
           var i = item
           this.createdTestTemplateNames.push(i.name)
         })
+        this.filteredData = this.createdTestTemplateNames
         console.log('createdTestTemplateNames', this.createdTestTemplateNames)
       })
     },
@@ -244,25 +245,42 @@ export default {
     },
 
     clickUpdateTestTemplate: function(testTemplateName) {
-      ajax.getTestTemplateDetailByName(testTemplateName).then((result) => {
-        this.createdTestTemplateDetail = result.data.data
+      var getTestTemplateData = function() {
+        return new Promise(function(resolve, reject) {
+          ajax.getTestTemplateDetailByName(testTemplateName).then((result) => {
+            if(result.data.code == 200) {
+              resolve(result.data)
+            } else {
+              this.$notify.error({
+                title: 'Error',
+                message: result.data.message
+              })
+            }
+          }).catch((resp) => {
+            reject(resp.message)
+          })
+        })
+      }
+
+      getTestTemplateData().then((data) => {
+        this.createdTestTemplateDetail = data.data
         console.log('create Test template: ' , this.createdTestTemplateDetail)
-      })
-      this.testTemplateForm = {
-        name: this.createdTestTemplateDetail.name,
-        creator: this.createdTestTemplateDetail.creator,
-        type: this.createdTestTemplateDetail.type,
-        desc: this.createdTestTemplateDetail.desc,
-        args: this.createdTestTemplateDetail.args,
-        source: {
-          binary_name: this.createdTestTemplateDetail.source.binary_name,
-          type: this.createdTestTemplateDetail.source.type,
-          git_repo: this.createdTestTemplateDetail.source.git_repo,
-          git_value: this.createdTestTemplateDetail.source.git_value,
-          url: this.createdTestTemplateDetail.source.url,
-          image: this.createdTestTemplateDetail.source.image
+        this.testTemplateForm = {
+          name: this.createdTestTemplateDetail.name,
+          creator: this.createdTestTemplateDetail.creator,
+          type: this.createdTestTemplateDetail.type,
+          desc: this.createdTestTemplateDetail.desc,
+          args: this.createdTestTemplateDetail.args,
+          source: {
+            binary_name: this.createdTestTemplateDetail.source.binary_name,
+            type: this.createdTestTemplateDetail.source.type,
+            git_repo: this.createdTestTemplateDetail.source.git_repo,
+            git_value: this.createdTestTemplateDetail.source.git_value,
+            url: this.createdTestTemplateDetail.source.url,
+            image: this.createdTestTemplateDetail.source.image
+          }
         }
-      };
+      }),
       this.updateTestTemplateDialog = true
     },
 
@@ -404,16 +422,23 @@ export default {
       }
     },
 
-    search: function(data, searchName) {
-      console.log('data in search', data)
-      console.log('searchName: ', searchName)
+    search: function(filter_data, searchName) {
+      let res = filter_data
+      res = this.createdTestTemplateNames.filter((d) => {
+         return d.toLowerCase().indexOf(searchName) > -1
+      })
+      return res
     },
 
     handleSearch: function() {
-      this.filteredData = this.createdTestTemplateNames
-      console.log('this.filtered data: ', this.filteredData)
-      this.filteredData = this.search(this.filteredData, this.searchContent)
+      let filter_data = this.filteredData
+      console.log(this.filteredData)
+      console.log('this.filtered data: ', filter_data)
+      this.filteredData = this.search(filter_data, this.searchContent)
     }
+
+
+
     // Display all created cases using tags
     // handleClose(tag) {
     //   this.createdCasesNames.splice(this.createdCasesNames.indexOf(tag), 1)
