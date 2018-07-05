@@ -26,65 +26,43 @@
         </el-form-item>
       </el-collapse-item>
       <el-collapse-item title="CAT">
-        <el-form-item label="Pdver:" prop="catForm.pdVer">
-          <el-input v-model="newBoxForm.catForm.pdVer"></el-input>
+        <el-form-item label="PD Verion:" prop="catForm.pd_ver">
+          <el-input v-model="newBoxForm.catForm.pd_ver"></el-input>
         </el-form-item>
-        <el-form-item label="TikvVer:" prop="catForm.tikvVer">
-          <el-input v-model="newBoxForm.catForm.tikvVer"></el-input>
+        <el-form-item label="TiKV Verion:" prop="catForm.tikv_ver">
+          <el-input v-model="newBoxForm.catForm.tikv_ver"></el-input>
         </el-form-item>
-        <el-form-item label="TidbVer" prop="catForm.tidbVer">
-          <el-input v-model="newBoxForm.catForm.tidbVer"></el-input>
+        <el-form-item label="TiDB Verion" prop="catForm.tidb_ver">
+          <el-input v-model="newBoxForm.catForm.tidb_ver"></el-input>
         </el-form-item>
-        <el-form-item label="PdSize:" prop="catForm.pdSize">
-          <el-input v-model="newBoxForm.catForm.pdSize"></el-input>
+        <el-form-item label="PD Size:" prop="catForm.pd_size">
+          <el-input v-model="newBoxForm.catForm.pd_size"></el-input>
         </el-form-item>
-        <el-form-item label="TidbSize:" prop="catForm.tidbSize">
-          <el-input v-model="newBoxForm.catForm.tidbSize"></el-input>
+        <el-form-item label="TiDB Size:" prop="catForm.tidb_size">
+          <el-input v-model="newBoxForm.catForm.tidb_size"></el-input>
         </el-form-item>
-        <el-form-item label="TikvSize:" prop="catForm.tikvSize">
-          <el-input v-model="newBoxForm.catForm.tikvSize"></el-input>
+        <el-form-item label="Tikv Size:" prop="catForm.tikv_size">
+          <el-input v-model="newBoxForm.catForm.tikv_size"></el-input>
         </el-form-item>
-        <el-form-item label="ConfigMap:" prop="catForm.configMap">
-          <el-input v-model="newBoxForm.catForm.configMap"></el-input>
+        <el-form-item label="Config Map:" prop="catForm.config_map">
+          <el-input v-model="newBoxForm.catForm.config_map"></el-input>
         </el-form-item>
       </el-collapse-item>
       <el-collapse-item title="Tests">
-        <!-- <el-form :model="testForm" :rules="rules" ref="testForm" label-width="7rem" class="demo-form-inline">
-          <el-form-item v-for="(test_item, index) in testForm.testItems" :key="test_item.key" :label="'Test ' + index"
-            :prop="'testItems.' + index + '.test'" :rules="{required: true, message: 'Item ' + index +' can not be empty', trigger: 'blur'}">
-            <Row>
-              <Col span="10">
-                <el-select v-model="test_item.test" placeholder="Select Test Template">
-                  <el-option v-for="(item, index) in testTemplateList" :key="index" :value="item.name"></el-option>
-                </el-select>
-              </Col>
-              <Col span="4" offset="1">
-                <el-button @click.prevent="handleRemove(test_item)">Delete</el-button>
-              </Col>
-            </Row>
-          </el-form-item>
-          <el-form-item>
-            <Row>
-              <Col span="12">
-                <Button type="dashed" @click="handleAdd()" icon="plus-round">Add Test</Button>
-              </Col>
-            </Row>
-          </el-form-item>
-        </el-form> -->
         <div id="executionMethods">
           <Strong style="margin-right: 20px; font-size: 14px">Execution method:</Strong>
           <el-checkbox v-model="parallelChecked">Parallel execution</el-checkbox>
           <el-checkbox v-model="serialChecked">Serial execution</el-checkbox>
         </div>
         <div style="position: relative; margin-top: 20px">
-          <el-form-item label="Tests: " prop="testItems">
-              <el-select v-model="newBoxForm.testForm.testItems" multiple placeholder="Please select test" style="width: 33rem;">
+          <el-form-item label="Tests: " prop="tests">
+              <el-select v-model="newBoxForm.testForm.tests" multiple placeholder="Please select test" style="width: 33rem;">
                 <el-option v-for="(item, index) in testTemplateList" :key="index" :value="item.name"></el-option>
               </el-select>
             </el-form-item>
         </div>
         <div id="testOrder">
-          <el-tag v-for="(item, index) in newBoxForm.testForm.testItems" :key="index" type="primary">{{item}}</el-tag>
+          <el-tag v-for="(item, index) in newBoxForm.testForm.tests" :key="index" type="primary">{{item}}</el-tag>
         </div>
       </el-collapse-item>
 
@@ -143,17 +121,17 @@ export default {
           data: ''
         },
         catForm: {
-          pdVer: '',
-          tikvVer: '',
-          tidbVer: '',
-          pdSize: '',
-          tidbSize: '',
-          tikvSize: '',
-          configMap: ''
+          pd_ver: '',
+          tikv_ver: '',
+          tidb_ver: '',
+          pd_size: '',
+          tidb_size: '',
+          tikv_size: '',
+          config_map: ''
         },
         testForm: {
           in_order: true,
-          testItems: []
+          tests: []
         },
         ruleForm: [{
           type: '',
@@ -197,7 +175,7 @@ export default {
           trigger: 'blur'
         }],
 
-        'testForm.testItems': [{
+        'testForm.tests': [{
           required: true,
           message: 'Please select test',
           trigger: 'blur'
@@ -238,13 +216,13 @@ export default {
           ajax.createBox({
             name: this.newBoxForm.miscConfigForm.name,
             cat: {
-              pdVer: this.newBoxForm.catForm.pdVer,
-              tikvVer: this.newBoxForm.catForm.tikvVer,
-              tidbVer: this.newBoxForm.catForm.tidbVer,
-              pdSize: this.newBoxForm.catForm.pdSize,
-              tidbSize: this.newBoxForm.catForm.tidbSize,
-              tikvSize: this.newBoxForm.catForm.tikvSize,
-              configMap: this.newBoxForm.catForm.configMap
+              pd_ver: this.newBoxForm.catForm.pd_ver,
+              tikv_ver: this.newBoxForm.catForm.tikv_ver,
+              tidb_ver: this.newBoxForm.catForm.tidb_ver,
+              pd_size: this.newBoxForm.catForm.pd_size,
+              tidb_size: this.newBoxForm.catForm.tidb_size,
+              tikv_size: this.newBoxForm.catForm.tikv_size,
+              config_map: this.newBoxForm.catForm.config_map
             },
             rules: {
               type: this.newBoxForm.miscConfigForm.type,
@@ -252,7 +230,7 @@ export default {
             },
             tests: {
               in_order: this.newBoxForm.catForm.in_order,
-              tests: this.newBoxForm.catForm.testItems
+              tests: this.newBoxForm.catForm.tests
             },
             config: {
               slack: this.newBoxForm.miscConfigForm.slack,

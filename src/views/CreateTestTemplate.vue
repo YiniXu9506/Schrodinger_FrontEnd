@@ -7,9 +7,10 @@
         <el-button style="float: right;" type="primary" @click="clickCreateTestTemplate()">Create Test Template</el-button>
       </div>
       <div style="margin-bottom: 20px">
-        <el-input placeholder="search created test template" :autofocus='true' v-model='searchContent' @change="handleSearch">
-          <el-button slot="prepend" icon="search"></el-button>
-        </el-input>
+        <!-- <el-input placeholder="search created test template" :autofocus='true' v-model='searchContent' @change="handleSearch">
+          <el-button slot="prepend" icon="el-icon-search"></el-button>
+        </el-input> -->
+        <el-input placeholder="search created test template"  prefix-icon="el-icon-search" :autofocus='true' v-model="searchContent" @input="handleSearch"> </el-input>
       </div>
       <el-popover v-for="(item, index) in filteredData" :key="index" trigger="hover" content="this is content" placement="right" width="150" >
         <el-button style="margin-left: 20px; margin-bottom: 20px" slot="reference" @dblclick.native="clickUpdateTestTemplate(item)">
@@ -431,13 +432,13 @@ export default {
     },
 
     handleSearch: function() {
+      console.log('hello from handlesearch')
       let filter_data = this.filteredData
       console.log(this.filteredData)
+      console.log('this.search content is: ', this.searchContent)
       console.log('this.filtered data: ', filter_data)
       this.filteredData = this.search(filter_data, this.searchContent)
     }
-
-
 
     // Display all created cases using tags
     // handleClose(tag) {

@@ -166,6 +166,118 @@ Mock.mock(`${Proxy}/boxes`, 'get', {
   }]
 })
 
+// get experiments by box ID
+Mock.mock(/\/api\/boxes\/[\w-]+\/experiments/, 'get', {
+  'code': 200,
+  'message': '',
+  'data|11': [{
+    'id': 15306720822,
+    'name': '@name',
+    'status': 'Normal',
+    'stage': 'Running',
+    'state': 'ONLINE',
+    'create_time': '2018-07-04 10:41:22',
+    'update_time': '2018-07-04 10:41:22',
+    'cat': {
+      'labels': 'label1',
+      'pd_ver': 'branch:release-1.0',
+      'tikv_ver': 'branch:release-1.0',
+      'tidb_ver': 'branch:release-1.0',
+      'pd_size': 1,
+      'tidb_size': 1,
+      'tikv_size': 3,
+      'config_map': 'tidb-cluster-config-template'
+    },
+    'rules': [{
+      'type': 'IMMEDIATELY',
+      'value': 'value1'
+    },
+    {
+      'type': 'IMMEDIATELY',
+      'value': 'value2'
+    },
+    {
+      'type': 'IMMEDIATELY',
+      'value': 'value3'
+    }
+    ],
+    'tests': {
+      'in_order': false,
+      'tests': [
+        'bank',
+        'test1',
+        'test2',
+        'test3'
+      ]
+    },
+    'config': {
+      'slack': '#schrodinger-alert',
+      'prepare': null,
+      'stop': null,
+      'destory_tidb_cluster': true,
+      'timeout': 604800000000000,
+      'type': '',
+      'data': ''
+    }
+  }]
+})
+
+// get experiment detail by experiment Id
+Mock.mock(/\/api\/boxes\/[\w-]+\/experiments\/[\w-]+/, 'get', {
+  'code': 200,
+  'message': '',
+  'data': [{
+    'id': 15306720822,
+    'name': '@name',
+    'status': 'Normal',
+    'stage': 'Running',
+    'state': 'ONLINE',
+    'create_time': '2018-07-04 10:41:22',
+    'update_time': '2018-07-04 10:41:22',
+    'cat': {
+      'labels': 'label1',
+      'pd_ver': 'branch:release-1.0',
+      'tikv_ver': 'branch:release-1.0',
+      'tidb_ver': 'branch:release-1.0',
+      'pd_size': 1,
+      'tidb_size': 1,
+      'tikv_size': 3,
+      'config_map': 'tidb-cluster-config-template'
+    },
+    'rules': [{
+      'type': 'IMMEDIATELY',
+      'value': 'value1'
+    },
+    {
+      'type': 'IMMEDIATELY',
+      'value': 'value2'
+    },
+    {
+      'type': 'IMMEDIATELY',
+      'value': 'value3'
+    }
+    ],
+    'tests': {
+      'in_order': false,
+      'tests': [
+        'bank',
+        'test1',
+        'test2',
+        'test3'
+      ]
+    },
+    'config': {
+      'slack': '#schrodinger-alert',
+      'prepare': null,
+      'stop': null,
+      'destory_tidb_cluster': true,
+      'timeout': 604800000000000,
+      'type': '',
+      'data': ''
+    }
+  }]
+})
+
 class Ajax {
   getTestTemplate () {
     return axios.get(`${Proxy}/tests/templates`)
