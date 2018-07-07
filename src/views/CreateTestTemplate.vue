@@ -4,19 +4,20 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <strong><span style="font-size:15px;">Created Test Template Pool</span></strong>
-        <el-button style="float: right;" type="primary" @click="clickCreateTestTemplate()">Create Test Template</el-button>
+        <el-button style="float: right;" type="primary" @click="clickCreateTestTemplate">Create Test Template</el-button>
       </div>
       <div style="margin-bottom: 20px">
-        <!-- <el-input placeholder="search created test template" :autofocus='true' v-model='searchContent' @change="handleSearch">
-          <el-button slot="prepend" icon="el-icon-search"></el-button>
-        </el-input> -->
-        <el-input placeholder="search created test template"  prefix-icon="el-icon-search" :autofocus='true' v-model="searchContent" @input="handleSearch"> </el-input>
+        <el-input placeholder="search created test template"  prefix-icon="el-icon-search" :autofocus='true'
+                  v-model="searchContent" @input="handleSearch"></el-input>
       </div>
-      <el-popover v-for="(item, index) in filteredData" :key="index" trigger="hover" content="this is content" placement="right" width="150" >
-        <el-button style="margin-left: 20px; margin-bottom: 20px" slot="reference" @dblclick.native="clickUpdateTestTemplate(item)">
-          <!-- <el-tag style="margin-left: 20px; margin-bottom: 20px" slot="reference" :closable="true" :close-transition="false" @dblclick.native="clickUpdateCase()" @close="handleClose(item)"> -->
-            {{item}}
-          <!-- </el-tag> -->
+      <el-popover v-for="(item, index) in filteredData" :key="index" trigger="hover" placement="right" width="150" >
+        <Strong>Creator: </Strong> {{item.creator}} <br>
+        <Strong>Status: </Strong> {{item.status}} <br>
+        <Strong>Type: </Strong> {{item.type}} <br>
+        <!-- <Strong>Git Repo: </Strong> {{item.source.git_repo}}
+        <Strong>Image: </Strong> {{item.source.image}} -->
+        <el-button style="margin-left: 20px; margin-bottom: 20px" slot="reference" @dblclick.native="clickUpdateTestTemplate(item.name)">
+            {{item.name}}
         </el-button>
       </el-popover>
     </el-card>
@@ -79,7 +80,7 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="Update Test Template" :visible.sync="updateTestTemplateDialog">
+    <el-dialog title="Update Test Template" :visible.sync="updateTestTemplateDialog" @close="handleDialogClosed">
       <el-form :inline="true" :model="testTemplateForm" :rules="rules" ref="testTemplateForm" label-width="6rem">
         <el-form-item label="Name:" prop="name">
           <el-input v-model="testTemplateForm.name"></el-input>
@@ -146,8 +147,7 @@ export default {
   data() {
     return {
       searchContent: '',
-      filteredData: '',
-      createdTestTemplateNames: [],
+      filteredData: [],
       createdTestTemplateList: [],
       createdTestTemplateDetail: '',
       createTestTemplateDialog: false,
@@ -229,23 +229,26 @@ export default {
       ajax.getTestTemplate().then((result) => {
         console.log('result.data.data', result.data.data)
         this.createdTestTemplateList = result.data.data
-        const res = _.values(this.createdTestTemplateList)
-        res.forEach(item => {
-          var i = item
-          this.createdTestTemplateNames.push(i.name)
-        })
-        this.filteredData = this.createdTestTemplateNames
-        console.log('createdTestTemplateNames', this.createdTestTemplateNames)
+        // const res = _.values(this.createdTestTemplateList)
+        // res.forEach(item => {
+        //   var i = item
+        //   this.createdTestTemplateNames.push(i.name)
+        // })
+        this.filteredData = this.createdTestTemplateList
+        // this.filteredData = this.createdTestTemplateNames
+        // console.log('createdTestTemplateNames', this.createdTestTemplateNames)
       })
     },
 
     clickCreateTestTemplate: function() {
+      console.log('click create test template')
       this.clearTestTemplateForm()
       this.resetForm('testTemplateForm')
       this.createTestTemplateDialog = true
     },
 
     clickUpdateTestTemplate: function(testTemplateName) {
+
       var getTestTemplateData = function() {
         return new Promise(function(resolve, reject) {
           ajax.getTestTemplateDetailByName(testTemplateName).then((result) => {
@@ -305,16 +308,17 @@ export default {
         console.log('the test been created: ', this.testTemplateForm)
         console.log('hhhhh result.data.messsage, ', result.data.message)
         if (result.data.code != 200) {
+          console.log('result.data.code', result.data.code)
           this.$notify.error({
-            title: "ERROR 1",
+            title: "ERROR",
             message: result.data.message,
             duration: 0
           });
           return
         }
         this.createTestTemplateDialog = false
-        this.createdTestTemplateList.unshift(result.data.data)
-        this.createdTestTemplateNames.push(this.testTemplateForm.name)
+        this.createdTestTemplateList.unshift(this.testTemplateForm)
+        // this.createdTestTemplateList.push(this.testTemplateForm)
         this.$notify({
           title: "SUCCESS",
           type: 'success',
@@ -332,6 +336,7 @@ export default {
     },
 
     updateTestTemplate: function () {
+      console.log('click save')
       ajax.updateTestTemplate (this.createdTestTemplateDetail.name, {
         id: this.createdTestTemplateDetail.id,
         name: this.createdTestTemplateDetail.name,
@@ -419,27 +424,34 @@ export default {
 
     resetForm: function(formName) {
       if (this.$refs[formName] != null) {
-        this.$refs[formName].resetFields();
+        this.clearTestTemplateForm()
+        this.$refs[formName].resetFields()
+        this.$refs[formName].clearValidate()
+        console.log(this.testTemplateForm)
       }
     },
 
     search: function(filter_data, searchName) {
       let res = filter_data
-      res = this.createdTestTemplateNames.filter((d) => {
-         return d.toLowerCase().indexOf(searchName) > -1
+
+      res = this.createdTestTemplateList.filter((d) => {
+        console.log('d is: ', d)
+         return (d.name).toLowerCase().indexOf(searchName.toLowerCase()) > -1
       })
       return res
     },
 
     handleSearch: function() {
-      console.log('hello from handlesearch')
       let filter_data = this.filteredData
-      console.log(this.filteredData)
-      console.log('this.search content is: ', this.searchContent)
-      console.log('this.filtered data: ', filter_data)
       this.filteredData = this.search(filter_data, this.searchContent)
-    }
+      console.log('res is: ', this.filteredData)
+    },
 
+    handleDialogClosed: function(done) {
+      console.log('hello from closed')
+      this.clearTestTemplateForm()
+      // this.resetForm('testTemplateForm')
+    }
     // Display all created cases using tags
     // handleClose(tag) {
     //   this.createdCasesNames.splice(this.createdCasesNames.indexOf(tag), 1)

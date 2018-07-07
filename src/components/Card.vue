@@ -6,11 +6,11 @@
             <!-- <el-button type="primary" style="float: right" size="small" icon="el-icon-edit" circle></el-button> -->
           </div>
           <div v-if="infoSection == 'Config'">
-            <el-row type="flex">
+            <!-- <el-row type="flex">
               <el-col :span="2"><div class="grid-content bg-purple"><Strong>ID: </Strong></div></el-col>
               <el-col :span="10" :offset="1"><div class="grid-content bg-purple">{{boxInfoCard.id}}</div></el-col>
-            </el-row>
-
+            </el-row> -->
+            <Strong>ID: </Strong> {{boxInfoCard.id}} <br>
             <Strong>Name: </Strong> {{boxInfoCard.name}} <br>
             <Strong>State: </Strong> {{boxInfoCard.state}} <br>
             <Strong>Create Time: </Strong> {{boxInfoCard.create_time}} <br>
@@ -68,7 +68,7 @@ export default {
   },
 
   created() {
-    console.log('this.boxinfocard inside card: ', this.boxInfoCard)
+    // console.log('this.boxinfocard inside card: ', this.boxInfoCard)
   }
 }
 </script>

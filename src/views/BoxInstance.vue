@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-container style="height: 750px; border: 1px solid #eee">
+    <el-container style="height: 1000px; border: 1px solid #eee">
       <el-aside width="200px">
         <el-menu v-if="boxInstanceList.length" :default-active="boxInstanceList[0].name" width="auto">
           <el-submenu index="1">
@@ -9,6 +9,8 @@
           </el-submenu>
         </el-menu>
       </el-aside>
+
+      <!-- show box detail -->
       <el-container v-if="getDetail && showBoxDetail">
         <el-header style="height:400px;">
           <el-row type="flex" class="row-bg" justify="end">
@@ -40,35 +42,26 @@
             </el-col>
           </el-row>
         </el-header>
-        <div style="margin-bottom: 10px; margin-left: 25px;">
+        <div style="margin-bottom: 10px; margin-left: 25px; margin-top: 30px">
           <el-breadcrumb separator-class="el-icon-arrow-right">
-            <el-breadcrumb-item :to="{path: '/'}"><Strong>Box: {{boxInstanceDetail.name}} </Strong></el-breadcrumb-item>
+            <el-breadcrumb-item>Box: {{boxInstanceDetail.name}}</el-breadcrumb-item>
+            <el-breadcrumb-item :to="{path: '/'}"> <Strong>Experiments </Strong></el-breadcrumb-item>
           </el-breadcrumb>
         </div>
         <el-main>
-          <!-- <el-table :data="tableData">
-            <el-table-column prop="date" label="日期" width="140">
-            </el-table-column>
-            <el-table-column prop="name" label="姓名" width="120">
-            </el-table-column>
-            <el-table-column prop="address" label="地址">
-            </el-table-column>
-          </el-table> -->
           <el-table :data="experimentTable.list">
             <el-table-column v-for="(item, index) in experimentTable.prop" :key="index" :prop="item" :label="experimentTable.label[index]">
             </el-table-column>
             <el-table-column label="Operation">
               <template slot-scope="scope">
-                <!-- <router-link tag='el-button' :to="'/missionOperation?id='+scope.row.id">
-                  Manage
-                </router-link> -->
-                <el-button @click.native="handleDetailClick(scope.row.id)">Detail</el-button>
+                <el-button @click.native="handleExperimentDetailClick(scope.row.id)">Detail</el-button>
               </template>
             </el-table-column>
           </el-table>
         </el-main>
       </el-container>
 
+      <!-- show experiment Detail -->
       <el-container v-if="showExperimentDetail">
         <el-header style="height:400px;">
           <el-row type="flex" :gutter="10" style="padding: 20px 0">
@@ -92,17 +85,34 @@
         </el-header>
         <div style="margin-bottom: 10px; margin-left: 25px;">
           <el-breadcrumb separator-class="el-icon-arrow-right">
-            <el-breadcrumb-item :to="{path: '/'}"><Strong>Box: {{boxInstanceDetail.name}} </Strong></el-breadcrumb-item>
+            <el-breadcrumb-item>Box: {{boxInstanceDetail.name}} </el-breadcrumb-item>
+            <el-breadcrumb-item>Experiments </el-breadcrumb-item>
+            <el-breadcrumb-item> <Strong>Tests </Strong></el-breadcrumb-item>
           </el-breadcrumb>
         </div>
         <el-main>
-         experimentDetail
+          <el-table :data="experimentTable.list">
+              <el-table-column v-for="(item, index) in experimentTable.prop" :key="index" :prop="item"
+                              :label="experimentTable.label[index]">
+              </el-table-column>
+              <el-table-column label="Operation">
+                <template slot-scope="scope">
+                  <el-button @click.native="handleTestDetailClick(scope.row.id)">Detail</el-button>
+                </template>
+              </el-table-column>
+              <el-table-column label="Operation">
+                <template slot-scope="scope">
+                  <el-button type="success" icon="el-icon-check" circle></el-button>
+                </template>
+              </el-table-column>
+            </el-table>
         </el-main>
       </el-container>
     </el-container>
+
     <!-- update box dialog -->
     <div>
-      <el-dialog title="Update Box" :visible.sync="udpateBoxDialog">
+      <el-dialog title="Update Box" :visible.sync="updateBoxDialog">
         <el-form :model="updateBoxForm" inline :rules="validationRules" ref="updateBoxForm" label-width="10rem" class="demo-form-inline">
           <div>
             <Strong>Config</Strong>
@@ -177,11 +187,11 @@
             <el-col :span="2" :offset="2"><Strong>Type</Strong></el-col>
             <el-col :span="4" :offset="1"><Strong>Value</Strong></el-col>
           </el-row>
-          <el-form-item v-for="(rule, index) in updateBoxForm.ruleForm" label-width="7rem" :key="rule.key" :label="'Rule ' + index"
+          <el-form-item v-for="(rule, index) in updateBoxForm.ruleForm" label-width="7rem" :key="index" :label="'Rule ' + index"
                         :prop="'ruleForm.' + index + '.type'">
             <el-row>
               <el-col :span="6">
-                  <el-input v-model="rule.type"></el-input>
+                <el-input v-model="rule.type"></el-input>
               </el-col>
               <el-col :span="11" :offset="1">
                 <el-input v-model="rule.value"></el-input>
@@ -192,6 +202,20 @@
             </el-row>
             <br>
           </el-form-item>
+          <!-- <el-form-item v-for="(type, index) in updateBoxForm.ruleForm.type" label-width="7rem" :key="type.key"
+                        :label="'Rule ' + index" :prop="'ruleForm.type' + index">
+            <el-row>
+              <el-col :span="6">
+                <el-input v-model="rule.type"></el-input>
+              </el-col>
+              <el-col :span="11" :offset="1">
+                <el-input v-model="rule.value"></el-input>
+              </el-col>
+               <el-col :span="1" :offset="1">
+                <el-button @click.prevent="handleRemove(rule)">Delete</el-button>
+              </el-col>
+            </el-row>
+          </el-form-item> -->
           <el-row>
             <el-col :span="1" :offset="1">
               <Button type="dashed" @click="handleAdd()" icon="plus-round">Add rule</Button>
@@ -199,8 +223,7 @@
           </el-row>
         </el-form>
       </el-dialog>
-  </div>
-
+    </div>
 
   </div>
 </template>
@@ -225,19 +248,25 @@ export default {
       boxInstanceDetail: {},
       showBoxDetail: true,
       showExperimentDetail: false,
+      parallelChecked: false,
+      serialChecked: false,
       getDetail: false,
       saveButton: true,
       editButton: false,
+      updateBoxDialog: false,
+      experimentDetail: '',
+      testTemplateList: [],
       experimentTable: {
         label: ['ID', 'Name', 'Status', 'Stage'],
         prop: ['id', 'name', 'status', 'stage'],
         list: []
       },
-      experimentDetail: '',
-      udpateBoxDialog: false,
-      parallelChecked: false,
-      serialChecked: false,
-      testTemplateList: [],
+      testTable: {
+        label: ['ID', 'Name', 'Status', 'Stage'],
+        prop: ['id', 'name', 'status', 'stage'],
+        list: []
+      },
+      testDetail: '',
       updateBoxForm: {
         miscConfigForm: {
           name: '',
@@ -258,9 +287,10 @@ export default {
           config_map: ''
         },
         testForm: {
-          in_order: true,
+          in_order: '',
           tests: []
         },
+
         ruleForm: [{
           type: '',
           value: ''
@@ -270,18 +300,6 @@ export default {
         'miscConfigForm.slack': [{
           required: true,
           message: 'Please input the slackChannel',
-          trigger: 'blur'
-        },
-        {
-          min: 1,
-          max: 64,
-          message: 'Length should be 1 to 64',
-          trigger: 'blur'
-        }],
-
-        'miscConfigForm.type': [{
-          required: true,
-          message: 'Please input type',
           trigger: 'blur'
         },
         {
@@ -325,52 +343,61 @@ export default {
   },
 
   created() {
-    var getData = function() {
-      console.log('get start')
-      return new Promise(function(resolve, reject) {
-        ajax.getBox().then((result) => {
-          if(result.data.code == 200) {
-            resolve(result.data)
-          } else {
-            this.$notify.error({
-              title: 'Error',
-              message: result.data.message
-            });
-          }
-        }).catch((resp) => {
-          reject(resp.message)
-        })
-      })
-    }
+    // var getData = function() {
+    //   console.log('get start')
+    //   return new Promise(function(resolve, reject) {
+    //     ajax.getBox().then((result) => {
+    //       if(result.data.code == 200) {
+    //         resolve(result.data)
+    //       } else {
+    //         this.$notify.error({
+    //           title: 'Error',
+    //           message: result.data.message
+    //         });
+    //       }
+    //     }).catch((resp) => {
+    //       reject(resp.message)
+    //     })
+    //   })
+    // }
 
-    getData().then((data)=>{
-      this.boxInstanceList = data.data
-      this.fetchInitialBox()
-      let boxId = this.boxInstanceDetail.id
-      console.log('inside get experiment promise')
-      console.log('this.boxinstance detail id: ', this.boxInstanceDetail.id)
-      return new Promise(function(resolve, reject) {
-        ajax.getExperimentsByBoxID (boxId).then((result) => {
-          if(result.data.code == 200) {
-            resolve(result.data)
-          } else {
-            this.$notify.error({
-              title: 'Error',
-              message: result.data.message
-            });
-          }
-        }).catch((resp) => {
-          reject(resp.message)
-        })
-      })
-    }).then((data) => {
-      this.experimentTable.list = data.data
-      this.getDetail = true
-      console.log('the experimetntable: ', this.experimentTable)
-    })
+    // getData().then((data)=>{
+    //   this.boxInstanceList = data.data
+    //   this.fetchInitialBox()
+    //   let boxId = this.boxInstanceDetail.id
+    //   console.log('inside get experiment promise')
+    //   console.log('this.boxinstance detail id: ', this.boxInstanceDetail.id)
+    //   return new Promise(function(resolve, reject) {
+    //     ajax.getExperimentsByBoxID (boxId).then((result) => {
+    //       if(result.data.code == 200) {
+    //         resolve(result.data)
+    //       } else {
+    //         this.$notify.error({
+    //           title: 'Error',
+    //           message: result.data.message
+    //         });
+    //       }
+    //     }).catch((resp) => {
+    //       reject(resp.message)
+    //     })
+    //   })
+    // }).then((data) => {
+    //   this.experimentTable.list = data.data
+    //   this.getDetail = true
+    //   console.log('the experimetntable: ', this.experimentTable)
+    // })
+    this.getAllBox()
   },
 
   methods: {
+    getAllBox: function() {
+      ajax.getBox().then((result) => {
+        this.boxInstanceList = result.data.data
+        this.fetchInitialBox()
+        let boxId = this.boxInstanceDetail.id
+        this.getExperiments(boxId)
+      })
+    },
     fetchInitialBox: function() {
       this.boxInstanceDetail = this.boxInstanceList[0]
       console.log('this.boxInstanceDetail: ', this.boxInstanceDetail)
@@ -378,6 +405,7 @@ export default {
 
     getExperiments: function(id) {
       ajax.getExperimentsByBoxID(id).then((result) => {
+        this.getDetail = true
         this.experimentTable.list = result.data.data
         // debugger
         console.log('box id: ', id)
@@ -386,6 +414,8 @@ export default {
     },
 
     getBoxDetail: function(instance) {
+      this.showExperimentDetail = false
+      this.showBoxDetail = true
       this.boxInstanceDetail = instance
       this.getExperiments(this.boxInstanceDetail.id)
      },
@@ -393,7 +423,9 @@ export default {
     handleEdit: function() {
       console.log('click handleEdit')
       console.log('boxinstance in handleedit: ', this.boxInstanceDetail)
-      this.udpateBoxForm = {
+      this.updateBoxDialog = true
+      // debugger
+      this.updateBoxForm = {
         miscConfigForm: {
           name: this.boxInstanceDetail.name,
           slack: this.boxInstanceDetail.config.slack,
@@ -412,22 +444,108 @@ export default {
           tikv_size: this.boxInstanceDetail.cat.tikv_size,
           config_map: this.boxInstanceDetail.cat.config_map
         },
-        ruleForm: {
-          type: this.boxInstanceDetail.rules.type,
-          value: this.boxInstanceDetail.rules.value,
-        },
+        ruleForm: this.boxInstanceDetail.rules,
+        // ruleForm: [{
+        //   type: this.boxInstanceDetail.rules.type,
+        //   value: this.boxInstanceDetail.rules.value,
+        // }],
+
         testForm: {
           in_order: this.boxInstanceDetail.tests.in_order,
           tests: this.boxInstanceDetail.tests.tests
         }
       }
-      this.udpateBoxDialog = true
+      console.log('the updateboxform: ', this.updateBoxForm)
+      // debugger
     },
 
-    handleDetailClick: function(rowId) {
+    handleExperimentDetailClick: function(rowId) {
       this.showBoxDetail = false
       this.showExperimentDetail = true
-      console.log('hello from handleDetail Click', rowId)
+      console.log('experimetn id: ', rowId, this.boxInstanceDetail.id)
+      ajax.getExperimentsDetailByID(this.boxInstanceDetail.id, rowId).then((result) => {
+        this.experimentDetail = result.data.data
+        console.log('this experimentDetail: ', this.experimentDetail)
+        this.testTable.list = this.experimentDetail.tests
+        console.log('hello from handleDetail Click,testtable list', this.testTable.list)
+      }).catch((resp) => {
+        this.$notify.error({
+          title: 'Erorr',
+          message: resp.message
+        })
+      })
+    },
+
+    handleTestDetailClick: function(row) {
+      console.log('click test detail')
+
+    },
+
+    handleManualTrigger: function() {
+      ajax.triggerBoxByID(this.boxInstanceDetail.id).then((result) =>{
+        if(result.data.code !== 200) {
+          this.$notify.error({
+            title: 'Error',
+            message: 'Manual Trigger Box Failed'
+          })
+          return
+        }
+        this.$notify({
+          title: 'Manual Trigger Success',
+          type: 'success',
+          message: 'Box: ' + this.boxInstanceDetail.name
+        })
+      }).catch((resp) => {
+        this.$notify.error({
+          title: 'Error',
+          message: resp.message
+        })
+      })
+    },
+
+    handleStop: function() {
+      ajax.stopBoxByID(this.boxInstanceDetail.id).then((result) => {
+        if(result.data.code !== 200) {
+          this.$notify.error({
+            title: 'Error',
+            message: 'Stop Box Failed'
+          })
+          return
+        }
+        this.$notify({
+          title: 'Stop Success',
+          type: 'success',
+          message: 'Box: ' + this.boxInstanceDetail.name
+        })
+      }).catch((resp) => {
+        this.$notify.error({
+          title: 'Error',
+          message: resp.message
+        })
+      })
+    },
+
+    handleDelete: function() {
+      ajax.deleteBoxByID(this.boxInstanceDetail.id).then((result) => {
+        if(result.data.code !== 200) {
+          this.$notify.error({
+            title: 'Error',
+            message: 'Delete Box Failed'
+          })
+          return
+        }
+        this.$notify({
+          title: ' Delete Success',
+          type: 'success',
+          message: 'Box: '+ this.boxInstanceDetail.name
+        })
+        this.getAllBox()
+      }).catch((resp) => {
+        this.$notify.error({
+          title: 'Error',
+          message: resp.message
+        })
+      })
     }
   }
 }

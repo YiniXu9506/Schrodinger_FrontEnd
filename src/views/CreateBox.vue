@@ -105,6 +105,18 @@
 import ajax from '../request/index'
 export default {
   data() {
+    var checkString = ((rule, value, callback) => {
+      if(!value) {
+        return callback(new Error('Name cannot be empty'))
+      }
+      validRegEx = /^[^\\\/&]*$/
+      setTimeout(() => {
+        if(!value.match(validRegEx)) {
+          return callback(new Error('Name must be String'))
+        }
+      }, 1000)
+      return
+    });
     return {
       activeName: 'misConfig',
       parallelChecked: false,
@@ -140,6 +152,7 @@ export default {
       },
 
       validationRules: {
+        'miscConfigForm.name' :[{validator: checkString, tigger: 'blur'}],
         'miscConfigForm.slack': [{
           required: true,
           message: 'Please input the slackChannel',
@@ -254,8 +267,10 @@ export default {
               message: 'Create box SUCCESS',
               type: 'success'
             })
+
             this.$router.push({name: 'BoxInstance'})
           }).catch((resp) => {
+            console.log('inside catch')
             this.$notify.error({
               title: "ERROR",
               message: resp.message,
