@@ -16,10 +16,8 @@
           <el-input v-model="newBoxForm.miscConfigForm.stop"></el-input>
         </el-form-item>
         <el-form-item label="DestoryTidbCluster:" prop="miscConfigForm.destory_tidb_cluster">
-          <el-select v-model="newBoxForm.miscConfigForm.destory_tidb_cluster" placeholder="select">
-            <el-option label="Yes" value="true"></el-option>
-            <el-option label="No" value="false"></el-option>
-          </el-select>
+          <el-radio border v-model="newBoxForm.miscConfigForm.destory_tidb_cluster" :label=true>Yes</el-radio>
+          <el-radio border v-model="newBoxForm.miscConfigForm.destory_tidb_cluster" :label=false>No</el-radio>
         </el-form-item>
         <el-form-item label="Type:" prop="miscConfigForm.type">
           <el-input v-model="newBoxForm.miscConfigForm.type"></el-input>
@@ -39,43 +37,45 @@
           <el-input v-model="newBoxForm.catForm.tidb_ver"></el-input>
         </el-form-item>
         <el-form-item label="PD Size:" prop="catForm.pd_size">
-          <el-input v-model="newBoxForm.catForm.pd_size"></el-input>
+          <el-input v-model.number="newBoxForm.catForm.pd_size"></el-input>
         </el-form-item>
         <el-form-item label="TiDB Size:" prop="catForm.tidb_size">
-          <el-input v-model="newBoxForm.catForm.tidb_size"></el-input>
+          <el-input v-model.number="newBoxForm.catForm.tidb_size"></el-input>
         </el-form-item>
         <el-form-item label="Tikv Size:" prop="catForm.tikv_size">
-          <el-input v-model="newBoxForm.catForm.tikv_size"></el-input>
+          <el-input v-model.number="newBoxForm.catForm.tikv_size"></el-input>
         </el-form-item>
         <el-form-item label="Config Map:" prop="catForm.config_map">
           <el-input v-model="newBoxForm.catForm.config_map"></el-input>
         </el-form-item>
       </el-collapse-item>
       <el-collapse-item title="Tests" name="tests">
-        <div id="executionMethods">
-          <el-form-item>
-            <Strong style="margin-right: 20px; font-size: 14px">Execution method:</Strong>
-              <el-radio v-model="executionChecked" label='serialExecution'>Serial execution</el-radio>
-              <el-radio v-model="executionChecked" label='parallelExecution'>Parallel execution</el-radio>
-          </el-form-item>
-        </div>
+        <!-- <div id="executionMethods"> -->
+        <el-form-item label="Execution method" prop="testForm.in_order">
+          <!-- <Strong style="margin-right: 20px; font-size: 14px">Execution method:</Strong> -->
+            <el-radio v-model="newBoxForm.testForm.in_order" :label=true>Serial execution</el-radio>
+            <el-radio v-model="newBoxForm.testForm.in_order" :label=false>Parallel execution</el-radio>
+        </el-form-item>
+        <!-- </div> -->
         <div style="position: relative; margin-top: 20px">
-          <el-form-item label="Tests: " prop="tests">
+          <el-form-item label="Tests: " prop="testForm.tests">
               <el-select v-model="newBoxForm.testForm.tests" multiple placeholder="Please select test" style="width: 33rem;">
                 <el-option v-for="(item, index) in testTemplateList" :key="index" :value="item.name"></el-option>
               </el-select>
             </el-form-item>
         </div>
-        <div id="testOrder">
+        <!-- <div id="testOrder">
           <el-tag v-for="(item, index) in newBoxForm.testForm.tests" :key="index" type="primary">{{item}}</el-tag>
-        </div>
+        </div> -->
       </el-collapse-item>
 
       <el-collapse-item title="Rules" name="name">
+         <!-- <el-form-item> -->
         <el-row>
           <el-col :span="2" :offset="2"><Strong>Type</Strong></el-col>
           <el-col :span="4" :offset="1"><Strong>Value</Strong></el-col>
         </el-row>
+         <!-- </el-form-item> -->
         <el-form-item v-for="(rule, index) in newBoxForm.ruleForm" label-width="7rem" :key="rule.key" :label="'Rule ' + index"
                       :prop="'ruleForm.' + index + '.type'">
           <el-row>
@@ -86,7 +86,7 @@
               <el-input v-model="rule.value"></el-input>
             </el-col>
             <el-col :span="1" :offset="1">
-              <el-button @click.prevent="handleRemove(rule)">Delete</el-button>
+              <el-button @click.prevent="handleRemove(rule)">Remove</el-button>
             </el-col>
           </el-row>
           <br>
@@ -105,7 +105,6 @@
       </el-form-item>
     </div>
   </el-form>
-
 </div>
 </template>
 
@@ -113,6 +112,14 @@
 import ajax from '../request/index'
 export default {
   data() {
+    var checkArrayEmpty = (rule, value, callback) => {
+      if(value.length <= 0) {
+        return callback(new Error('Cannot be empty'))
+      } else {
+        callback()
+      }
+    }
+
     var checkEmpty = (rule, value, callback) => {
       if(!value) {
         return callback(new Error('Cannot be empty'))
@@ -133,7 +140,10 @@ export default {
     });
 
     var checkNumber = ((rule, value, callback) => {
-      if(!Number.isInteger(value)) {
+      if(!value) {
+        return callback(new Error('Cannot be empty'))
+      }
+      if(isNaN(value)) {
         return callback(new Error('Must be a number'))
       } else {
         callback()
@@ -142,7 +152,7 @@ export default {
 
     return {
       activeName: ['misConfig'],
-      executionChecked: 'serialExecution',
+      // executionChecked: 'serialExecution',
       testTemplateList: [],
       newBoxForm: {
         miscConfigForm: {
@@ -150,7 +160,7 @@ export default {
           slack: '',
           prepare: '',
           stop: '',
-          destory_tidb_cluster: '',
+          destory_tidb_cluster: true,
           type: '',
           data: ''
         },
@@ -158,9 +168,9 @@ export default {
           pd_ver: '',
           tikv_ver: '',
           tidb_ver: '',
-          pd_size: 0,
-          tidb_size: 0,
-          tikv_size: 0,
+          pd_size: '',
+          tidb_size: '',
+          tikv_size: '',
           config_map: ''
         },
         testForm: {
@@ -175,22 +185,20 @@ export default {
 
       validationRules: {
         'miscConfigForm.name' :[{required: true, validator: checkString, trigger: 'blur'}],
-        'miscConfigForm.slack':[{required: true, validator: checkString, trigger: 'blur'}],
-        'miscConfigForm.prepare':[{required: true, validator: checkString, trigger: 'blur'}],
-        'miscConfigForm.stop':[{required: true, validator: checkString, trigger: 'blur'}],
-        'miscConfigForm.destory_tidb_cluster':[{required: true, validator: checkEmpty, trigger: 'change'}],
-        'miscConfigForm.type':[{required: true, validator: checkString, trigger: 'blur'}],
-
+        // 'miscConfigForm.slack':[{required: true, validator: checkString, trigger: 'blur'}],
+        // 'miscConfigForm.prepare':[{required: true, validator: checkArrayEmpty, trigger: 'blur'}],
+        // 'miscConfigForm.stop':[{required: true, validator: checkArrayEmpty, trigger: 'blur'}],
+        // 'miscConfigForm.destory_tidb_cluster':[{required: true, validator: checkEmpty, trigger: 'change'}],
+        // 'miscConfigForm.type':[{required: true, validator: checkString, trigger: 'blur'}],
         'catForm.pd_ver': [{required: true, validator: checkString, trigger: 'blur'}],
         'catForm.tikv_ver': [{required: true, validator: checkString, trigger: 'blur'}],
         'catForm.tidb_ver': [{required: true, validator: checkString, trigger: 'blur'}],
-        'catForm.pd_size': [{required: true, validator: checkNumber, trigger: 'blur'}],
-        'catForm.tidb_size': [{required: true, validator: checkNumber, trigger: 'blur'}],
-        'catForm.tikv_size': [{required: true, validator: checkNumber, trigger: 'blur'}],
+        'catForm.pd_size': [{ required: true, message: 'Cannot be empty'}, { type: 'number', message: 'Must be number'}],
+        'catForm.tikv_size': [{ required: true, message: 'Cannot be empty'}, { type: 'number', message: 'Must be number'}],
+        'catForm.tidb_size': [{ required: true, message: 'Cannot be empty'}, { type: 'number', message: 'Must be number'}],
         'catForm.config_map': [{required: true, validator: checkString, trigger: 'blur'}],
-        'testFrom.in_order': [{required: true, validator: checkEmpty, trigger: 'blur'}],
-        'testForm.tests':[{required: true, validator: checkEmpty, trigger: 'change'}],
-        'ruleForm.type': [{required: true, validator: checkString, trigger: 'blur'}],
+        'testForm.tests':[{required: true, validator: checkArrayEmpty, trigger: 'change'}],
+        // 'ruleForm.type': [{required: true, validator: checkString, trigger: 'blur'}],
       }
     }
   },
@@ -224,13 +232,10 @@ export default {
               tikv_size: this.newBoxForm.catForm.tikv_size,
               config_map: this.newBoxForm.catForm.config_map
             },
-            rules: {
-              type: this.newBoxForm.miscConfigForm.type,
-              value: this.newBoxForm.miscConfigForm.value,
-            },
+            rules: this.newBoxForm.ruleForm,
             tests: {
-              in_order: this.newBoxForm.catForm.in_order,
-              tests: this.newBoxForm.catForm.tests
+              in_order: this.newBoxForm.testForm.in_order,
+              tests: this.newBoxForm.testForm.tests
             },
             config: {
               slack: this.newBoxForm.miscConfigForm.slack,
@@ -273,6 +278,7 @@ export default {
         }
       });
     },
+
 
     resetForm(formName) {
       console.log("click reset form")

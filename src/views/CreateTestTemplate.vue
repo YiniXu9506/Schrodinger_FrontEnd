@@ -50,6 +50,7 @@
             </strong>
           </big>
         </div>
+
         <el-form-item label="Binary Name:" prop="source.binary_name">
           <el-input v-model="testTemplateForm.source.binary_name"></el-input>
         </el-form-item>
@@ -64,19 +65,18 @@
           <el-input v-model="testTemplateForm.source.git_repo"></el-input>
         </el-form-item>
         <el-form-item v-if="testTemplateForm.source.type === 'git'" label="Git Value:" prop="source.git_value">
-          <el-input v-model="testTemplateForm.source.gitValue" class="input-with-select">
-            <el-select v-model="testTemplateForm.source.gitValuePrefix" slot="prepend" placeholder="Select prefix">
+          <el-input v-model="testTemplateForm.source.git_value.value" class="input-with-select" @change="handlechangehhh">
+            <el-select v-model="testTemplateForm.source.git_value.git_type" slot="prepend" placeholder="Select prefix">
               <el-option label="branch" value="branch"></el-option>
               <el-option label="tag" value="tag"></el-option>
               <el-option label="hash" value="hash"></el-option>
             </el-select>
           </el-input>
-          <!-- <el-input v-model="testTemplateForm.source.git_value" class="input-with-select">
-          </el-input> -->
         </el-form-item>
         <el-form-item v-if="testTemplateForm.source.type === 'bin'" label="Binary URL:" prop="source.url">
           <el-input v-model="testTemplateForm.source.url"></el-input>
         </el-form-item>
+
         <el-form-item label="Image Address:" prop="source.image">
           <el-input v-model="testTemplateForm.source.image"></el-input>
         </el-form-item>
@@ -128,7 +128,13 @@
           <el-input v-model="testTemplateForm.source.git_repo"></el-input>
         </el-form-item>
         <el-form-item v-if="testTemplateForm.source.type === 'git'" label="Git Value:" prop="source.git_value">
-          <el-input v-model="testTemplateForm.source.git_value"></el-input>
+          <el-input v-model="testTemplateForm.source.git_value.value" class="input-with-select" @change="handlechangehhh">
+            <el-select v-model="testTemplateForm.source.git_value.git_type" slot="prepend" placeholder="Select prefix">
+              <el-option label="branch" value="branch"></el-option>
+              <el-option label="tag" value="tag"></el-option>
+              <el-option label="hash" value="hash"></el-option>
+            </el-select>
+          </el-input>
         </el-form-item>
         <el-form-item v-if="testTemplateForm.source.type === 'bin'" label="Binary URL:" prop="source.url">
           <el-input v-model="testTemplateForm.source.url"></el-input>
@@ -200,24 +206,24 @@ export default {
           image: '',
           type: '',
           url: '',
-          git_value: '',
-          gitValue: '',
-          gitValuePrefix: '',
+          git_value: {
+            git_type: '',
+            value: ''
+          },
           git_repo: ''
         }
       },
       rules: {
         name: [{required: true, validator: checkString, trigger: 'blur'}],
         type: [{required: true, validator: checkString, trigger: 'blur'}],
-        // 'args.arvalue': [{required: true, validator: checkString, trigger: 'blur'}],
         'source.binary_name': [{required: true, validator: checkString, trigger: 'blur'}],
         'source.type': [{required: true, validator: checkString, trigger: 'blur'}],
         'source.url': [{required: true, validator: checkString, trigger: 'blur'}],
         'source.git_value': [{required: true, validator: checkString, trigger: 'blur'}],
+        'source.git_value.git_type': [{required: true, validator: checkEmpty, trigger: 'blur'}],
+        'source.git_value.value': [{required: true, validator: checkString, trigger: 'blur'}],
         'source.git_repo': [{required: true, validator: checkString, trigger: 'blur'}]
       }
-
-
     }
   },
 
@@ -262,7 +268,10 @@ export default {
             binary_name: this.createdTestTemplateDetail.source.binary_name,
             type: this.createdTestTemplateDetail.source.type,
             git_repo: this.createdTestTemplateDetail.source.git_repo,
-            git_value: this.createdTestTemplateDetail.source.git_value,
+            git_value: {
+              git_type: this.createdTestTemplateDetail.source.git_value.git_type,
+              value: this.createdTestTemplateDetail.source.git_value.value,
+            },
             url: this.createdTestTemplateDetail.source.url,
             image: this.createdTestTemplateDetail.source.image
           }
@@ -289,7 +298,10 @@ export default {
           binary_name: this.testTemplateForm.source.binary_name,
           type: this.testTemplateForm.source.type,
           git_repo: this.testTemplateForm.source.git_repo,
-          git_value: this.testTemplateForm.source.git_value,
+          git_value: {
+            git_type: this.testTemplateForm.source.git_value.git_type,
+            value: this.testTemplateForm.source.git_value.value,
+          },
           url: this.testTemplateForm.source.url,
           image: this.testTemplateForm.source.image
         }
@@ -337,7 +349,10 @@ export default {
           binary_name: this.testTemplateForm.source.binary_name,
           type: this.testTemplateForm.source.type,
           git_repo: this.testTemplateForm.source.git_repo,
-          git_value: this.testTemplateForm.source.git_value,
+          git_value: {
+            git_type: this.testTemplateForm.source.git_value.git_type,
+            value: this.testTemplateForm.source.git_value.value,
+          },
           url: this.testTemplateForm.source.url,
           image: this.testTemplateForm.source.image
         }
@@ -401,6 +416,11 @@ export default {
         }
       })
     },
+
+    handlechangehhh: function(valuesss) {
+      console.log('valuesss',valuesss)
+      this.testTemplateForm.source.git_value.value = valuesss
+    },
     clearTestTemplateForm: function() {
       this.testTemplateForm = {
         name: '',
@@ -413,7 +433,10 @@ export default {
           image: '',
           type: '',
           url: '',
-          git_value: '',
+          git_value: {
+            git_type: '',
+            value: ''
+          },
           git_repo: ''
         }
       }

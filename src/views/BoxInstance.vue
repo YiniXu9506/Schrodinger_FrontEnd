@@ -128,7 +128,8 @@
             <el-input v-model="updateBoxForm.miscConfigForm.stop"></el-input>
           </el-form-item>
           <el-form-item label="DestoryTidbCluster:" prop="miscConfigForm.destory_tidb_cluster">
-            <el-input v-model="updateBoxForm.miscConfigForm.destory_tidb_cluster"></el-input>
+          <el-radio border v-model="updateBoxForm.miscConfigForm.destory_tidb_cluster" :label=true>Yes</el-radio>
+            <el-radio border v-model="updateBoxForm.miscConfigForm.destory_tidb_cluster" :label=false>No</el-radio>
           </el-form-item>
           <el-form-item label="Type:" prop="miscConfigForm.type">
             <el-input v-model="updateBoxForm.miscConfigForm.type"></el-input>
@@ -163,11 +164,10 @@
           <div>
             <Strong>Tests</Strong>
           </div>
-          <div id="executionMethods">
-            <Strong style="margin-right: 20px; font-size: 14px">Execution method:</Strong>
-            <el-checkbox v-model="parallelChecked">Parallel execution</el-checkbox>
-            <el-checkbox v-model="serialChecked">Serial execution</el-checkbox>
-          </div>
+          <el-form-item label="Execution method" prop="testForm.in_order">
+              <el-radio v-model="updateBoxForm.testForm.in_order" :label=true>Serial execution</el-radio>
+              <el-radio v-model="updateBoxForm.testForm.in_order" :label=false>Parallel execution</el-radio>
+          </el-form-item>
           <div style="position: relative; margin-top: 20px">
             <el-form-item label="Tests: " prop="tests">
                 <el-select v-model="updateBoxForm.testForm.tests" multiple placeholder="Please select test" style="width: 33rem;">
@@ -175,9 +175,9 @@
                 </el-select>
               </el-form-item>
           </div>
-          <div id="testOrder">
+          <!-- <div id="testOrder">
             <el-tag v-for="(item, index) in updateBoxForm.testForm.tests" :key="index" type="primary">{{item}}</el-tag>
-          </div>
+          </div> -->
           <div>
             <Strong>Rules</Strong>
           </div>
@@ -195,7 +195,7 @@
                 <el-input v-model="rule.value"></el-input>
               </el-col>
               <el-col :span="1" :offset="1">
-                <el-button @click.prevent="handleRemove(rule)">Delete</el-button>
+                <el-button @click.prevent="handleRemove(rule)">Remove</el-button>
               </el-col>
             </el-row>
             <br>
@@ -219,6 +219,12 @@
               <Button type="dashed" @click="handleAdd()" icon="plus-round">Add rule</Button>
             </el-col>
           </el-row>
+          <div style="margin-top: 10px;">
+            <el-form-item>
+              <el-button type="primary" @click="saveBoxForm('updateBoxForm')">Save</el-button>
+              <el-button @click="resetForm('updateBoxForm')">Reset</el-button>
+            </el-form-item>
+          </div>
         </el-form>
       </el-dialog>
     </div>
@@ -236,6 +242,43 @@ export default {
   },
 
   data() {
+    var checkArrayEmpty = (rule, value, callback) => {
+      if(value.length <= 0) {
+        return callback(new Error('Cannot be empty'))
+      } else {
+        callback()
+      }
+    }
+
+    var checkEmpty = (rule, value, callback) => {
+      if(!value) {
+        return callback(new Error('Cannot be empty'))
+      } else {
+        callback()
+      }
+    }
+
+    var checkString = ((rule, value, callback) => {
+      if(!value) {
+        return callback(new Error('Cannot be empty'))
+      }
+      if(Number.isInteger(value)) {
+        return callback(new Error('Must be string'))
+      } else {
+        callback()
+      }
+    });
+
+    var checkNumber = ((rule, value, callback) => {
+      if(!value) {
+        return callback(new Error('Cannot be empty'))
+      }
+      if(isNaN(value)) {
+        return callback(new Error('Must be a number'))
+      } else {
+        callback()
+      }
+    });
     return {
       boxInstanceList: [],
       boxInstanceDetail: {},
@@ -290,48 +333,16 @@ export default {
         }]
       },
       validationRules: {
-        'miscConfigForm.slack': [{
-          required: true,
-          message: 'Please input the slackChannel',
-          trigger: 'blur'
-        },
-        {
-          min: 1,
-          max: 64,
-          message: 'Length should be 1 to 64',
-          trigger: 'blur'
-        }],
-        'catForm.pdVer': [{
-          required: true,
-          message: 'Please input pdVer',
-          trigger: 'blur'
-        },
-        {
-          min: 1,
-          max: 64,
-          message: 'Length should be 1 to 64',
-          trigger: 'blur'
-        }],
-
-        'testForm.tests': [{
-          required: true,
-          message: 'Please select test',
-          trigger: 'blur'
-        }],
-
-        'ruleForm.type': [{
-          required: true,
-          message: 'Please input type',
-          trigger: 'blur'
-        },
-        {
-          min: 1,
-          max: 64,
-          message: 'Length should be 1 to 64',
-          trigger: 'blur'
-        }]
+        'miscConfigForm.name' :[{required: true, validator: checkString, trigger: 'blur'}],
+        'catForm.pd_ver': [{required: true, validator: checkString, trigger: 'blur'}],
+        'catForm.tikv_ver': [{required: true, validator: checkString, trigger: 'blur'}],
+        'catForm.tidb_ver': [{required: true, validator: checkString, trigger: 'blur'}],
+        'catForm.pd_size': [{ required: true, message: 'Cannot be empty'}, { type: 'number', message: 'Must be number'}],
+        'catForm.tikv_size': [{ required: true, message: 'Cannot be empty'}, { type: 'number', message: 'Must be number'}],
+        'catForm.tidb_size': [{ required: true, message: 'Cannot be empty'}, { type: 'number', message: 'Must be number'}],
+        'catForm.config_map': [{required: true, validator: checkString, trigger: 'blur'}],
+        'testForm.tests':[{required: true, validator: checkArrayEmpty, trigger: 'change'}],
       }
-      // tableData: Array(20).fill(item)
     }
   },
 
@@ -386,6 +397,7 @@ export default {
     getAllBox: function() {
       ajax.getBox().then((result) => {
         this.boxInstanceList = result.data.data
+        console.log('this.boxinstancelist: ', this.boxInstanceList)
         this.fetchInitialBox()
         let boxId = this.boxInstanceDetail.id
         this.getExperiments(boxId)
@@ -438,11 +450,6 @@ export default {
           config_map: this.boxInstanceDetail.cat.config_map
         },
         ruleForm: this.boxInstanceDetail.rules,
-        // ruleForm: [{
-        //   type: this.boxInstanceDetail.rules.type,
-        //   value: this.boxInstanceDetail.rules.value,
-        // }],
-
         testForm: {
           in_order: this.boxInstanceDetail.tests.in_order,
           tests: this.boxInstanceDetail.tests.tests
@@ -540,7 +547,85 @@ export default {
           message: resp.message
         })
       })
+    },
+
+    saveBoxForm() {
+      console.log('click save box form, box id is: ', this.boxInstanceDetail.id)
+      ajax.updateBoxByID(this.boxInstanceDetail.id, {
+        miscConfigForm: {
+          name: this.updateBoxForm.miscConfigForm.name,
+          slack: this.updateBoxForm.miscConfigForm.slack,
+          prepare: this.updateBoxForm.miscConfigForm.prepare,
+          stop: this.updateBoxForm.miscConfigForm.stop,
+          destory_tidb_cluster: this.updateBoxForm.miscConfigForm.destory_tidb_cluster,
+          type: this.updateBoxForm.miscConfigForm.type,
+          data: this.updateBoxForm.miscConfigForm.data
+        },
+        catForm: {
+          pd_ver: this.updateBoxForm.catForm.pd_ver,
+          tikv_ver: this.updateBoxForm.catForm.tikv_ver,
+          tidb_ver: this.updateBoxForm.catForm.tidb_ver,
+          pd_size: this.updateBoxForm.catForm.pd_size,
+          tidb_size: this.updateBoxForm.catForm.tidb_size,
+          tikv_size: this.updateBoxForm.catForm.tikv_size,
+          config_map: this.updateBoxForm.catForm.config_map
+        },
+        ruleForm: this.updateBoxForm.ruleForm,
+        testForm: {
+          in_order: this.updateBoxForm.testForm.in_order,
+          tests: this.updateBoxForm.testForm.tests
+        }
+      }).then(result => {
+        console.log('after update, the updateboxform is: ',this.updateBoxForm)
+        if (result.data.code != 200) {
+          this.$notify({
+            title: "ERROR",
+            type: 'error',
+            message: result.data.message,
+            duration: 0
+          });
+          return
+        }
+        this.updateBoxDialog = false
+        this.$notify({
+          title: 'Success',
+          type: 'sucess',
+          message: 'Update Box Success'
+        })
+        ajax.getBoxDetailByID(this.boxInstanceDetail.id).then(result => {
+          this.boxInstanceDetail = result.data.data
+          console.log('after update, the new box detail is: ',this.boxInstanceDetail.id,  this.boxInstanceDetail)
+        }).catch((resp) => {
+          this.$notify.error({
+            title: 'Error',
+            message: resp.message
+          })
+        })
+        debugger
+      }).catch(resp =>  {
+        this.$notify.error({
+          title: 'Update Error',
+          message: resp.message
+        })
+      })
+    },
+
+    handleAdd() {
+      this.newBoxForm.ruleForm.push({
+        type: '',
+        value: '',
+        key: Date.now()
+      })
+    },
+
+    handleRemove(rule) {
+      var index = this.newBoxForm.ruleForm.indexOf(rule)
+      if(index !== -1) {
+        this.newBoxForm.ruleForm.splice(index, 1)
+      }
     }
+
+
   }
 }
 </script>
