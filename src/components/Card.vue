@@ -1,66 +1,110 @@
 <template>
   <div id="card">
-        <el-card class="box-card">
-          <div slot="header" class="clearfix">
-            <span style="font-size: 1.2rem"><Strong>{{infoSection}}</Strong></span>
-            <!-- <el-button type="primary" style="float: right" size="small" icon="el-icon-edit" circle></el-button> -->
-          </div>
-          <div v-if="infoSection == 'Config'">
-            <!-- <el-row type="flex">
-              <el-col :span="2"><div class="grid-content bg-purple"><Strong>ID: </Strong></div></el-col>
-              <el-col :span="10" :offset="1"><div class="grid-content bg-purple">{{boxInfoCard.id}}</div></el-col>
-            </el-row> -->
-            <Strong>ID: </Strong> {{boxInfoCard.id}} <br>
-            <Strong>Name: </Strong> {{boxInfoCard.name}} <br>
-            <Strong>State: </Strong> {{boxInfoCard.state}} <br>
-            <Strong>Create Time: </Strong> {{boxInfoCard.create_time}} <br>
-            <Strong>Update Time: </Strong> {{boxInfoCard.update_time}} <br>
-            <Strong>Data: </Strong> {{boxInfoCard.config.data}}<br>
-            <Strong>Destroy TiDB Cluster: </Strong>{{boxInfoCard.config.destory_tidb_cluster}}<br>
-            <Strong>Prepare: </Strong>{{boxInfoCard.config.prepare}}<br>
-            <Strong>Slack: </Strong>{{boxInfoCard.config.slack}}<br>
-            <Strong>Stop: </Strong>{{boxInfoCard.config.stop}}<br>
-            <Strong>Timeout: </Strong>{{boxInfoCard.config.timeout}}<br>
-            <Strong>Type: </Strong>{{boxInfoCard.config.type}}<br>
-          </div>
-          <div v-if="infoSection == 'Cat'">
-            <Strong>Labels: </Strong> {{boxInfoCard.labels}} <br>
-            <Strong>PD Version: </Strong> {{boxInfoCard.pd_ver}} <br>
-            <Strong>TiKV Version: </Strong> {{boxInfoCard.tikv_ver}} <br>
-            <Strong>TiDB Version: </Strong> {{boxInfoCard.tidb_ver}} <br>
-            <Strong>PD Size: </Strong> {{boxInfoCard.pd_size}} <br>
-            <Strong>TiDB Size: </Strong> {{boxInfoCard.tidb_size}}<br>
-            <Strong>TiKV Size: </Strong>{{boxInfoCard.tikv_size}}<br>
-            <Strong>Config Map: </Strong>{{boxInfoCard.config_map}}
-          </div>
-          <div v-if="infoSection == 'Tests'">
-            <template v-if="boxInfoCard.in_order">
-              <Strong>Execution Method: </Strong> Serial Execution <br>
-            </template>
-            <template v-if="!boxInfoCard.in_order">
-              <Strong>Execution Method: </Strong> Parallel Execution <br>
-            </template>
-            <Strong>Tests: </Strong> <br>
-            <el-tag v-for="(item, index) in boxInfoCard.tests" :key="index" style="margin-left: 7px">{{item}}
-            </el-tag>
-          </div>
-          <div v-if="infoSection == 'Rules'">
-            <el-row type="flex" justify="space-between">
-              <el-col :span="12"><Strong>Type</Strong></el-col>
-              <el-col :span="12"><Strong>Rule</Strong></el-col>
-            </el-row>
-            <el-row type="flex" justify="space-between" v-for="(item, index) in boxInfoCard" :key="index">
-              <el-col :span="12">{{item.type}}</el-col>
-              <el-col :span="12">{{item.value}}</el-col>
-            </el-row>
-          </div>
-        </el-card>
+    <!-- show box config cards -->
+    <el-card class="box-card" v-if="box">
+      <div slot="header" class="clearfix">
+        <span style="font-size: 1.2rem"><Strong>{{infoSection}}</Strong></span>
+        <!-- <el-button type="primary" style="float: right" size="small" icon="el-icon-edit" circle></el-button> -->
+      </div>
+      <div v-if="infoSection == 'Config'">
+        <!-- <el-row type="flex">
+          <el-col :span="2"><div class="grid-content bg-purple"><Strong>ID: </Strong></div></el-col>
+          <el-col :span="10" :offset="1"><div class="grid-content bg-purple">{{boxInfoCard.id}}</div></el-col>
+        </el-row> -->
+        <Strong>ID: </Strong> {{boxInfoCard.id}} <br>
+        <Strong>Name: </Strong> {{boxInfoCard.name}} <br>
+        <Strong>State: </Strong> {{boxInfoCard.state}} <br>
+        <Strong>Create Time: </Strong> {{boxInfoCard.create_time}} <br>
+        <Strong>Update Time: </Strong> {{boxInfoCard.update_time}} <br>
+        <Strong>Data: </Strong> {{boxInfoCard.config.data}}<br>
+        <Strong>Destroy TiDB Cluster: </Strong>{{boxInfoCard.config.destory_tidb_cluster}}<br>
+        <Strong>Prepare: </Strong>{{boxInfoCard.config.prepare}}<br>
+        <Strong>Slack: </Strong>{{boxInfoCard.config.slack}}<br>
+        <Strong>Stop: </Strong>{{boxInfoCard.config.stop}}<br>
+        <Strong>Timeout: </Strong>{{boxInfoCard.config.timeout}}<br>
+        <Strong>Type: </Strong>{{boxInfoCard.config.type}}<br>
+      </div>
+      <div v-if="infoSection == 'Cat'">
+        <Strong>Labels: </Strong> {{boxInfoCard.labels}} <br>
+        <Strong>PD Version: </Strong> {{boxInfoCard.pd_ver}} <br>
+        <Strong>TiKV Version: </Strong> {{boxInfoCard.tikv_ver}} <br>
+        <Strong>TiDB Version: </Strong> {{boxInfoCard.tidb_ver}} <br>
+        <Strong>PD Size: </Strong> {{boxInfoCard.pd_size}} <br>
+        <Strong>TiDB Size: </Strong> {{boxInfoCard.tidb_size}}<br>
+        <Strong>TiKV Size: </Strong>{{boxInfoCard.tikv_size}}<br>
+        <Strong>Config Map: </Strong>{{boxInfoCard.config_map}}
+      </div>
+      <div v-if="infoSection == 'Tests'">
+        <template v-if="boxInfoCard.in_order">
+          <Strong>Execution Method: </Strong> Serial Execution <br>
+        </template>
+        <template v-if="!boxInfoCard.in_order">
+          <Strong>Execution Method: </Strong> Parallel Execution <br>
+        </template>
+        <Strong>Tests: </Strong> <br>
+        <el-tag v-for="(item, index) in boxInfoCard.tests" :key="index" style="margin-left: 7px">{{item}}
+        </el-tag>
+      </div>
+      <div v-if="infoSection == 'Rules'">
+        <el-row type="flex" justify="space-between">
+          <el-col :span="12"><Strong>Type</Strong></el-col>
+          <el-col :span="12"><Strong>Rule</Strong></el-col>
+        </el-row>
+        <el-row type="flex" justify="space-between" v-for="(item, index) in boxInfoCard" :key="index">
+          <el-col :span="12">{{item.type}}</el-col>
+          <el-col :span="12">{{item.value}}</el-col>
+        </el-row>
+      </div>
+    </el-card>
+
+    <!-- show experiment config cards -->
+    <el-card class="box-card" v-if="experiment">
+      <div slot="header" class="clearfix">
+        <span style="font-size: 1.2rem"><Strong>{{infoSection}}</Strong></span>
+      </div>
+      <div v-if="infoSection == 'Config'">
+        <Strong>ID: </Strong> {{boxInfoCard.id}} <br>
+        <Strong>Name: </Strong> {{boxInfoCard.name}} <br>
+        <Strong>Status: </Strong> {{boxInfoCard.status}} <br>
+        <Strong>Stage: </Strong> {{boxInfoCard.stage}} <br>
+        <Strong>Create Time: </Strong> {{boxInfoCard.create_time}} <br>
+        <Strong>Update Time: </Strong> {{boxInfoCard.update_time}} <br>
+        <Strong>Data: </Strong> {{boxInfoCard.Config.Misc.data}}<br>
+        <Strong>Destroy TiDB Cluster: </Strong>{{boxInfoCard.Config.Misc.destory_tidb_cluster}}<br>
+        <Strong>Prepare: </Strong>{{boxInfoCard.Config.Misc.prepare}}<br>
+        <Strong>Slack: </Strong>{{boxInfoCard.Config.Misc.slack}}<br>
+        <Strong>Stop: </Strong>{{boxInfoCard.Config.Misc.stop}}<br>
+        <Strong>Timeout: </Strong>{{boxInfoCard.Config.Misc.timeout}}<br>
+        <Strong>Type: </Strong>{{boxInfoCard.Config.Misc.type}}<br>
+      </div>
+      <div v-if="infoSection == 'Cat'">
+        <Strong>Labels: </Strong> {{boxInfoCard.labels}} <br>
+        <Strong>PD Version: </Strong> {{boxInfoCard.pd_ver}} <br>
+        <Strong>TiKV Version: </Strong> {{boxInfoCard.tikv_ver}} <br>
+        <Strong>TiDB Version: </Strong> {{boxInfoCard.tidb_ver}} <br>
+        <Strong>PD Size: </Strong> {{boxInfoCard.pd_size}} <br>
+        <Strong>TiDB Size: </Strong> {{boxInfoCard.tidb_size}}<br>
+        <Strong>TiKV Size: </Strong>{{boxInfoCard.tikv_size}}<br>
+        <Strong>Config Map: </Strong>{{boxInfoCard.config_map}}
+      </div>
+      <div v-if="infoSection == 'Tests'">
+        <template v-if="boxInfoCard.in_order">
+          <Strong>Execution Method: </Strong> Serial Execution <br>
+        </template>
+        <template v-if="!boxInfoCard.in_order">
+          <Strong>Execution Method: </Strong> Parallel Execution <br>
+        </template>
+        <Strong>Tests: </Strong> <br>
+        <el-tag v-for="(item, index) in boxInfoCard.tests" :key="index" style="margin-left: 7px">{{item}}
+        </el-tag>
+      </div>
+    </el-card>
   </div>
 </template>
 
 <script>
 export default {
-  props: ['boxInfoCard', 'section'],
+  props: ['boxInfoCard', 'section', 'experiment', 'box'],
   data() {
     return {
       infoSection: this.section

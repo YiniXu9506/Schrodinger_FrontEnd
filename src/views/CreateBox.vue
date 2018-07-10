@@ -2,7 +2,7 @@
 <div>
   <el-form :model="newBoxForm" inline :rules="validationRules" ref="newBoxForm" label-width="10rem" class="demo-form-inline">
     <el-collapse v-model="activeName">
-      <el-collapse-item title="Misc Config" name="misConfig">
+      <el-collapse-item title="Misc Config" name="miscConfig">
         <el-form-item label="Name:" prop="miscConfigForm.name">
           <el-input v-model="newBoxForm.miscConfigForm.name"></el-input>
         </el-form-item>
@@ -16,7 +16,10 @@
           <el-input v-model="newBoxForm.miscConfigForm.stop"></el-input>
         </el-form-item>
         <el-form-item label="DestoryTidbCluster:" prop="miscConfigForm.destory_tidb_cluster">
-          <el-input v-model="newBoxForm.miscConfigForm.destory_tidb_cluster"></el-input>
+          <el-select v-model="newBoxForm.miscConfigForm.destory_tidb_cluster" placeholder="select">
+            <el-option label="Yes" value="true"></el-option>
+            <el-option label="No" value="false"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="Type:" prop="miscConfigForm.type">
           <el-input v-model="newBoxForm.miscConfigForm.type"></el-input>
@@ -25,7 +28,7 @@
           <el-input v-model="newBoxForm.miscConfigForm.data"></el-input>
         </el-form-item>
       </el-collapse-item>
-      <el-collapse-item title="CAT">
+      <el-collapse-item title="CAT" name="cat">
         <el-form-item label="PD Verion:" prop="catForm.pd_ver">
           <el-input v-model="newBoxForm.catForm.pd_ver"></el-input>
         </el-form-item>
@@ -48,11 +51,13 @@
           <el-input v-model="newBoxForm.catForm.config_map"></el-input>
         </el-form-item>
       </el-collapse-item>
-      <el-collapse-item title="Tests">
+      <el-collapse-item title="Tests" name="tests">
         <div id="executionMethods">
-          <Strong style="margin-right: 20px; font-size: 14px">Execution method:</Strong>
-          <el-checkbox v-model="parallelChecked">Parallel execution</el-checkbox>
-          <el-checkbox v-model="serialChecked">Serial execution</el-checkbox>
+          <el-form-item>
+            <Strong style="margin-right: 20px; font-size: 14px">Execution method:</Strong>
+              <el-radio v-model="executionChecked" label='serialExecution'>Serial execution</el-radio>
+              <el-radio v-model="executionChecked" label='parallelExecution'>Parallel execution</el-radio>
+          </el-form-item>
         </div>
         <div style="position: relative; margin-top: 20px">
           <el-form-item label="Tests: " prop="tests">
@@ -66,38 +71,41 @@
         </div>
       </el-collapse-item>
 
-      <el-collapse-item title="Rules">
-        <Row>
-          <Col span="2" offset="2"><Strong>Type</Strong></Col>
-          <Col span="4" offset="1"><Strong>Value</Strong></Col>
-        </Row>
+      <el-collapse-item title="Rules" name="name">
+        <el-row>
+          <el-col :span="2" :offset="2"><Strong>Type</Strong></el-col>
+          <el-col :span="4" :offset="1"><Strong>Value</Strong></el-col>
+        </el-row>
         <el-form-item v-for="(rule, index) in newBoxForm.ruleForm" label-width="7rem" :key="rule.key" :label="'Rule ' + index"
                       :prop="'ruleForm.' + index + '.type'">
-          <Row>
-            <Col span="6">
+          <el-row>
+            <el-col :span="6">
                <el-input v-model="rule.type"></el-input>
-            </Col>
-            <Col span="11" offset="1">
+            </el-col>
+            <el-col :span="11" :offset="1">
               <el-input v-model="rule.value"></el-input>
-            </Col>
-            <Col span="1" offset="1">
+            </el-col>
+            <el-col :span="1" :offset="1">
               <el-button @click.prevent="handleRemove(rule)">Delete</el-button>
-            </Col>
-          </Row>
+            </el-col>
+          </el-row>
           <br>
         </el-form-item>
-        <Row>
-          <Col span="1" offset="1">
+        <el-row>
+          <el-col :span="1" :offset="1">
             <Button type="dashed" @click="handleAdd()" icon="plus-round">Add rule</Button>
-          </Col>
-        </Row>
+          </el-col>
+        </el-row>
       </el-collapse-item>
     </el-collapse>
+    <div style="margin-top: 10px;">
+      <el-form-item>
+        <el-button type="primary" @click="submitForm('newBoxForm')">Submit</el-button>
+        <el-button @click="resetForm('newBoxForm')">Reset</el-button>
+      </el-form-item>
+    </div>
   </el-form>
-  <div style="margin-top: 10px;">
-    <el-button type="primary" @click="submitForm('newBoxForm')">Submit</el-button>
-    <el-button @click="resetForm('newBoxForm')">Reset</el-button>
-  </div>
+
 </div>
 </template>
 
@@ -105,22 +113,36 @@
 import ajax from '../request/index'
 export default {
   data() {
+    var checkEmpty = (rule, value, callback) => {
+      if(!value) {
+        return callback(new Error('Cannot be empty'))
+      } else {
+        callback()
+      }
+    }
+
     var checkString = ((rule, value, callback) => {
       if(!value) {
-        return callback(new Error('Name cannot be empty'))
+        return callback(new Error('Cannot be empty'))
       }
-      validRegEx = /^[^\\\/&]*$/
-      setTimeout(() => {
-        if(!value.match(validRegEx)) {
-          return callback(new Error('Name must be String'))
-        }
-      }, 1000)
-      return
+      if(Number.isInteger(value)) {
+        return callback(new Error('Must be string'))
+      } else {
+        callback()
+      }
     });
+
+    var checkNumber = ((rule, value, callback) => {
+      if(!Number.isInteger(value)) {
+        return callback(new Error('Must be a number'))
+      } else {
+        callback()
+      }
+    });
+
     return {
-      activeName: 'misConfig',
-      parallelChecked: false,
-      serialChecked: false,
+      activeName: ['misConfig'],
+      executionChecked: 'serialExecution',
       testTemplateList: [],
       newBoxForm: {
         miscConfigForm: {
@@ -136,9 +158,9 @@ export default {
           pd_ver: '',
           tikv_ver: '',
           tidb_ver: '',
-          pd_size: '',
-          tidb_size: '',
-          tikv_size: '',
+          pd_size: 0,
+          tidb_size: 0,
+          tikv_size: 0,
           config_map: ''
         },
         testForm: {
@@ -152,59 +174,23 @@ export default {
       },
 
       validationRules: {
-        'miscConfigForm.name' :[{validator: checkString, tigger: 'blur'}],
-        'miscConfigForm.slack': [{
-          required: true,
-          message: 'Please input the slackChannel',
-          trigger: 'blur'
-        },
-        {
-          min: 1,
-          max: 64,
-          message: 'Length should be 1 to 64',
-          trigger: 'blur'
-        }],
+        'miscConfigForm.name' :[{required: true, validator: checkString, trigger: 'blur'}],
+        'miscConfigForm.slack':[{required: true, validator: checkString, trigger: 'blur'}],
+        'miscConfigForm.prepare':[{required: true, validator: checkString, trigger: 'blur'}],
+        'miscConfigForm.stop':[{required: true, validator: checkString, trigger: 'blur'}],
+        'miscConfigForm.destory_tidb_cluster':[{required: true, validator: checkEmpty, trigger: 'change'}],
+        'miscConfigForm.type':[{required: true, validator: checkString, trigger: 'blur'}],
 
-        'miscConfigForm.type': [{
-          required: true,
-          message: 'Please input type',
-          trigger: 'blur'
-        },
-        {
-          min: 1,
-          max: 64,
-          message: 'Length should be 1 to 64',
-          trigger: 'blur'
-        }],
-        'catForm.pdVer': [{
-          required: true,
-          message: 'Please input pdVer',
-          trigger: 'blur'
-        },
-        {
-          min: 1,
-          max: 64,
-          message: 'Length should be 1 to 64',
-          trigger: 'blur'
-        }],
-
-        'testForm.tests': [{
-          required: true,
-          message: 'Please select test',
-          trigger: 'blur'
-        }],
-
-        'ruleForm.type': [{
-          required: true,
-          message: 'Please input type',
-          trigger: 'blur'
-        },
-        {
-          min: 1,
-          max: 64,
-          message: 'Length should be 1 to 64',
-          trigger: 'blur'
-        }]
+        'catForm.pd_ver': [{required: true, validator: checkString, trigger: 'blur'}],
+        'catForm.tikv_ver': [{required: true, validator: checkString, trigger: 'blur'}],
+        'catForm.tidb_ver': [{required: true, validator: checkString, trigger: 'blur'}],
+        'catForm.pd_size': [{required: true, validator: checkNumber, trigger: 'blur'}],
+        'catForm.tidb_size': [{required: true, validator: checkNumber, trigger: 'blur'}],
+        'catForm.tikv_size': [{required: true, validator: checkNumber, trigger: 'blur'}],
+        'catForm.config_map': [{required: true, validator: checkString, trigger: 'blur'}],
+        'testFrom.in_order': [{required: true, validator: checkEmpty, trigger: 'blur'}],
+        'testForm.tests':[{required: true, validator: checkEmpty, trigger: 'change'}],
+        'ruleForm.type': [{required: true, validator: checkString, trigger: 'blur'}],
       }
     }
   },
@@ -224,6 +210,7 @@ export default {
 
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
+        debugger
         if (valid) {
           console.log('form is valid!')
           ajax.createBox({
@@ -254,6 +241,7 @@ export default {
               data: this.newBoxForm.miscConfigForm.data
             }
           }).then((result) => {
+            console.log('result code', result.data.code)
             if(result.data.code != 200) {
               this.$notify.error({
                 title: 'Error',
@@ -270,6 +258,7 @@ export default {
 
             this.$router.push({name: 'BoxInstance'})
           }).catch((resp) => {
+            debugger
             console.log('inside catch')
             this.$notify.error({
               title: "ERROR",
@@ -278,13 +267,15 @@ export default {
             })
           })
         } else {
-          console.log('Submit Failed');
+          this.activeName = ['miscConfig', 'cat', 'tests', 'name']
+          console.log('check validation Failed');
           return false;
         }
       });
     },
 
     resetForm(formName) {
+      console.log("click reset form")
       if (this.$refs[formName] != null) {
         this.$refs[formName].resetFields();
       }

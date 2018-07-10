@@ -25,19 +25,19 @@
 
           <el-row type="flex" :gutter="10" style="padding: 20px 0">
             <el-col :span="12">
-              <my-card :boxInfoCard="boxInstanceDetail" section="Config">
+              <my-card :boxInfoCard="boxInstanceDetail" section="Config" box="true">
               </my-card>
             </el-col>
             <el-col :span="12">
-              <my-card :boxInfoCard="boxInstanceDetail.cat" section="Cat">
+              <my-card :boxInfoCard="boxInstanceDetail.cat" section="Cat" box="true">
               </my-card>
             </el-col>
             <el-col :span="12">
-              <my-card :boxInfoCard="boxInstanceDetail.tests" section="Tests">
+              <my-card :boxInfoCard="boxInstanceDetail.tests" section="Tests" box="true">
               </my-card>
             </el-col>
             <el-col :span="12">
-              <my-card :boxInfoCard="boxInstanceDetail.rules" section="Rules">
+              <my-card :boxInfoCard="boxInstanceDetail.rules" section="Rules" box="true">
               </my-card>
             </el-col>
           </el-row>
@@ -66,19 +66,15 @@
         <el-header style="height:400px;">
           <el-row type="flex" :gutter="10" style="padding: 20px 0">
             <el-col :span="12">
-              <my-card :boxInfoCard="boxInstanceDetail" section="Config">
+              <my-card :boxInfoCard="experimentDetail" section="Config" experiment="true">
               </my-card>
             </el-col>
             <el-col :span="12">
-              <my-card :boxInfoCard="boxInstanceDetail.cat" section="Cat">
+              <my-card :boxInfoCard="experimentDetail.Config.Cat" section="Cat" experiment="true">
               </my-card>
             </el-col>
             <el-col :span="12">
-              <my-card :boxInfoCard="boxInstanceDetail.tests" section="Tests">
-              </my-card>
-            </el-col>
-            <el-col :span="12">
-              <my-card :boxInfoCard="boxInstanceDetail.rules" section="Rules">
+              <my-card :boxInfoCard="experimentDetail.Config.Tests" section="Tests" experiment="true">
               </my-card>
             </el-col>
           </el-row>
@@ -91,9 +87,11 @@
           </el-breadcrumb>
         </div>
         <el-main>
-          <el-table :data="experimentTable.list">
-              <el-table-column v-for="(item, index) in experimentTable.prop" :key="index" :prop="item"
-                              :label="experimentTable.label[index]">
+          <el-table :data="testTable.list">
+              <el-table-column v-for="(item, index) in testTable.prop" :key="index" :prop="item"
+                              :label="testTable.label[index]">
+              </el-table-column>
+              <el-table-column prop="testTable.prop.status" label="Status">{{status}}
               </el-table-column>
               <el-table-column label="Operation">
                 <template slot-scope="scope">
@@ -238,11 +236,6 @@ export default {
   },
 
   data() {
-    // const item = {
-    //     date: '2016-05-02',
-    //     name: '王小虎',
-    //     address: '上海市普陀区金沙江路 1518 弄'
-    //   };
     return {
       boxInstanceList: [],
       boxInstanceDetail: {},
@@ -262,8 +255,8 @@ export default {
         list: []
       },
       testTable: {
-        label: ['ID', 'Name', 'Status', 'Stage'],
-        prop: ['id', 'name', 'status', 'stage'],
+        label: ['Name', 'Pod Name', 'Status'],
+        prop: ['name', 'pod_name', 'status'],
         list: []
       },
       testDetail: '',
@@ -459,14 +452,14 @@ export default {
       // debugger
     },
 
-    handleExperimentDetailClick: function(rowId) {
+    handleExperimentDetailClick: function(experimentId) {
       this.showBoxDetail = false
       this.showExperimentDetail = true
-      console.log('experimetn id: ', rowId, this.boxInstanceDetail.id)
-      ajax.getExperimentsDetailByID(this.boxInstanceDetail.id, rowId).then((result) => {
+      console.log('experimetn id: ', experimentId, this.boxInstanceDetail.id)
+      ajax.getExperimentsDetailByID(this.boxInstanceDetail.id, experimentId).then((result) => {
         this.experimentDetail = result.data.data
         console.log('this experimentDetail: ', this.experimentDetail)
-        this.testTable.list = this.experimentDetail.tests
+        this.testTable.list = this.experimentDetail.report.Tests
         console.log('hello from handleDetail Click,testtable list', this.testTable.list)
       }).catch((resp) => {
         this.$notify.error({
@@ -477,7 +470,7 @@ export default {
     },
 
     handleTestDetailClick: function(row) {
-      console.log('click test detail')
+      console.log('click test detail, row is: ', row)
 
     },
 
@@ -495,6 +488,7 @@ export default {
           type: 'success',
           message: 'Box: ' + this.boxInstanceDetail.name
         })
+        this.getExperiments(this.boxInstanceDetail.id)
       }).catch((resp) => {
         this.$notify.error({
           title: 'Error',

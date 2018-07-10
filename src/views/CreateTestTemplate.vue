@@ -50,38 +50,46 @@
             </strong>
           </big>
         </div>
-        <el-form-item label="Binary Name:" prop="binary_name">
+        <el-form-item label="Binary Name:" prop="source.binary_name">
           <el-input v-model="testTemplateForm.source.binary_name"></el-input>
         </el-form-item>
-        <el-form-item label="Source Type:" prop="type">
+        <el-form-item label="Source Type:" prop="source.type">
           <el-select v-model="testTemplateForm.source.type" placeholder="select source type">
             <el-option label="git" value="git"></el-option>
             <el-option label="bin" value="bin"></el-option>
             <el-option label="docker" value="docker"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="Git Repo:" prop="git_repo">
+        <el-form-item v-if="testTemplateForm.source.type === 'git'" label="Git Repo:" prop="source.git_repo">
           <el-input v-model="testTemplateForm.source.git_repo"></el-input>
         </el-form-item>
-        <el-form-item label="Git Value:" prop="git_value">
-          <el-input v-model="testTemplateForm.source.git_value"></el-input>
+        <el-form-item v-if="testTemplateForm.source.type === 'git'" label="Git Value:" prop="source.git_value">
+          <el-input v-model="testTemplateForm.source.gitValue" class="input-with-select">
+            <el-select v-model="testTemplateForm.source.gitValuePrefix" slot="prepend" placeholder="Select prefix">
+              <el-option label="branch" value="branch"></el-option>
+              <el-option label="tag" value="tag"></el-option>
+              <el-option label="hash" value="hash"></el-option>
+            </el-select>
+          </el-input>
+          <!-- <el-input v-model="testTemplateForm.source.git_value" class="input-with-select">
+          </el-input> -->
         </el-form-item>
-        <el-form-item label="Binary URL:" prop="url">
+        <el-form-item v-if="testTemplateForm.source.type === 'bin'" label="Binary URL:" prop="source.url">
           <el-input v-model="testTemplateForm.source.url"></el-input>
         </el-form-item>
-        <el-form-item label="Image Address:" prop="image">
+        <el-form-item label="Image Address:" prop="source.image">
           <el-input v-model="testTemplateForm.source.image"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="createTestTemplateDialog = false; clearTestTemplateForm()">Cancel</el-button>
         <el-button @click="resetForm('testTemplateForm')">Reset</el-button>
-        <el-button @click="submitForm('testTemplateForm', 'new')">OK</el-button>
+        <el-button @click="submitForm('testTemplateForm', 'new')">Create</el-button>
       </div>
     </el-dialog>
 
     <el-dialog title="Update Test Template" :visible.sync="updateTestTemplateDialog" @close="handleDialogClosed">
-      <el-form :inline="true" :model="testTemplateForm" :rules="rules" ref="testTemplateForm" label-width="6rem">
+      <el-form :inline="true" :model="testTemplateForm" :rules="rules" ref="testTemplateForm" label-width="9rem" class="demo-form-inline">
         <el-form-item label="Name:" prop="name">
           <el-input v-model="testTemplateForm.name"></el-input>
         </el-form-item>
@@ -107,25 +115,25 @@
             </strong>
           </big>
         </div>
-        <el-form-item label="Binary Name:" prop="binary_name">
+        <el-form-item label="Binary Name:" prop="source.binary_name">
           <el-input v-model="testTemplateForm.source.binary_name"></el-input>
         </el-form-item>
-        <el-form-item label="Source Type:" prop="type">
+        <el-form-item label="Source Type:" prop="source.type">
           <el-select v-model="testTemplateForm.source.type" placeholder="select source type">
             <el-option label="git" value="git"></el-option>
             <el-option label="bin" value="bin"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="Git Repo:" prop="git_repo">
+        <el-form-item v-if="testTemplateForm.source.type === 'git'" label="Git Repo:" prop="source.git_repo">
           <el-input v-model="testTemplateForm.source.git_repo"></el-input>
         </el-form-item>
-        <el-form-item label="Git Value:" prop="git_value">
+        <el-form-item v-if="testTemplateForm.source.type === 'git'" label="Git Value:" prop="source.git_value">
           <el-input v-model="testTemplateForm.source.git_value"></el-input>
         </el-form-item>
-        <el-form-item label="Binary URL:" prop="url">
+        <el-form-item v-if="testTemplateForm.source.type === 'bin'" label="Binary URL:" prop="source.url">
           <el-input v-model="testTemplateForm.source.url"></el-input>
         </el-form-item>
-        <el-form-item label="Image Address:" prop="image">
+        <el-form-item label="Image Address:" prop="source.image">
           <el-input v-model="testTemplateForm.source.image"></el-input>
         </el-form-item>
       </el-form>
@@ -145,7 +153,36 @@ import _ from 'lodash'
 
 export default {
   data() {
+    var checkEmpty = (rule, value, callback) => {
+      if(!value) {
+        return callback(new Error('Cannot be empty'))
+      } else {
+        callback()
+      }
+    }
+
+    var checkString = ((rule, value, callback) => {
+      if(!value) {
+        return callback(new Error('Cannot be empty'))
+      }
+      if(Number.isInteger(value)) {
+        return callback(new Error('Must be string'))
+      } else {
+        callback()
+      }
+    });
+
+    var checkNumber = ((rule, value, callback) => {
+      if(!Number.isInteger(value)) {
+        return callback(new Error('Must be a number'))
+      } else {
+        callback()
+      }
+    });
+
     return {
+      gitValuePrefix: '',
+      select: '',
       searchContent: '',
       filteredData: [],
       createdTestTemplateList: [],
@@ -164,59 +201,23 @@ export default {
           type: '',
           url: '',
           git_value: '',
+          gitValue: '',
+          gitValuePrefix: '',
           git_repo: ''
         }
       },
       rules: {
-        name: [{
-          required: true,
-          message: 'Please input name',
-          trigger: 'blur'
-        },
-        {
-          min: 1,
-          max: 64,
-          message: 'Length should be 1 to 64',
-          trigger: 'blur'
-        }],
-        type: [{
-          required: true,
-          message: 'Please select type',
-          trigger: 'change'
-        }],
-        desc: [{
-          required: true,
-          message: 'Please input description',
-          trigger: 'blur'
-        }],
-        creator: [{
-          required: true,
-          message: 'Please input creator',
-          trigger: 'blur'
-        },
-        {
-          min: 1,
-          max: 64,
-          message: 'Length should be 1 to 64',
-          trigger: 'blur'
-        }],
-        'source.binary_name': [{
-          required: true,
-          message: 'Please input binary name',
-          trigger: 'blur'
-        },
-        {
-          min: 1,
-          max: 64,
-          message: 'Length should be 1 to 64',
-          trigger: 'blur'
-        }],
-        'source.type': [{
-          required: true,
-          message: 'Please select source type',
-          trigger: 'change'
-        }]
+        name: [{required: true, validator: checkString, trigger: 'blur'}],
+        type: [{required: true, validator: checkString, trigger: 'blur'}],
+        // 'args.arvalue': [{required: true, validator: checkString, trigger: 'blur'}],
+        'source.binary_name': [{required: true, validator: checkString, trigger: 'blur'}],
+        'source.type': [{required: true, validator: checkString, trigger: 'blur'}],
+        'source.url': [{required: true, validator: checkString, trigger: 'blur'}],
+        'source.git_value': [{required: true, validator: checkString, trigger: 'blur'}],
+        'source.git_repo': [{required: true, validator: checkString, trigger: 'blur'}]
       }
+
+
     }
   },
 
@@ -227,7 +228,7 @@ export default {
   methods: {
     fetchTestTemplates: function() {
       ajax.getTestTemplate().then((result) => {
-        console.log('result.data.data', result.data.data)
+        console.log('hhhhresult.data.data', result.data.data)
         this.createdTestTemplateList = result.data.data
         // const res = _.values(this.createdTestTemplateList)
         // res.forEach(item => {
@@ -248,26 +249,8 @@ export default {
     },
 
     clickUpdateTestTemplate: function(testTemplateName) {
-
-      var getTestTemplateData = function() {
-        return new Promise(function(resolve, reject) {
-          ajax.getTestTemplateDetailByName(testTemplateName).then((result) => {
-            if(result.data.code == 200) {
-              resolve(result.data)
-            } else {
-              this.$notify.error({
-                title: 'Error',
-                message: result.data.message
-              })
-            }
-          }).catch((resp) => {
-            reject(resp.message)
-          })
-        })
-      }
-
-      getTestTemplateData().then((data) => {
-        this.createdTestTemplateDetail = data.data
+      ajax.getTestTemplateDetailByName(testTemplateName).then(result => {
+        this.createdTestTemplateDetail = result.data.data
         console.log('create Test template: ' , this.createdTestTemplateDetail)
         this.testTemplateForm = {
           name: this.createdTestTemplateDetail.name,
@@ -284,11 +267,18 @@ export default {
             image: this.createdTestTemplateDetail.source.image
           }
         }
-      }),
+      }).catch(resp => {
+        this.$notify.error({
+          title: 'Error',
+          message: resp.message
+        })
+      })
       this.updateTestTemplateDialog = true
     },
 
     createTestTemplate: function () {
+      console.log('inside createTestTempalte function')
+      debugger
       ajax.createTestTemplate({
         name: this.testTemplateForm.name,
         creator: this.testTemplateForm.creator,
@@ -304,9 +294,8 @@ export default {
           image: this.testTemplateForm.source.image
         }
       }).then((result) => {
-        console.log('hhhhh result.data.code, ', result.data.code)
-        console.log('the test been created: ', this.testTemplateForm)
-        console.log('hhhhh result.data.messsage, ', result.data.message)
+        debugger
+        console.log('this testtempalteform gitvalue: ', this.testTemplateForm.git_value)
         if (result.data.code != 200) {
           console.log('result.data.code', result.data.code)
           this.$notify.error({
@@ -337,23 +326,23 @@ export default {
 
     updateTestTemplate: function () {
       console.log('click save')
+      debugger
       ajax.updateTestTemplate (this.createdTestTemplateDetail.name, {
-        id: this.createdTestTemplateDetail.id,
-        name: this.createdTestTemplateDetail.name,
-        creator: this.createdTestTemplateDetail.creator,
-        create_time: this.createdTestTemplateDetail.create_time,
-        type: this.createdTestTemplateDetail.type,
-        desc: this.createdTestTemplateDetail.desc,
-        args: this.createdTestTemplateDetail.args,
+        name: this.testTemplateForm.name,
+        creator: this.testTemplateForm.creator,
+        type: this.testTemplateForm.type,
+        desc: this.testTemplateForm.desc,
+        args: this.testTemplateForm.args,
         source: {
-          binary_name: this.createdTestTemplateDetail.source.binary_name,
-          type: this.createdTestTemplateDetail.source.type,
-          git_repo: this.createdTestTemplateDetail.source.git_repo,
-          git_value: this.createdTestTemplateDetail.source.git_value,
-          url: this.createdTestTemplateDetail.source.url,
-          image: this.createdTestTemplateDetail.source.image
+          binary_name: this.testTemplateForm.source.binary_name,
+          type: this.testTemplateForm.source.type,
+          git_repo: this.testTemplateForm.source.git_repo,
+          git_value: this.testTemplateForm.source.git_value,
+          url: this.testTemplateForm.source.url,
+          image: this.testTemplateForm.source.image
         }
       }).then((result) => {
+        console.log('after update, the testtempalteform: ', this.testTemplateForm)
         if (result.data.code != 200) {
           this.$notify({
             title: "ERROR",
@@ -368,10 +357,15 @@ export default {
           title: "SUCCESS",
           type: 'success',
           message: 'Update Case Template Success!'
-        });
+        })
         ajax.getTestTemplate().then((result) => {
+          console.log('inside update created testtemplate')
           this.createdTestTemplateList = result.data.data;
+          this.filteredData = this.createdTestTemplateList
         }).catch(() => {})
+        debugger
+        console.log('after update, the createdTesttemplate list: ', this.createdTestTemplateList)
+        debugger
         this.clearTestTemplateForm();
       }).catch((resp) => {
         this.$notify({
@@ -384,7 +378,10 @@ export default {
     },
 
     submitForm: function (formName, type) {
+      console.log('submit button clicked')
       this.$refs[formName].validate((valid) => {
+        debugger
+        console.log('testestesets')
         if (valid) {
           switch (type) {
             case "new":
@@ -398,12 +395,12 @@ export default {
               break;
           }
         } else {
+          debugger
           console.log('error submit!!')
           return false;
         }
-      });
+      })
     },
-
     clearTestTemplateForm: function() {
       this.testTemplateForm = {
         name: '',
@@ -427,7 +424,7 @@ export default {
         this.clearTestTemplateForm()
         this.$refs[formName].resetFields()
         this.$refs[formName].clearValidate()
-        console.log(this.testTemplateForm)
+        console.log('after reset, this template form is', this.testTemplateForm)
       }
     },
 
@@ -450,13 +447,7 @@ export default {
     handleDialogClosed: function(done) {
       console.log('hello from closed')
       this.clearTestTemplateForm()
-      // this.resetForm('testTemplateForm')
     }
-    // Display all created cases using tags
-    // handleClose(tag) {
-    //   this.createdCasesNames.splice(this.createdCasesNames.indexOf(tag), 1)
-    // }
-
   }
 }
 </script>
@@ -466,6 +457,9 @@ export default {
   }
   .el-form.el-form-item.el-input {
     width: 12px;
+  }
+  .el-select .el-input {
+    width: 130px;
   }
 </style>
 
