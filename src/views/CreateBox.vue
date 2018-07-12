@@ -1,6 +1,6 @@
 <template>
 <div>
-  <el-form :model="newBoxForm" inline :rules="validationRules" ref="newBoxForm" label-width="10rem" class="demo-form-inline">
+  <!-- <el-form :model="newBoxForm" inline :rules="validationRules" ref="newBoxForm" label-width="10rem" class="demo-form-inline">
     <el-collapse v-model="activeName">
       <el-collapse-item title="Misc Config" name="miscConfig">
         <el-form-item label="Name:" prop="miscConfigForm.name">
@@ -50,13 +50,10 @@
         </el-form-item>
       </el-collapse-item>
       <el-collapse-item title="Tests" name="tests">
-        <!-- <div id="executionMethods"> -->
         <el-form-item label="Execution method" prop="testForm.in_order">
-          <!-- <Strong style="margin-right: 20px; font-size: 14px">Execution method:</Strong> -->
             <el-radio v-model="newBoxForm.testForm.in_order" :label=true>Serial execution</el-radio>
             <el-radio v-model="newBoxForm.testForm.in_order" :label=false>Parallel execution</el-radio>
         </el-form-item>
-        <!-- </div> -->
         <div style="position: relative; margin-top: 20px">
           <el-form-item label="Tests: " prop="testForm.tests">
               <el-select v-model="newBoxForm.testForm.tests" multiple placeholder="Please select test" style="width: 33rem;">
@@ -64,18 +61,13 @@
               </el-select>
             </el-form-item>
         </div>
-        <!-- <div id="testOrder">
-          <el-tag v-for="(item, index) in newBoxForm.testForm.tests" :key="index" type="primary">{{item}}</el-tag>
-        </div> -->
       </el-collapse-item>
 
       <el-collapse-item title="Rules" name="name">
-         <!-- <el-form-item> -->
         <el-row>
           <el-col :span="2" :offset="2"><Strong>Type</Strong></el-col>
           <el-col :span="4" :offset="1"><Strong>Value</Strong></el-col>
         </el-row>
-         <!-- </el-form-item> -->
         <el-form-item v-for="(rule, index) in newBoxForm.ruleForm" label-width="7rem" :key="rule.key" :label="'Rule ' + index"
                       :prop="'ruleForm.' + index + '.type'">
           <el-row>
@@ -98,6 +90,96 @@
         </el-row>
       </el-collapse-item>
     </el-collapse>
+    <div style="margin-top: 10px;">
+      <el-form-item>
+        <el-button type="primary" @click="submitForm('newBoxForm')">Submit</el-button>
+        <el-button @click="resetForm('newBoxForm')">Reset</el-button>
+      </el-form-item>
+    </div>
+  </el-form> -->
+   <el-form :model="newBoxForm" inline :rules="validationRules" ref="newBoxForm" label-width="10rem" class="demo-form-inline">
+
+        <el-form-item label="Name:" prop="miscConfigForm.name">
+          <el-input v-model="newBoxForm.miscConfigForm.name"></el-input>
+        </el-form-item>
+        <el-form-item label="Slack Channel:" prop="miscConfigForm.slack">
+          <el-input v-model="newBoxForm.miscConfigForm.slack"></el-input>
+        </el-form-item>
+        <el-form-item label="Prepare Callback:" prop="miscConfigForm.prepare">
+          <el-input v-model="newBoxForm.miscConfigForm.prepare"></el-input>
+        </el-form-item>
+        <el-form-item label="Stop Callback:" prop="miscConfigForm.stop">
+          <el-input v-model="newBoxForm.miscConfigForm.stop"></el-input>
+        </el-form-item>
+        <el-form-item label="DestoryTidbCluster:" prop="miscConfigForm.destory_tidb_cluster">
+          <el-radio border v-model="newBoxForm.miscConfigForm.destory_tidb_cluster" :label=true>Yes</el-radio>
+          <el-radio border v-model="newBoxForm.miscConfigForm.destory_tidb_cluster" :label=false>No</el-radio>
+        </el-form-item>
+        <el-form-item label="Type:" prop="miscConfigForm.type">
+          <el-input v-model="newBoxForm.miscConfigForm.type"></el-input>
+        </el-form-item>
+        <el-form-item label="Data:" prop="miscConfigForm.data">
+          <el-input v-model="newBoxForm.miscConfigForm.data"></el-input>
+        </el-form-item>
+        <el-form-item label="PD Verion:" prop="catForm.pd_ver">
+          <el-input v-model="newBoxForm.catForm.pd_ver"></el-input>
+        </el-form-item>
+        <el-form-item label="TiKV Verion:" prop="catForm.tikv_ver">
+          <el-input v-model="newBoxForm.catForm.tikv_ver"></el-input>
+        </el-form-item>
+        <el-form-item label="TiDB Verion" prop="catForm.tidb_ver">
+          <el-input v-model="newBoxForm.catForm.tidb_ver"></el-input>
+        </el-form-item>
+        <el-form-item label="PD Size:" prop="catForm.pd_size">
+          <el-input v-model.number="newBoxForm.catForm.pd_size"></el-input>
+        </el-form-item>
+        <el-form-item label="TiDB Size:" prop="catForm.tidb_size">
+          <el-input v-model.number="newBoxForm.catForm.tidb_size"></el-input>
+        </el-form-item>
+        <el-form-item label="Tikv Size:" prop="catForm.tikv_size">
+          <el-input v-model.number="newBoxForm.catForm.tikv_size"></el-input>
+        </el-form-item>
+        <el-form-item label="Config Map:" prop="catForm.config_map">
+          <el-input v-model="newBoxForm.catForm.config_map"></el-input>
+        </el-form-item>
+        <el-form-item label="Execution method" prop="testForm.in_order">
+            <el-radio v-model="newBoxForm.testForm.in_order" :label=true>Serial execution</el-radio>
+            <el-radio v-model="newBoxForm.testForm.in_order" :label=false>Parallel execution</el-radio>
+        </el-form-item>
+        <div style="position: relative; margin-top: 20px">
+          <el-form-item label="Tests: " prop="testForm.tests">
+              <el-select v-model="newBoxForm.testForm.tests" multiple placeholder="Please select test" style="width: 33rem;">
+                <el-option v-for="(item, index) in testTemplateList" :key="index" :value="item.name"></el-option>
+              </el-select>
+            </el-form-item>
+        </div>
+        <el-row>
+          <el-col :span="2" :offset="2"><Strong>Type</Strong></el-col>
+          <el-col :span="4" :offset="1"><Strong>Value</Strong></el-col>
+        </el-row>
+        <el-form-item v-for="(rule, index) in newBoxForm.ruleForm" label-width="7rem" :key="rule.key" :label="'Rule ' + index"
+                      :prop="'ruleForm.' + index + '.type'">
+          <el-row>
+            <el-col :span="22">
+               <el-input v-model="rule.value" class="input-with-select">
+                <el-select v-model="rule.type" style="width: 150px" slot="prepend" placeholder="Select Type">
+                  <el-option label="Immediately Job" value="immediately job"></el-option>
+                  <el-option label="Crontab Job" value="crontab job"></el-option>
+                  <el-option label="Git Webhook" value="git webhook"></el-option>
+                </el-select>
+              </el-input>
+            </el-col>
+            <el-col :span="1" :offset="1">
+              <el-button @click.prevent="handleRemove(rule)">Remove</el-button>
+            </el-col>
+          </el-row>
+          <br>
+        </el-form-item>
+        <el-row>
+          <el-col :span="1" :offset="1">
+            <Button type="dashed" @click="handleAdd()" icon="plus-round">Add rule</Button>
+          </el-col>
+        </el-row>
     <div style="margin-top: 10px;">
       <el-form-item>
         <el-button type="primary" @click="submitForm('newBoxForm')">Submit</el-button>
@@ -218,7 +300,7 @@ export default {
 
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
-        debugger
+        // debugger
         if (valid) {
           console.log('form is valid!')
           ajax.createBox({
@@ -263,7 +345,7 @@ export default {
 
             this.$router.push({name: 'BoxInstance'})
           }).catch((resp) => {
-            debugger
+            // debugger
             console.log('inside catch')
             this.$notify.error({
               title: "ERROR",

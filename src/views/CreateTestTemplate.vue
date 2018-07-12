@@ -11,6 +11,7 @@
                   v-model="searchContent" @input="handleSearch"></el-input>
       </div>
       <el-popover v-for="(item, index) in filteredData" :key="index" trigger="hover" placement="right" width="150" >
+        <div style="color: red"><Strong>Double Click Me to Update</Strong></div>
         <Strong>Creator: </Strong> {{item.creator}} <br>
         <Strong>Status: </Strong> {{item.status}} <br>
         <Strong>Type: </Strong> {{item.type}} <br>
@@ -27,12 +28,6 @@
       <el-form :inline="true" :model="testTemplateForm" :rules="rules" ref="testTemplateForm" label-width="9rem" class="demo-form-inline">
         <el-form-item label="Name:" prop="name">
           <el-input v-model="testTemplateForm.name"></el-input>
-        </el-form-item>
-        <el-form-item label="Type:" prop="type">
-          <el-select v-model="testTemplateForm.type" placeholder="select type">
-            <el-option label="test case" value="test case"></el-option>
-            <el-option label="auxiliary tool" value="auxiliary tool"></el-option>
-          </el-select>
         </el-form-item>
         <el-form-item label="Creator:" prop="creator">
           <el-input v-model="testTemplateForm.creator"></el-input>
@@ -58,7 +53,6 @@
           <el-select v-model="testTemplateForm.source.type" placeholder="select source type">
             <el-option label="git" value="git"></el-option>
             <el-option label="bin" value="bin"></el-option>
-            <el-option label="docker" value="docker"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item v-if="testTemplateForm.source.type === 'git'" label="Git Repo:" prop="source.git_repo">
@@ -92,12 +86,6 @@
       <el-form :inline="true" :model="testTemplateForm" :rules="rules" ref="testTemplateForm" label-width="9rem" class="demo-form-inline">
         <el-form-item label="Name:" prop="name">
           <el-input v-model="testTemplateForm.name"></el-input>
-        </el-form-item>
-        <el-form-item label="Type:" prop="type">
-          <el-select v-model="testTemplateForm.type" placeholder="select type">
-            <el-option label="test case" value="test case"></el-option>
-            <el-option label="auxiliary tool" value="auxiliary tool"></el-option>
-          </el-select>
         </el-form-item>
         <el-form-item label="Creator:" prop="creator">
           <el-input v-model="testTemplateForm.creator"></el-input>
@@ -198,7 +186,6 @@ export default {
       testTemplateForm: {
         name: '',
         creator: '',
-        type: '',
         desc: '',
         args: '',
         source: {
@@ -215,7 +202,6 @@ export default {
       },
       rules: {
         name: [{required: true, validator: checkString, trigger: 'blur'}],
-        type: [{required: true, validator: checkString, trigger: 'blur'}],
         'source.binary_name': [{required: true, validator: checkString, trigger: 'blur'}],
         'source.type': [{required: true, validator: checkString, trigger: 'blur'}],
         'source.url': [{required: true, validator: checkString, trigger: 'blur'}],
@@ -234,16 +220,23 @@ export default {
   methods: {
     fetchTestTemplates: function() {
       ajax.getTestTemplate().then((result) => {
-        console.log('hhhhresult.data.data', result.data.data)
-        this.createdTestTemplateList = result.data.data
-        // const res = _.values(this.createdTestTemplateList)
-        // res.forEach(item => {
-        //   var i = item
-        //   this.createdTestTemplateNames.push(i.name)
-        // })
-        this.filteredData = this.createdTestTemplateList
-        // this.filteredData = this.createdTestTemplateNames
-        // console.log('createdTestTemplateNames', this.createdTestTemplateNames)
+        if(result.data.data.length == 0) {
+          console.log('there is no created test')
+          this.createdTestTemplateList = []
+          this.filteredData = this.createdTestTemplateList
+          return
+        } else {
+          console.log('hhhhresult.data.data', result.data.data)
+          this.createdTestTemplateList = result.data.data
+          // const res = _.values(this.createdTestTemplateList)
+          // res.forEach(item => {
+          //   var i = item
+          //   this.createdTestTemplateNames.push(i.name)
+          // })
+          this.filteredData = this.createdTestTemplateList
+          // this.filteredData = this.createdTestTemplateNames
+          // console.log('createdTestTemplateNames', this.createdTestTemplateNames)
+          }
       })
     },
 
@@ -261,7 +254,6 @@ export default {
         this.testTemplateForm = {
           name: this.createdTestTemplateDetail.name,
           creator: this.createdTestTemplateDetail.creator,
-          type: this.createdTestTemplateDetail.type,
           desc: this.createdTestTemplateDetail.desc,
           args: this.createdTestTemplateDetail.args,
           source: {
@@ -276,6 +268,8 @@ export default {
             image: this.createdTestTemplateDetail.source.image
           }
         }
+
+        console.log('inside click updatetest template: ', this.testTemplateForm)
       }).catch(resp => {
         this.$notify.error({
           title: 'Error',
@@ -287,11 +281,10 @@ export default {
 
     createTestTemplate: function () {
       console.log('inside createTestTempalte function')
-      debugger
+      // debugger
       ajax.createTestTemplate({
         name: this.testTemplateForm.name,
         creator: this.testTemplateForm.creator,
-        type: this.testTemplateForm.type,
         desc: this.testTemplateForm.desc,
         args: this.testTemplateForm.args,
         source: {
@@ -306,8 +299,8 @@ export default {
           image: this.testTemplateForm.source.image
         }
       }).then((result) => {
-        debugger
-        console.log('this testtempalteform gitvalue: ', this.testTemplateForm.git_value)
+        // debugger
+        console.log('the newest created testtempalteform is ', this.testTemplateForm)
         if (result.data.code != 200) {
           console.log('result.data.code', result.data.code)
           this.$notify.error({
@@ -338,11 +331,10 @@ export default {
 
     updateTestTemplate: function () {
       console.log('click save')
-      debugger
+      // debugger
       ajax.updateTestTemplate (this.createdTestTemplateDetail.name, {
         name: this.testTemplateForm.name,
         creator: this.testTemplateForm.creator,
-        type: this.testTemplateForm.type,
         desc: this.testTemplateForm.desc,
         args: this.testTemplateForm.args,
         source: {
@@ -378,9 +370,7 @@ export default {
           this.createdTestTemplateList = result.data.data;
           this.filteredData = this.createdTestTemplateList
         }).catch(() => {})
-        debugger
         console.log('after update, the createdTesttemplate list: ', this.createdTestTemplateList)
-        debugger
         this.clearTestTemplateForm();
       }).catch((resp) => {
         this.$notify({
@@ -395,7 +385,7 @@ export default {
     submitForm: function (formName, type) {
       console.log('submit button clicked')
       this.$refs[formName].validate((valid) => {
-        debugger
+        // debugger
         console.log('testestesets')
         if (valid) {
           switch (type) {
@@ -410,7 +400,7 @@ export default {
               break;
           }
         } else {
-          debugger
+          // debugger
           console.log('error submit!!')
           return false;
         }
@@ -425,7 +415,6 @@ export default {
       this.testTemplateForm = {
         name: '',
         creator: '',
-        type: '',
         desc: '',
         args: '',
         source: {

@@ -63,39 +63,39 @@
         <span style="font-size: 1.2rem"><Strong>{{infoSection}}</Strong></span>
       </div>
       <div v-if="infoSection == 'Config'">
-        <Strong>ID: </Strong> {{boxInfoCard.id}} <br>
-        <Strong>Name: </Strong> {{boxInfoCard.name}} <br>
-        <Strong>Status: </Strong> {{boxInfoCard.status}} <br>
-        <Strong>Stage: </Strong> {{boxInfoCard.stage}} <br>
-        <Strong>Create Time: </Strong> {{boxInfoCard.create_time}} <br>
-        <Strong>Update Time: </Strong> {{boxInfoCard.update_time}} <br>
-        <Strong>Data: </Strong> {{boxInfoCard.Config.Misc.data}}<br>
-        <Strong>Destroy TiDB Cluster: </Strong>{{boxInfoCard.Config.Misc.destory_tidb_cluster}}<br>
-        <Strong>Prepare: </Strong>{{boxInfoCard.Config.Misc.prepare}}<br>
-        <Strong>Slack: </Strong>{{boxInfoCard.Config.Misc.slack}}<br>
-        <Strong>Stop: </Strong>{{boxInfoCard.Config.Misc.stop}}<br>
-        <Strong>Timeout: </Strong>{{boxInfoCard.Config.Misc.timeout}}<br>
-        <Strong>Type: </Strong>{{boxInfoCard.Config.Misc.type}}<br>
+        <Strong>ID: </Strong> {{experimentInfoCard.id}} <br>
+        <Strong>Name: </Strong> {{experimentInfoCard.name}} <br>
+        <Strong>Status: </Strong> {{experimentInfoCard.status}} <br>
+        <Strong>Stage: </Strong> {{experimentInfoCard.stage}} <br>
+        <Strong>Create Time: </Strong> {{experimentInfoCard.create_time}} <br>
+        <Strong>Update Time: </Strong> {{experimentInfoCard.update_time}} <br>
+        <Strong>Data: </Strong> {{experimentInfoCard.Config.Misc.data}}<br>
+        <Strong>Destroy TiDB Cluster: </Strong>{{experimentInfoCard.Config.Misc.destory_tidb_cluster}}<br>
+        <Strong>Prepare: </Strong>{{experimentInfoCard.Config.Misc.prepare}}<br>
+        <Strong>Slack: </Strong>{{experimentInfoCard.Config.Misc.slack}}<br>
+        <Strong>Stop: </Strong>{{experimentInfoCard.Config.Misc.stop}}<br>
+        <Strong>Timeout: </Strong>{{experimentInfoCard.Config.Misc.timeout}}<br>
+        <Strong>Type: </Strong>{{experimentInfoCard.Config.Misc.type}}<br>
       </div>
       <div v-if="infoSection == 'Cat'">
-        <Strong>Labels: </Strong> {{boxInfoCard.labels}} <br>
-        <Strong>PD Version: </Strong> {{boxInfoCard.pd_ver}} <br>
-        <Strong>TiKV Version: </Strong> {{boxInfoCard.tikv_ver}} <br>
-        <Strong>TiDB Version: </Strong> {{boxInfoCard.tidb_ver}} <br>
-        <Strong>PD Size: </Strong> {{boxInfoCard.pd_size}} <br>
-        <Strong>TiDB Size: </Strong> {{boxInfoCard.tidb_size}}<br>
-        <Strong>TiKV Size: </Strong>{{boxInfoCard.tikv_size}}<br>
-        <Strong>Config Map: </Strong>{{boxInfoCard.config_map}}
+        <Strong>Labels: </Strong> {{experimentInfoCard.labels}} <br>
+        <Strong>PD Version: </Strong> {{experimentInfoCard.pd_ver}} <br>
+        <Strong>TiKV Version: </Strong> {{experimentInfoCard.tikv_ver}} <br>
+        <Strong>TiDB Version: </Strong> {{experimentInfoCard.tidb_ver}} <br>
+        <Strong>PD Size: </Strong> {{experimentInfoCard.pd_size}} <br>
+        <Strong>TiDB Size: </Strong> {{experimentInfoCard.tidb_size}}<br>
+        <Strong>TiKV Size: </Strong>{{experimentInfoCard.tikv_size}}<br>
+        <Strong>Config Map: </Strong>{{experimentInfoCard.config_map}}
       </div>
       <div v-if="infoSection == 'Tests'">
-        <template v-if="boxInfoCard.in_order">
+        <template v-if="experimentInfoCard.in_order">
           <Strong>Execution Method: </Strong> Serial Execution <br>
         </template>
-        <template v-if="!boxInfoCard.in_order">
+        <template v-if="!experimentInfoCard.in_order">
           <Strong>Execution Method: </Strong> Parallel Execution <br>
         </template>
         <Strong>Tests: </Strong> <br>
-        <el-tag v-for="(item, index) in boxInfoCard.tests" :key="index" style="margin-left: 7px">{{item}}
+        <el-tag v-for="(item, index) in experimentInfoCard.tests" :key="index" style="margin-left: 7px">{{item}}
         </el-tag>
       </div>
     </el-card>
@@ -104,7 +104,7 @@
 
 <script>
 export default {
-  props: ['boxInfoCard', 'section', 'experiment', 'box'],
+  props: ['boxInfoCard', 'experimentInfoCard', 'section', 'experiment', 'box'],
   data() {
     return {
       infoSection: this.section

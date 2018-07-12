@@ -1,10 +1,29 @@
 <template>
   <div>
-    <el-container style="height: 1000px; border: 1px solid #eee">
+    <!-- No box -->
+    <el-container v-if="noBoxInstance" style="height: 1000px; border: 1px solid #eee">
+      <el-aside width="200px">
+        <el-menu width="auto" default-openeds=[1] active-text-color="red">
+          <el-submenu index="1">
+            <template slot="title"><Icon type="ios-box" style="margin-right: 15px"></Icon>Boxes</template>
+            <el-menu-item index="1">No Box</el-menu-item>
+          </el-submenu>
+        </el-menu>
+      </el-aside>
+
+      <el-container>
+        <el-main>
+          No Box Data
+        </el-main>
+      </el-container>
+    </el-container>
+
+    <!-- Has Box -->
+    <el-container v-if="hasBoxInstance" style="height: 1000px; border: 1px solid #eee">
       <el-aside width="200px">
         <el-menu v-if="boxInstanceList.length" :default-active="boxInstanceList[0].name" width="auto">
           <el-submenu index="1">
-            <template slot="title"><Icon type="ios-box"></Icon>Boxes</template>
+            <template slot="title"><Icon type="ios-box" style="margin-right: 15px"></Icon>Boxes</template>
             <el-menu-item v-for="(instance, index) in boxInstanceList" :key="index" :index="instance.name" @click.native="getBoxDetail(instance)">{{instance.name}}</el-menu-item>
           </el-submenu>
         </el-menu>
@@ -57,6 +76,11 @@
                 <el-button @click.native="handleExperimentDetailClick(scope.row.id)">Detail</el-button>
               </template>
             </el-table-column>
+            <el-table-column label="Operation">
+              <template slot-scope="scope">
+                <el-button @click.native="handleExperimentRedoClick(scope.row.id)">Redo</el-button>
+              </template>
+            </el-table-column>
           </el-table>
         </el-main>
       </el-container>
@@ -66,15 +90,15 @@
         <el-header style="height:400px;">
           <el-row type="flex" :gutter="10" style="padding: 20px 0">
             <el-col :span="12">
-              <my-card :boxInfoCard="experimentDetail" section="Config" experiment="true">
+              <my-card :experimentInfoCard="experimentDetail" section="Config" experiment="true">
               </my-card>
             </el-col>
             <el-col :span="12">
-              <my-card :boxInfoCard="experimentDetail.Config.Cat" section="Cat" experiment="true">
+              <my-card :experimentInfoCard="experimentDetail.cat" section="Cat" experiment="true">
               </my-card>
             </el-col>
             <el-col :span="12">
-              <my-card :boxInfoCard="experimentDetail.Config.Tests" section="Tests" experiment="true">
+              <my-card :experimentInfoCard="experimentDetail.tests" section="Tests" experiment="true">
               </my-card>
             </el-col>
           </el-row>
@@ -91,11 +115,9 @@
               <el-table-column v-for="(item, index) in testTable.prop" :key="index" :prop="item"
                               :label="testTable.label[index]">
               </el-table-column>
-              <el-table-column prop="testTable.prop.status" label="Status">{{status}}
-              </el-table-column>
               <el-table-column label="Operation">
                 <template slot-scope="scope">
-                  <el-button @click.native="handleTestDetailClick(scope.row.id)">Detail</el-button>
+                  <el-button @click.native="handleTestDetailClick(scope.row.name)">Detail</el-button>
                 </template>
               </el-table-column>
               <el-table-column label="Operation">
@@ -112,113 +134,108 @@
     <div>
       <el-dialog title="Update Box" :visible.sync="updateBoxDialog">
         <el-form :model="updateBoxForm" inline :rules="validationRules" ref="updateBoxForm" label-width="10rem" class="demo-form-inline">
-          <div>
-            <Strong>Config</Strong>
-          </div>
-          <el-form-item label="Name:" prop="miscConfigForm.name">
-            <el-input v-model="updateBoxForm.miscConfigForm.name"></el-input>
-          </el-form-item>
-          <el-form-item label="Slack Channel:" prop="miscConfigForm.slack">
-            <el-input v-model="updateBoxForm.miscConfigForm.slack"></el-input>
-          </el-form-item>
-          <el-form-item label="Prepare Callback:" prop="miscConfigForm.prepare">
-            <el-input v-model="updateBoxForm.miscConfigForm.prepare"></el-input>
-          </el-form-item>
-          <el-form-item label="Stop Callback:" prop="miscConfigForm.stop">
-            <el-input v-model="updateBoxForm.miscConfigForm.stop"></el-input>
-          </el-form-item>
-          <el-form-item label="DestoryTidbCluster:" prop="miscConfigForm.destory_tidb_cluster">
-          <el-radio border v-model="updateBoxForm.miscConfigForm.destory_tidb_cluster" :label=true>Yes</el-radio>
-            <el-radio border v-model="updateBoxForm.miscConfigForm.destory_tidb_cluster" :label=false>No</el-radio>
-          </el-form-item>
-          <el-form-item label="Type:" prop="miscConfigForm.type">
-            <el-input v-model="updateBoxForm.miscConfigForm.type"></el-input>
-          </el-form-item>
-          <el-form-item label="Data:" prop="miscConfigForm.data">
-            <el-input v-model="updateBoxForm.miscConfigForm.data"></el-input>
-          </el-form-item>
-          <div>
-            <Strong>Cat</Strong>
-          </div>
-          <el-form-item label="PD Ver:" prop="catForm.pd_ver">
-            <el-input v-model="updateBoxForm.catForm.pd_ver"></el-input>
-          </el-form-item>
-          <el-form-item label="TiKV Ver:" prop="catForm.tikv_ver">
-            <el-input v-model="updateBoxForm.catForm.tikv_ver"></el-input>
-          </el-form-item>
-          <el-form-item label="TiDB Ver" prop="catForm.tidb_ver">
-            <el-input v-model="updateBoxForm.catForm.tidb_ver"></el-input>
-          </el-form-item>
-          <el-form-item label="PD Size:" prop="catForm.pd_size">
-            <el-input v-model="updateBoxForm.catForm.pd_size"></el-input>
-          </el-form-item>
-          <el-form-item label="TiDB Size:" prop="catForm.tidb_size">
-            <el-input v-model="updateBoxForm.catForm.tidb_size"></el-input>
-          </el-form-item>
-          <el-form-item label="TiKV Size:" prop="catForm.tikv_size">
-            <el-input v-model="updateBoxForm.catForm.tikv_size"></el-input>
-          </el-form-item>
-          <el-form-item label="Config Map:" prop="catForm.config_map">
-            <el-input v-model="updateBoxForm.catForm.config_map"></el-input>
-          </el-form-item>
-          <div>
-            <Strong>Tests</Strong>
-          </div>
-          <el-form-item label="Execution method" prop="testForm.in_order">
-              <el-radio v-model="updateBoxForm.testForm.in_order" :label=true>Serial execution</el-radio>
-              <el-radio v-model="updateBoxForm.testForm.in_order" :label=false>Parallel execution</el-radio>
-          </el-form-item>
-          <div style="position: relative; margin-top: 20px">
-            <el-form-item label="Tests: " prop="tests">
-                <el-select v-model="updateBoxForm.testForm.tests" multiple placeholder="Please select test" style="width: 33rem;">
-                  <el-option v-for="(item, index) in testTemplateList" :key="index" :value="item.name"></el-option>
-                </el-select>
+          <el-collapse v-model="activeName">
+            <el-collapse-item title="Misc Config" name="miscConfig">
+              <el-form-item label="Name:" prop="miscConfigForm.name">
+                <el-input v-model="updateBoxForm.miscConfigForm.name"></el-input>
               </el-form-item>
-          </div>
-          <!-- <div id="testOrder">
-            <el-tag v-for="(item, index) in updateBoxForm.testForm.tests" :key="index" type="primary">{{item}}</el-tag>
-          </div> -->
-          <div>
-            <Strong>Rules</Strong>
-          </div>
-          <el-row>
-            <el-col :span="2" :offset="2"><Strong>Type</Strong></el-col>
-            <el-col :span="4" :offset="1"><Strong>Value</Strong></el-col>
-          </el-row>
-          <el-form-item v-for="(rule, index) in updateBoxForm.ruleForm" label-width="7rem" :key="index" :label="'Rule ' + index"
-                        :prop="'ruleForm.' + index + '.type'">
-            <el-row>
-              <el-col :span="6">
-                <el-input v-model="rule.type"></el-input>
-              </el-col>
-              <el-col :span="11" :offset="1">
-                <el-input v-model="rule.value"></el-input>
-              </el-col>
-              <el-col :span="1" :offset="1">
-                <el-button @click.prevent="handleRemove(rule)">Remove</el-button>
-              </el-col>
-            </el-row>
-            <br>
-          </el-form-item>
-          <!-- <el-form-item v-for="(type, index) in updateBoxForm.ruleForm.type" label-width="7rem" :key="type.key"
-                        :label="'Rule ' + index" :prop="'ruleForm.type' + index">
-            <el-row>
-              <el-col :span="6">
-                <el-input v-model="rule.type"></el-input>
-              </el-col>
-              <el-col :span="11" :offset="1">
-                <el-input v-model="rule.value"></el-input>
-              </el-col>
-               <el-col :span="1" :offset="1">
-                <el-button @click.prevent="handleRemove(rule)">Delete</el-button>
-              </el-col>
-            </el-row>
-          </el-form-item> -->
-          <el-row>
-            <el-col :span="1" :offset="1">
-              <Button type="dashed" @click="handleAdd()" icon="plus-round">Add rule</Button>
-            </el-col>
-          </el-row>
+              <el-form-item label="Slack Channel:" prop="miscConfigForm.slack">
+                <el-input v-model="updateBoxForm.miscConfigForm.slack"></el-input>
+              </el-form-item>
+              <el-form-item label="Prepare Callback:" prop="miscConfigForm.prepare">
+                <el-input v-model="updateBoxForm.miscConfigForm.prepare"></el-input>
+              </el-form-item>
+              <el-form-item label="Stop Callback:" prop="miscConfigForm.stop">
+                <el-input v-model="updateBoxForm.miscConfigForm.stop"></el-input>
+              </el-form-item>
+              <el-form-item label="DestoryTidbCluster:" prop="miscConfigForm.destory_tidb_cluster">
+              <el-radio border v-model="updateBoxForm.miscConfigForm.destory_tidb_cluster" :label=true>Yes</el-radio>
+                <el-radio border v-model="updateBoxForm.miscConfigForm.destory_tidb_cluster" :label=false>No</el-radio>
+              </el-form-item>
+              <el-form-item label="Type:" prop="miscConfigForm.type">
+                <el-input v-model="updateBoxForm.miscConfigForm.type"></el-input>
+              </el-form-item>
+              <el-form-item label="Data:" prop="miscConfigForm.data">
+                <el-input v-model="updateBoxForm.miscConfigForm.data"></el-input>
+              </el-form-item>
+            </el-collapse-item>
+            <el-collapse-item title="CAT" name="cat">
+              <el-form-item label="PD Ver:" prop="catForm.pd_ver">
+                <el-input v-model="updateBoxForm.catForm.pd_ver"></el-input>
+              </el-form-item>
+              <el-form-item label="TiKV Ver:" prop="catForm.tikv_ver">
+                <el-input v-model="updateBoxForm.catForm.tikv_ver"></el-input>
+              </el-form-item>
+              <el-form-item label="TiDB Ver" prop="catForm.tidb_ver">
+                <el-input v-model="updateBoxForm.catForm.tidb_ver"></el-input>
+              </el-form-item>
+              <el-form-item label="PD Size:" prop="catForm.pd_size">
+                <el-input v-model.number="updateBoxForm.catForm.pd_size"></el-input>
+              </el-form-item>
+              <el-form-item label="TiDB Size:" prop="catForm.tidb_size">
+                <el-input v-model.number="updateBoxForm.catForm.tidb_size"></el-input>
+              </el-form-item>
+              <el-form-item label="TiKV Size:" prop="catForm.tikv_size">
+                <el-input v-model.number="updateBoxForm.catForm.tikv_size"></el-input>
+              </el-form-item>
+              <el-form-item label="Config Map:" prop="catForm.config_map">
+                <el-input v-model="updateBoxForm.catForm.config_map"></el-input>
+              </el-form-item>
+            </el-collapse-item>
+          <el-collapse-item title="Tests" name="tests">
+            <el-form-item label="Execution method" prop="testForm.in_order">
+                <el-radio v-model="updateBoxForm.testForm.in_order" :label=true>Serial execution</el-radio>
+                <el-radio v-model="updateBoxForm.testForm.in_order" :label=false>Parallel execution</el-radio>
+            </el-form-item>
+            <div style="position: relative; margin-top: 20px">
+              <el-form-item label="Tests: " prop="testForm.tests">
+                  <el-select v-model="updateBoxForm.testForm.tests" multiple placeholder="Please select test" style="width: 33rem;">
+                    <el-option v-for="(item, index) in testTemplateList" :key="index" :value="item.name"></el-option>
+                  </el-select>
+                </el-form-item>
+            </div>
+            </el-collapse-item>
+
+            <el-collapse-item title="Rules" name="name">
+              <el-form-item v-for="(rule, index) in updateBoxForm.ruleForm" label-width="7rem" :key="rule.key" :label="'Rule ' + index"
+                          :prop="'ruleForm.' + index + '.type'">
+                <el-row>
+                  <el-col :span="22">
+                    <el-input v-model="rule.value" class="input-with-select">
+                      <el-select v-model="rule.type" slot="prepend" style="width: 150px" placeholder="Select prefix">
+                        <el-option label="Immediately Job" value="immediately job"></el-option>
+                        <el-option label="Crontab Job" value="crontab job"></el-option>
+                        <el-option label="Git Webhook" value="git webhook"></el-option>
+                      </el-select>
+                    </el-input>
+                  </el-col>
+                  <el-col :span="1" :offset="1">
+                    <el-button @click.prevent="handleRemove(rule)">Remove</el-button>
+                  </el-col>
+                </el-row>
+                <br>
+              </el-form-item>
+              <!-- <el-form-item v-for="(type, index) in updateBoxForm.ruleForm.type" label-width="7rem" :key="type.key"
+                            :label="'Rule ' + index" :prop="'ruleForm.type' + index">
+                <el-row>
+                  <el-col :span="6">
+                    <el-input v-model="rule.type"></el-input>
+                  </el-col>
+                  <el-col :span="11" :offset="1">
+                    <el-input v-model="rule.value"></el-input>
+                  </el-col>
+                  <el-col :span="1" :offset="1">
+                    <el-button @click.prevent="handleRemove(rule)">Delete</el-button>
+                  </el-col>
+                </el-row>
+              </el-form-item> -->
+              <el-row>
+                <el-col :span="1" :offset="1">
+                  <Button type="dashed" @click="handleAdd()" icon="plus-round">Add rule</Button>
+                </el-col>
+              </el-row>
+            </el-collapse-item>
+        </el-collapse>
           <div style="margin-top: 10px;">
             <el-form-item>
               <el-button type="primary" @click="saveBoxForm('updateBoxForm')">Save</el-button>
@@ -229,6 +246,11 @@
       </el-dialog>
     </div>
 
+    <!-- test detail dialog -->
+    <el-dialog title="Test Detail" :visible.sync="testDetailDialog">
+      {{testDetail}}
+    </el-dialog>
+    </div>
   </div>
 </template>
 
@@ -280,15 +302,15 @@ export default {
       }
     });
     return {
+      activeName: 'miscConfig',
+      testDetailDialog: false,
+      noBoxInstance: false,
+      hasBoxInstance: false,
       boxInstanceList: [],
       boxInstanceDetail: {},
       showBoxDetail: true,
       showExperimentDetail: false,
-      parallelChecked: false,
-      serialChecked: false,
       getDetail: false,
-      saveButton: true,
-      editButton: false,
       updateBoxDialog: false,
       experimentDetail: '',
       testTemplateList: [],
@@ -298,8 +320,8 @@ export default {
         list: []
       },
       testTable: {
-        label: ['Name', 'Pod Name', 'Status'],
-        prop: ['name', 'pod_name', 'status'],
+        label: ['Name', 'Status'],
+        prop: ['name', 'status'],
         list: []
       },
       testDetail: '',
@@ -396,11 +418,20 @@ export default {
   methods: {
     getAllBox: function() {
       ajax.getBox().then((result) => {
-        this.boxInstanceList = result.data.data
-        console.log('this.boxinstancelist: ', this.boxInstanceList)
-        this.fetchInitialBox()
-        let boxId = this.boxInstanceDetail.id
-        this.getExperiments(boxId)
+        console.log('the result is: ', result)
+        if(result.data.data.length == 0) {
+          this.noBoxInstance = true
+          this.hasBoxInstance = false
+          return
+        } else {
+          this.noBoxInstance = false
+          this.hasBoxInstance = true
+          this.boxInstanceList = result.data.data
+          console.log('this.boxinstancelist: ', this.boxInstanceList)
+          this.fetchInitialBox()
+          let boxId = this.boxInstanceDetail.id
+          this.getExperiments(boxId)
+        }
       })
     },
     fetchInitialBox: function() {
@@ -466,8 +497,17 @@ export default {
       ajax.getExperimentsDetailByID(this.boxInstanceDetail.id, experimentId).then((result) => {
         this.experimentDetail = result.data.data
         console.log('this experimentDetail: ', this.experimentDetail)
-        this.testTable.list = this.experimentDetail.report.Tests
-        console.log('hello from handleDetail Click,testtable list', this.testTable.list)
+        }).catch((resp) => {
+        this.$notify.error({
+          title: 'Erorr',
+          message: resp.message
+        })
+      })
+
+      ajax.getTestByID(this.boxInstanceDetail.id, experimentId).then((result) => {
+        console.log('hello from handleDetail Click,', result)
+        this.testTable.list = result.data.data
+        console.log('testtable list', this.testTable.list)
       }).catch((resp) => {
         this.$notify.error({
           title: 'Erorr',
@@ -476,9 +516,50 @@ export default {
       })
     },
 
-    handleTestDetailClick: function(row) {
-      console.log('click test detail, row is: ', row)
+    handleExperimentRedoClick: function(experimentId) {
+      console.log('click redo', this.boxInstanceDetail.id, experimentId)
+      console.log('before redo, experiment list: ', this.experimentTable.list)
+      ajax.redoExperimentByID(this.boxInstanceDetail.id, experimentId).then((result) => {
+        console.log('inside redo experiment, result is: ', result)
+        if(result.data.code == 200) {
+          this.$notify({
+            title: 'Redo Success',
+            type: 'success',
+            message: 'Experiment: ' +  experimentId
+          })
+        } else {
+          this.$notify.error({
+            title: 'Redo Failed',
+            message: 'Experiment: ' +  experimentId
+          })
+        }
+      }).catch(resp => {
+          this.$notify.error({
+            title: 'Error',
+            message: resp.message
+          })
+        })
+      console.log('after redo, experiment list: ', this.experimentTable.list)
+    },
 
+    handleTestDetailClick: function(testName) {
+      console.log('hello from test detail click,', testName)
+      this.testDetailDialog = true
+      ajax.getTestDetailByName(this.boxInstanceDetail.id, this.experimentDetail.id, testName).then(result => {
+        if(result.data.code == 200) {
+          this.testDetail = result.data.data
+        } else {
+          this.$notify.error({
+            title: 'Error',
+            message: 'Get Test Detail By Name Failed'
+          })
+        }
+      }).catch(resp => {
+        this.$notify.error({
+            title: 'Error',
+            message: resp.message
+          })
+      })
     },
 
     handleManualTrigger: function() {
@@ -549,69 +630,84 @@ export default {
       })
     },
 
-    saveBoxForm() {
-      console.log('click save box form, box id is: ', this.boxInstanceDetail.id)
-      ajax.updateBoxByID(this.boxInstanceDetail.id, {
-        miscConfigForm: {
-          name: this.updateBoxForm.miscConfigForm.name,
-          slack: this.updateBoxForm.miscConfigForm.slack,
-          prepare: this.updateBoxForm.miscConfigForm.prepare,
-          stop: this.updateBoxForm.miscConfigForm.stop,
-          destory_tidb_cluster: this.updateBoxForm.miscConfigForm.destory_tidb_cluster,
-          type: this.updateBoxForm.miscConfigForm.type,
-          data: this.updateBoxForm.miscConfigForm.data
-        },
-        catForm: {
-          pd_ver: this.updateBoxForm.catForm.pd_ver,
-          tikv_ver: this.updateBoxForm.catForm.tikv_ver,
-          tidb_ver: this.updateBoxForm.catForm.tidb_ver,
-          pd_size: this.updateBoxForm.catForm.pd_size,
-          tidb_size: this.updateBoxForm.catForm.tidb_size,
-          tikv_size: this.updateBoxForm.catForm.tikv_size,
-          config_map: this.updateBoxForm.catForm.config_map
-        },
-        ruleForm: this.updateBoxForm.ruleForm,
-        testForm: {
-          in_order: this.updateBoxForm.testForm.in_order,
-          tests: this.updateBoxForm.testForm.tests
-        }
-      }).then(result => {
-        console.log('after update, the updateboxform is: ',this.updateBoxForm)
-        if (result.data.code != 200) {
-          this.$notify({
-            title: "ERROR",
-            type: 'error',
-            message: result.data.message,
-            duration: 0
-          });
-          return
-        }
-        this.updateBoxDialog = false
-        this.$notify({
-          title: 'Success',
-          type: 'sucess',
-          message: 'Update Box Success'
-        })
-        ajax.getBoxDetailByID(this.boxInstanceDetail.id).then(result => {
-          this.boxInstanceDetail = result.data.data
-          console.log('after update, the new box detail is: ',this.boxInstanceDetail.id,  this.boxInstanceDetail)
-        }).catch((resp) => {
-          this.$notify.error({
-            title: 'Error',
-            message: resp.message
+    saveBoxForm(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          ajax.updateBoxByID(this.boxInstanceDetail.id, {
+            name: this.updateBoxForm.miscConfigForm.name,
+            cat: {
+              pd_ver: this.updateBoxForm.catForm.pd_ver,
+              tikv_ver: this.updateBoxForm.catForm.tikv_ver,
+              tidb_ver: this.updateBoxForm.catForm.tidb_ver,
+              pd_size: this.updateBoxForm.catForm.pd_size,
+              tidb_size: this.updateBoxForm.catForm.tidb_size,
+              tikv_size: this.updateBoxForm.catForm.tikv_size,
+              config_map: this.updateBoxForm.catForm.config_map
+            },
+            rules: this.updateBoxForm.ruleForm,
+            tests: {
+              in_order: this.updateBoxForm.testForm.in_order,
+              tests: this.updateBoxForm.testForm.tests
+            },
+            config: {
+              slack: this.updateBoxForm.miscConfigForm.slack,
+              prepare: this.updateBoxForm.miscConfigForm.prepare,
+              stop: this.updateBoxForm.miscConfigForm.stop,
+              destory_tidb_cluster: this.updateBoxForm.miscConfigForm.destory_tidb_cluster,
+              type: this.updateBoxForm.miscConfigForm.type,
+              data: this.updateBoxForm.miscConfigForm.data
+            }
+          }).then(result => {
+            console.log('after update, the updateboxform is: ',this.updateBoxForm)
+            if (result.data.code != 200) {
+              this.$notify({
+                title: "ERROR",
+                type: 'error',
+                message: result.data.message,
+                duration: 0
+              });
+              return
+            }
+            this.updateBoxDialog = false
+            this.$notify({
+              title: 'Success',
+              type: 'success',
+              message: 'Update Box Success'
+            })
+            ajax.getBoxDetailByID(this.boxInstanceDetail.id).then(result => {
+              this.boxInstanceDetail = result.data.data
+              console.log('after update, the new box detail is: ',this.boxInstanceDetail.name, this.boxInstanceDetail.id,  this.boxInstanceDetail)
+            }).catch((resp) => {
+              this.$notify.error({
+                title: 'Error',
+                message: resp.message
+              })
+            })
+
+            ajax.getBox().then((result) => {
+              this.boxInstanceList = result.data.data
+            }).catch(resp => {
+              this.$notify.error({
+                title: 'Update Error',
+                message: resp.message
+              })
+            })
+          }).catch(resp =>  {
+            this.$notify.error({
+              title: 'Update Error',
+              message: resp.message
+            })
           })
-        })
-        debugger
-      }).catch(resp =>  {
-        this.$notify.error({
-          title: 'Update Error',
-          message: resp.message
-        })
+        } else {
+          this.activeName = ['miscConfig', 'cat', 'tests', 'name']
+          console.log('check validation Failed');
+          return false;
+        }
       })
     },
 
     handleAdd() {
-      this.newBoxForm.ruleForm.push({
+      this.updateBoxForm.ruleForm.push({
         type: '',
         value: '',
         key: Date.now()
@@ -619,9 +715,9 @@ export default {
     },
 
     handleRemove(rule) {
-      var index = this.newBoxForm.ruleForm.indexOf(rule)
+      var index = this.updateBoxForm.ruleForm.indexOf(rule)
       if(index !== -1) {
-        this.newBoxForm.ruleForm.splice(index, 1)
+        this.updateBoxForm.ruleForm.splice(index, 1)
       }
     }
 
