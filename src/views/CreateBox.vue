@@ -1,39 +1,47 @@
 <template>
 <div>
-  <!-- <el-form :model="newBoxForm" inline :rules="validationRules" ref="newBoxForm" label-width="10rem" class="demo-form-inline">
+  <el-form :model="newBoxForm" inline :rules="validationRules" ref="newBoxForm" label-width="10rem" class="demo-form-inline">
+    <el-form-item label="Box Name:" prop="miscConfigForm.name" label-width="7rem">
+          <el-input v-model="newBoxForm.miscConfigForm.name" placeholder="Enter box name"></el-input>
+        </el-form-item>
     <el-collapse v-model="activeName">
-      <el-collapse-item title="Misc Config" name="miscConfig">
-        <el-form-item label="Name:" prop="miscConfigForm.name">
-          <el-input v-model="newBoxForm.miscConfigForm.name"></el-input>
-        </el-form-item>
-        <el-form-item label="Slack Channel:" prop="miscConfigForm.slack">
-          <el-input v-model="newBoxForm.miscConfigForm.slack"></el-input>
-        </el-form-item>
-        <el-form-item label="Prepare Callback:" prop="miscConfigForm.prepare">
-          <el-input v-model="newBoxForm.miscConfigForm.prepare"></el-input>
-        </el-form-item>
-        <el-form-item label="Stop Callback:" prop="miscConfigForm.stop">
-          <el-input v-model="newBoxForm.miscConfigForm.stop"></el-input>
-        </el-form-item>
-        <el-form-item label="DestoryTidbCluster:" prop="miscConfigForm.destory_tidb_cluster">
-          <el-radio border v-model="newBoxForm.miscConfigForm.destory_tidb_cluster" :label=true>Yes</el-radio>
-          <el-radio border v-model="newBoxForm.miscConfigForm.destory_tidb_cluster" :label=false>No</el-radio>
-        </el-form-item>
-        <el-form-item label="Type:" prop="miscConfigForm.type">
-          <el-input v-model="newBoxForm.miscConfigForm.type"></el-input>
-        </el-form-item>
-        <el-form-item label="Data:" prop="miscConfigForm.data">
-          <el-input v-model="newBoxForm.miscConfigForm.data"></el-input>
-        </el-form-item>
-      </el-collapse-item>
+      <!-- <div>
+        <el-radio>
+        </el-radio>
+        <el-radio>
+        </el-radio>
+      </div> -->
       <el-collapse-item title="CAT" name="cat">
+        <!-- <el-form-item label="PD Verion:" prop="catForm.pd_ver">
+          <el-input v-model="newBoxForm.catForm.pd_ver.value" class="input-with-select" placeholder="Enter PD version value" width="200px">
+            <el-select v-model="newBoxForm.catForm.pd_ver.type" slot="prepend" style="width: 130px" placeholder="Select type">
+              <el-option label="branch" value="branch"></el-option>
+              <el-option label="hash" value="hash"></el-option>
+              <el-option label="tag" value="tag"></el-option>
+            </el-select>
+          </el-input>
+        </el-form-item> -->
         <el-form-item label="PD Verion:" prop="catForm.pd_ver">
           <el-input v-model="newBoxForm.catForm.pd_ver"></el-input>
         </el-form-item>
         <el-form-item label="TiKV Verion:" prop="catForm.tikv_ver">
+         <!-- <el-input v-model="newBoxForm.catForm.tikv_ver.value" class="input-with-select" placeholder="Enter Tikv version value">
+            <el-select v-model="newBoxForm.catForm.tikv_ver.type" slot="prepend" style="width: 130px" placeholder="Select type">
+              <el-option label="branch" value="branch"></el-option>
+              <el-option label="hash" value="hash"></el-option>
+              <el-option label="tag" value="tag"></el-option>
+            </el-select>
+          </el-input> -->
           <el-input v-model="newBoxForm.catForm.tikv_ver"></el-input>
         </el-form-item>
         <el-form-item label="TiDB Verion" prop="catForm.tidb_ver">
+          <!-- <el-input v-model="newBoxForm.catForm.tidb_ver.value" class="input-with-select" placeholder="Enter Tikv version value">
+            <el-select v-model="newBoxForm.catForm.tidb_ver.type" slot="prepend" style="width: 130px" placeholder="Select type">
+              <el-option label="branch" value="branch"></el-option>
+              <el-option label="hash" value="hash"></el-option>
+              <el-option label="tag" value="tag"></el-option>
+            </el-select>
+          </el-input> -->
           <el-input v-model="newBoxForm.catForm.tidb_ver"></el-input>
         </el-form-item>
         <el-form-item label="PD Size:" prop="catForm.pd_size">
@@ -56,26 +64,25 @@
         </el-form-item>
         <div style="position: relative; margin-top: 20px">
           <el-form-item label="Tests: " prop="testForm.tests">
-              <el-select v-model="newBoxForm.testForm.tests" multiple placeholder="Please select test" style="width: 33rem;">
+              <el-select v-model="newBoxForm.testForm.tests" multiple placeholder="Please select test" style="width: 400px;">
                 <el-option v-for="(item, index) in testTemplateList" :key="index" :value="item.name"></el-option>
               </el-select>
             </el-form-item>
         </div>
       </el-collapse-item>
 
-      <el-collapse-item title="Rules" name="name">
-        <el-row>
-          <el-col :span="2" :offset="2"><Strong>Type</Strong></el-col>
-          <el-col :span="4" :offset="1"><Strong>Value</Strong></el-col>
-        </el-row>
+       <el-collapse-item title="Rules" name="name">
         <el-form-item v-for="(rule, index) in newBoxForm.ruleForm" label-width="7rem" :key="rule.key" :label="'Rule ' + index"
-                      :prop="'ruleForm.' + index + '.type'">
+                    :prop="'ruleForm.' + index + '.type'">
           <el-row>
-            <el-col :span="6">
-               <el-input v-model="rule.type"></el-input>
-            </el-col>
-            <el-col :span="11" :offset="1">
-              <el-input v-model="rule.value"></el-input>
+            <el-col :span="18">
+              <el-input v-model="rule.value" class="input-with-select">
+                <el-select v-model="rule.type" slot="prepend" style="width: 150px" placeholder="Select prefix">
+                  <el-option label="Immediately Job" value="immediately job"></el-option>
+                  <el-option label="Crontab Job" value="crontab job"></el-option>
+                  <el-option label="Git Webhook" value="git webhook"></el-option>
+                </el-select>
+              </el-input>
             </el-col>
             <el-col :span="1" :offset="1">
               <el-button @click.prevent="handleRemove(rule)">Remove</el-button>
@@ -89,6 +96,27 @@
           </el-col>
         </el-row>
       </el-collapse-item>
+      <el-collapse-item title="Misc Config" name="miscConfig">
+        <el-form-item label="Slack Channel:" prop="miscConfigForm.slack">
+          <el-input v-model="newBoxForm.miscConfigForm.slack"></el-input>
+        </el-form-item>
+        <el-form-item label="Prepare Callback:" prop="miscConfigForm.prepare">
+          <el-input v-model="newBoxForm.miscConfigForm.prepare"></el-input>
+        </el-form-item>
+        <el-form-item label="Stop Callback:" prop="miscConfigForm.stop">
+          <el-input v-model="newBoxForm.miscConfigForm.stop"></el-input>
+        </el-form-item>
+        <el-form-item label="DestoryTidbCluster:" prop="miscConfigForm.destory_tidb_cluster">
+          <el-radio border v-model="newBoxForm.miscConfigForm.destory_tidb_cluster" :label=true>Yes</el-radio>
+          <el-radio border v-model="newBoxForm.miscConfigForm.destory_tidb_cluster" :label=false>No</el-radio>
+        </el-form-item>
+        <el-form-item label="Type:" prop="miscConfigForm.type">
+          <el-input v-model="newBoxForm.miscConfigForm.type"></el-input>
+        </el-form-item>
+        <el-form-item label="Data:" prop="miscConfigForm.data">
+          <el-input v-model="newBoxForm.miscConfigForm.data"></el-input>
+        </el-form-item>
+      </el-collapse-item>
     </el-collapse>
     <div style="margin-top: 10px;">
       <el-form-item>
@@ -96,8 +124,8 @@
         <el-button @click="resetForm('newBoxForm')">Reset</el-button>
       </el-form-item>
     </div>
-  </el-form> -->
-   <el-form :model="newBoxForm" inline :rules="validationRules" ref="newBoxForm" label-width="10rem" class="demo-form-inline">
+  </el-form>
+   <!-- <el-form :model="newBoxForm" inline :rules="validationRules" ref="newBoxForm" label-width="10rem" class="demo-form-inline">
 
         <el-form-item label="Name:" prop="miscConfigForm.name">
           <el-input v-model="newBoxForm.miscConfigForm.name"></el-input>
@@ -186,7 +214,7 @@
         <el-button @click="resetForm('newBoxForm')">Reset</el-button>
       </el-form-item>
     </div>
-  </el-form>
+  </el-form> -->
 </div>
 </template>
 
@@ -233,7 +261,7 @@ export default {
     });
 
     return {
-      activeName: ['misConfig'],
+      activeName: ['cat'],
       // executionChecked: 'serialExecution',
       testTemplateList: [],
       newBoxForm: {
@@ -247,9 +275,21 @@ export default {
           data: ''
         },
         catForm: {
-          pd_ver: '',
-          tikv_ver: '',
-          tidb_ver: '',
+          // pd_ver: {
+          //   type: '',
+          //   value: '',
+          //   plateform: ''
+          // },
+          // tikv_ver: {
+          //   type: '',
+          //   value: '',
+          //   plateform: ''
+          // },
+          // tidb_ver: {
+          //   type: '',
+          //   value: '',
+          //   plateform: ''
+          // },
           pd_size: '',
           tidb_size: '',
           tikv_size: '',
@@ -354,7 +394,7 @@ export default {
             })
           })
         } else {
-          this.activeName = ['miscConfig', 'cat', 'tests', 'name']
+          this.activeName = ['miscConfig', 'cat', 'tests', 'rules']
           console.log('check validation Failed');
           return false;
         }

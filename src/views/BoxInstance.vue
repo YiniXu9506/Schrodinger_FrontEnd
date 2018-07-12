@@ -94,11 +94,11 @@
               </my-card>
             </el-col>
             <el-col :span="12">
-              <my-card :experimentInfoCard="experimentDetail.cat" section="Cat" experiment="true">
+              <my-card :experimentInfoCard="experimentDetail.Config.Cat" section="Cat" experiment="true">
               </my-card>
             </el-col>
             <el-col :span="12">
-              <my-card :experimentInfoCard="experimentDetail.tests" section="Tests" experiment="true">
+              <my-card :experimentInfoCard="experimentDetail.Config.Tests" section="Tests" experiment="true">
               </my-card>
             </el-col>
           </el-row>
@@ -112,20 +112,25 @@
         </div>
         <el-main>
           <el-table :data="testTable.list">
-              <el-table-column v-for="(item, index) in testTable.prop" :key="index" :prop="item"
-                              :label="testTable.label[index]">
-              </el-table-column>
-              <el-table-column label="Operation">
-                <template slot-scope="scope">
-                  <el-button @click.native="handleTestDetailClick(scope.row.name)">Detail</el-button>
-                </template>
-              </el-table-column>
-              <el-table-column label="Operation">
-                <template slot-scope="scope">
-                  <el-button type="success" icon="el-icon-check" circle></el-button>
-                </template>
-              </el-table-column>
-            </el-table>
+            <el-table-column v-for="(item, index) in testTable.prop" :key="index" :prop="item"
+                            :label="testTable.label[index]">
+            </el-table-column>
+            <!-- <el-table-column label="Status" prop="status">
+              <template slot-scope="scope">
+              <i v-if="scope.status == 'Error'" class="el-icon-error"></i>
+              </template>
+            </el-table-column> -->
+            <el-table-column label="Operation">
+              <template slot-scope="scope">
+                <el-button @click.native="handleTestDetailClick(scope.row.name)">Detail</el-button>
+              </template>
+            </el-table-column>
+            <el-table-column label="Status">
+              <template slot-scope="scope">
+                <el-button type="success" icon="el-icon-check" circle></el-button>
+              </template>
+            </el-table-column>
+          </el-table>
         </el-main>
       </el-container>
     </el-container>
@@ -189,7 +194,7 @@
             </el-form-item>
             <div style="position: relative; margin-top: 20px">
               <el-form-item label="Tests: " prop="testForm.tests">
-                  <el-select v-model="updateBoxForm.testForm.tests" multiple placeholder="Please select test" style="width: 33rem;">
+                  <el-select v-model="updateBoxForm.testForm.tests" multiple placeholder="Please select test" style="width: 400rem;">
                     <el-option v-for="(item, index) in testTemplateList" :key="index" :value="item.name"></el-option>
                   </el-select>
                 </el-form-item>
@@ -315,8 +320,8 @@ export default {
       experimentDetail: '',
       testTemplateList: [],
       experimentTable: {
-        label: ['ID', 'Name', 'Status', 'Stage'],
-        prop: ['id', 'name', 'status', 'stage'],
+        label: ['ID', 'Name', 'Create Time', 'Update Time','Status', 'Stage'],
+        prop: ['id', 'name', 'create_time', 'update_time', 'status','stage'],
         list: []
       },
       testTable: {
@@ -369,6 +374,8 @@ export default {
   },
 
   created() {
+    this.testDetailDialog = false,
+    this.noBoxInstance = false,
     // var getData = function() {
     //   console.log('get start')
     //   return new Promise(function(resolve, reject) {
@@ -439,12 +446,12 @@ export default {
       console.log('this.boxInstanceDetail: ', this.boxInstanceDetail)
     },
 
-    getExperiments: function(id) {
-      ajax.getExperimentsByBoxID(id).then((result) => {
+    getExperiments: function(boxId) {
+      ajax.getExperimentsByBoxID(boxId).then((result) => {
         this.getDetail = true
+        console.log('get experiment result: ', result)
         this.experimentTable.list = result.data.data
-        // debugger
-        console.log('box id: ', id)
+        console.log('box id: ', boxId)
         console.log('get experiment from click other box instance: ', this.experimentTable.list)
       })
     },
@@ -505,7 +512,7 @@ export default {
       })
 
       ajax.getTestByID(this.boxInstanceDetail.id, experimentId).then((result) => {
-        console.log('hello from handleDetail Click,', result)
+        console.log('get test result', result)
         this.testTable.list = result.data.data
         console.log('testtable list', this.testTable.list)
       }).catch((resp) => {
@@ -517,7 +524,6 @@ export default {
     },
 
     handleExperimentRedoClick: function(experimentId) {
-      console.log('click redo', this.boxInstanceDetail.id, experimentId)
       console.log('before redo, experiment list: ', this.experimentTable.list)
       ajax.redoExperimentByID(this.boxInstanceDetail.id, experimentId).then((result) => {
         console.log('inside redo experiment, result is: ', result)
@@ -527,19 +533,31 @@ export default {
             type: 'success',
             message: 'Experiment: ' +  experimentId
           })
+          // this.getExperiments(this.boxInstanceDetail.id)
         } else {
           this.$notify.error({
             title: 'Redo Failed',
             message: 'Experiment: ' +  experimentId
           })
         }
+
       }).catch(resp => {
           this.$notify.error({
             title: 'Error',
             message: resp.message
           })
         })
-      console.log('after redo, experiment list: ', this.experimentTable.list)
+
+      ajax.getExperimentsByBoxID(this.boxInstanceDetail.id).then((result) => {
+        this.getDetail = true
+        this.experimentTable.list = result.data.data
+        console.log('after redo, experiment list: ', this.experimentTable.list)
+      }).catch(resp => {
+        this.$notify.error({
+          title: 'Error',
+          message: resp.messages
+        })
+      })
     },
 
     handleTestDetailClick: function(testName) {
