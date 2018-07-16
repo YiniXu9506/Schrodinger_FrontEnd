@@ -11,6 +11,7 @@
       <Tabs type="card" v-model="activeTab" @on-click="tabClicked">
         <TabPane label="Box Instance" icon="ios-box" name="boxinstance"></TabPane>
         <TabPane label="Create Test Template" icon="compose" name="createtesttemplate"></TabPane>
+        <TabPane label="Create Cat" icon="ios-box-outline" name="createcat"></TabPane>
         <TabPane label="Create Box" icon="ios-box-outline" name="createbox"></TabPane>
       </Tabs>
     </div>

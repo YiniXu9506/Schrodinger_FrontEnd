@@ -439,6 +439,61 @@ const Proxy = '/api'
 //   'data': ''
 // })
 
+Mock.mock(`${Proxy}/cats`, 'post', {
+  'code': 200,
+  'message': '',
+  'data': {
+    labels: 'label',
+    name: 'catnameyini',
+    pd_ver: {
+      type: 'branch',
+      value: 'master',
+      platform: 'centos7'
+    },
+    tikv_ver: {
+      type: 'branch',
+      value: 'master',
+      platform: 'centos7'
+    },
+    tidb_ver: {
+      type: 'branch',
+      value: 'master',
+      platform: 'centos7'
+    },
+    pd_size: 1,
+    tikv_size: 1,
+    tidb_size: 1,
+    config_map: 'tidb-cluster-config-template'
+  }
+})
+
+Mock.mock(`${Proxy}/cats`, 'get', {
+  'code': 200,
+  'message': '',
+  'data|2-6': {
+    labels: 'label',
+    name: '@name',
+    pd_ver: {
+      type: 'branch',
+      value: 'master',
+      platform: 'centos7'
+    },
+    tikv_ver: {
+      type: 'branch',
+      value: 'master',
+      platform: 'centos7'
+    },
+    tidb_ver: {
+      type: 'branch',
+      value: 'master',
+      platform: 'centos7'
+    },
+    pd_size: 1,
+    tikv_size: 1,
+    tidb_size: 1,
+    config_map: 'tidb-cluster-config-template'
+  }
+})
 class Ajax {
   getTestTemplate () {
     return axios.get(`${Proxy}/tests/templates`)
@@ -486,6 +541,14 @@ class Ajax {
 
   getBoxDetailByID (boxID) {
     return axios.get(`${Proxy}/boxes/${boxID}`)
+  }
+
+  getCat () {
+    return axios.get(`${Proxy}/cats`)
+  }
+
+  createCat (catData) {
+    return axios.post(`${Proxy}/cats`, catData)
   }
 
   getExperimentsByBoxID (boxID) {

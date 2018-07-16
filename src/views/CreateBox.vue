@@ -5,44 +5,43 @@
           <el-input v-model="newBoxForm.miscConfigForm.name" placeholder="Enter box name"></el-input>
         </el-form-item>
     <el-collapse v-model="activeName">
-      <!-- <div>
-        <el-radio>
-        </el-radio>
-        <el-radio>
-        </el-radio>
-      </div> -->
-      <el-collapse-item title="CAT" name="cat">
-        <!-- <el-form-item label="PD Verion:" prop="catForm.pd_ver">
+      <!-- <el-collapse-item title="CAT" name="cat">
+        <el-form-item label="PD Verion:" prop="catForm.pd_ver">
           <el-input v-model="newBoxForm.catForm.pd_ver.value" class="input-with-select" placeholder="Enter PD version value" width="200px">
             <el-select v-model="newBoxForm.catForm.pd_ver.type" slot="prepend" style="width: 130px" placeholder="Select type">
               <el-option label="branch" value="branch"></el-option>
               <el-option label="hash" value="hash"></el-option>
               <el-option label="tag" value="tag"></el-option>
             </el-select>
+            <el-select v-model="newBoxForm.catForm.pd_ver.platform" slot="append" style="width: 200px" placeholder="Compile to platform">
+              <el-option label="Centos7" value="centos7"></el-option>
+            </el-select>
           </el-input>
-        </el-form-item> -->
-        <el-form-item label="PD Verion:" prop="catForm.pd_ver">
-          <el-input v-model="newBoxForm.catForm.pd_ver"></el-input>
         </el-form-item>
         <el-form-item label="TiKV Verion:" prop="catForm.tikv_ver">
-         <!-- <el-input v-model="newBoxForm.catForm.tikv_ver.value" class="input-with-select" placeholder="Enter Tikv version value">
+          <el-input v-model="newBoxForm.catForm.tikv_ver.value" class="input-with-select" placeholder="Enter TiKV version value">
             <el-select v-model="newBoxForm.catForm.tikv_ver.type" slot="prepend" style="width: 130px" placeholder="Select type">
               <el-option label="branch" value="branch"></el-option>
               <el-option label="hash" value="hash"></el-option>
               <el-option label="tag" value="tag"></el-option>
             </el-select>
-          </el-input> -->
-          <el-input v-model="newBoxForm.catForm.tikv_ver"></el-input>
+            <el-select v-model="newBoxForm.catForm.tikv_ver.platform" slot="append" style="width: 200px" placeholder="Compile to platform">
+              <el-option label="Unportable Centos7" value="unportable_centos7"></el-option>
+              <el-option label="Centos7" value="centos7"></el-option>
+            </el-select>
+          </el-input>
         </el-form-item>
-        <el-form-item label="TiDB Verion" prop="catForm.tidb_ver">
-          <!-- <el-input v-model="newBoxForm.catForm.tidb_ver.value" class="input-with-select" placeholder="Enter Tikv version value">
+        <el-form-item label="TiDB Verion:" prop="catForm.tidb_ver">
+          <el-input v-model="newBoxForm.catForm.tidb_ver.value" class="input-with-select" placeholder="Enter TiDB version value">
             <el-select v-model="newBoxForm.catForm.tidb_ver.type" slot="prepend" style="width: 130px" placeholder="Select type">
               <el-option label="branch" value="branch"></el-option>
               <el-option label="hash" value="hash"></el-option>
               <el-option label="tag" value="tag"></el-option>
             </el-select>
-          </el-input> -->
-          <el-input v-model="newBoxForm.catForm.tidb_ver"></el-input>
+            <el-select v-model="newBoxForm.catForm.tidb_ver.platform" slot="append" style="width: 200px" placeholder="Compile to platform">
+              <el-option label="Centos7" value="centos7"></el-option>
+            </el-select>
+          </el-input>
         </el-form-item>
         <el-form-item label="PD Size:" prop="catForm.pd_size">
           <el-input v-model.number="newBoxForm.catForm.pd_size"></el-input>
@@ -56,21 +55,82 @@
         <el-form-item label="Config Map:" prop="catForm.config_map">
           <el-input v-model="newBoxForm.catForm.config_map"></el-input>
         </el-form-item>
+      </el-collapse-item> -->
+      <el-collapse-item title='CAT' name='cat' class="cat">
+        <el-form-item label="Cat From" prop="catForm.chooseCreatedCats">
+           <el-radio v-model="newBoxForm.catForm.chooseCreatedCats" :label="true">Created Cat Pool</el-radio>
+           <el-radio v-model="newBoxForm.catForm.chooseCreatedCats" :label="false">Create New Cat</el-radio>
+        </el-form-item>
+        <el-form-item v-if="newBoxForm.catForm.chooseCreatedCats" label="Pick Cat" prop="catForm.cat">
+          <el-select v-model="newBoxForm.catForm.cat" multiple placeholder="Please select cat" style="width: 400px;">
+            <el-option v-for="(item, index) in createdCatPool" :key="index" :value="item.name"></el-option>
+          </el-select>
+        </el-form-item>
+        <div v-if="!newBoxForm.catForm.chooseCreatedCats">
+          <el-form-item label="PD Verion:" prop="catForm.pd_ver">
+          <el-input v-model="newBoxForm.catForm.pd_ver.value" class="input-with-select" placeholder="Enter PD version value" width="200px">
+            <el-select v-model="newBoxForm.catForm.pd_ver.type" slot="prepend" style="width: 130px" placeholder="Select type">
+              <el-option label="branch" value="branch"></el-option>
+              <el-option label="hash" value="hash"></el-option>
+              <el-option label="tag" value="tag"></el-option>
+            </el-select>
+            <el-select v-model="newBoxForm.catForm.pd_ver.platform" slot="append" style="width: 200px" placeholder="Compile to platform">
+              <el-option label="Centos7" value="centos7"></el-option>
+            </el-select>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="TiKV Verion:" prop="catForm.tikv_ver">
+          <el-input v-model="newBoxForm.catForm.tikv_ver.value" class="input-with-select" placeholder="Enter TiKV version value">
+            <el-select v-model="newBoxForm.catForm.tikv_ver.type" slot="prepend" style="width: 130px" placeholder="Select type">
+              <el-option label="branch" value="branch"></el-option>
+              <el-option label="hash" value="hash"></el-option>
+              <el-option label="tag" value="tag"></el-option>
+            </el-select>
+            <el-select v-model="newBoxForm.catForm.tikv_ver.platform" slot="append" style="width: 200px" placeholder="Compile to platform">
+              <el-option label="Unportable Centos7" value="unportable_centos7"></el-option>
+              <el-option label="Centos7" value="centos7"></el-option>
+            </el-select>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="TiDB Verion:" prop="catForm.tidb_ver">
+          <el-input v-model="newBoxForm.catForm.tidb_ver.value" class="input-with-select" placeholder="Enter TiDB version value">
+            <el-select v-model="newBoxForm.catForm.tidb_ver.type" slot="prepend" style="width: 130px" placeholder="Select type">
+              <el-option label="branch" value="branch"></el-option>
+              <el-option label="hash" value="hash"></el-option>
+              <el-option label="tag" value="tag"></el-option>
+            </el-select>
+            <el-select v-model="newBoxForm.catForm.tidb_ver.platform" slot="append" style="width: 200px" placeholder="Compile to platform">
+              <el-option label="Centos7" value="centos7"></el-option>
+            </el-select>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="PD Size:" prop="catForm.pd_size">
+          <el-input v-model.number="newBoxForm.catForm.pd_size"></el-input>
+        </el-form-item>
+        <el-form-item label="TiDB Size:" prop="catForm.tidb_size">
+          <el-input v-model.number="newBoxForm.catForm.tidb_size"></el-input>
+        </el-form-item>
+        <el-form-item label="Tikv Size:" prop="catForm.tikv_size">
+          <el-input v-model.number="newBoxForm.catForm.tikv_size"></el-input>
+        </el-form-item>
+        <el-form-item label="Config Map:" prop="catForm.config_map">
+          <el-input v-model="newBoxForm.catForm.config_map"></el-input>
+        </el-form-item>
+        </div>
       </el-collapse-item>
-      <el-collapse-item title="Tests" name="tests">
+      <el-collapse-item title="Tests" name="tests" class="test">
         <el-form-item label="Execution method" prop="testForm.in_order">
             <el-radio v-model="newBoxForm.testForm.in_order" :label=true>Serial execution</el-radio>
             <el-radio v-model="newBoxForm.testForm.in_order" :label=false>Parallel execution</el-radio>
         </el-form-item>
         <div style="position: relative; margin-top: 20px">
-          <el-form-item label="Tests: " prop="testForm.tests">
+          <el-form-item label="Pick Tests: " prop="testForm.tests">
               <el-select v-model="newBoxForm.testForm.tests" multiple placeholder="Please select test" style="width: 400px;">
                 <el-option v-for="(item, index) in testTemplateList" :key="index" :value="item.name"></el-option>
               </el-select>
             </el-form-item>
         </div>
       </el-collapse-item>
-
        <el-collapse-item title="Rules" name="name">
         <el-form-item v-for="(rule, index) in newBoxForm.ruleForm" label-width="7rem" :key="rule.key" :label="'Rule ' + index"
                     :prop="'ruleForm.' + index + '.type'">
@@ -262,8 +322,8 @@ export default {
 
     return {
       activeName: ['cat'],
-      // executionChecked: 'serialExecution',
       testTemplateList: [],
+      createdCatPool: [],
       newBoxForm: {
         miscConfigForm: {
           name: '',
@@ -275,21 +335,23 @@ export default {
           data: ''
         },
         catForm: {
-          // pd_ver: {
-          //   type: '',
-          //   value: '',
-          //   plateform: ''
-          // },
-          // tikv_ver: {
-          //   type: '',
-          //   value: '',
-          //   plateform: ''
-          // },
-          // tidb_ver: {
-          //   type: '',
-          //   value: '',
-          //   plateform: ''
-          // },
+          chooseCreatedCats: true,
+          cat:'',
+          pd_ver: {
+            type: '',
+            value: '',
+            platform: ''
+          },
+          tikv_ver: {
+            type: '',
+            value: '',
+            platform: ''
+          },
+          tidb_ver: {
+            type: '',
+            value: '',
+            platform: ''
+          },
           pd_size: '',
           tidb_size: '',
           tikv_size: '',
@@ -312,14 +374,14 @@ export default {
         // 'miscConfigForm.stop':[{required: true, validator: checkArrayEmpty, trigger: 'blur'}],
         // 'miscConfigForm.destory_tidb_cluster':[{required: true, validator: checkEmpty, trigger: 'change'}],
         // 'miscConfigForm.type':[{required: true, validator: checkString, trigger: 'blur'}],
-        'catForm.pd_ver': [{required: true, validator: checkString, trigger: 'blur'}],
-        'catForm.tikv_ver': [{required: true, validator: checkString, trigger: 'blur'}],
-        'catForm.tidb_ver': [{required: true, validator: checkString, trigger: 'blur'}],
-        'catForm.pd_size': [{ required: true, message: 'Cannot be empty'}, { type: 'number', message: 'Must be number'}],
-        'catForm.tikv_size': [{ required: true, message: 'Cannot be empty'}, { type: 'number', message: 'Must be number'}],
-        'catForm.tidb_size': [{ required: true, message: 'Cannot be empty'}, { type: 'number', message: 'Must be number'}],
-        'catForm.config_map': [{required: true, validator: checkString, trigger: 'blur'}],
-        'testForm.tests':[{required: true, validator: checkArrayEmpty, trigger: 'change'}],
+        // 'catForm.pd_ver': [{required: true, validator: checkString, trigger: 'blur'}],
+        // 'catForm.tikv_ver': [{required: true, validator: checkString, trigger: 'blur'}],
+        // 'catForm.tidb_ver': [{required: true, validator: checkString, trigger: 'blur'}],
+        // 'catForm.pd_size': [{ required: true, message: 'Cannot be empty'}, { type: 'number', message: 'Must be number'}],
+        // 'catForm.tikv_size': [{ required: true, message: 'Cannot be empty'}, { type: 'number', message: 'Must be number'}],
+        // 'catForm.tidb_size': [{ required: true, message: 'Cannot be empty'}, { type: 'number', message: 'Must be number'}],
+        // 'catForm.config_map': [{required: true, validator: checkString, trigger: 'blur'}],
+        // 'testForm.tests':[{required: true, validator: checkArrayEmpty, trigger: 'change'}],
         // 'ruleForm.type': [{required: true, validator: checkString, trigger: 'blur'}],
       }
     }
@@ -335,6 +397,21 @@ export default {
         console.log(result.data.data)
         this.testTemplateList = _.values(result.data.data)
         console.log('the testTemplateList is ', this.testTemplateList)
+      }).catch(resp => {
+        this.$notify.error({
+          title: 'Error',
+          message: resp.message
+        })
+      })
+      ajax.getCat().then((result) => {
+        console.log('getcats result: ',result)
+        this.createdCatPool = _.values(result.data.data)
+        console.log('the created cats are: ', this.createdCatPool)
+      }).catch(resp => {
+        this.$notify.error({
+          title: 'Error',
+          message: resp.message
+        })
       })
     },
 
@@ -346,9 +423,22 @@ export default {
           ajax.createBox({
             name: this.newBoxForm.miscConfigForm.name,
             cat: {
-              pd_ver: this.newBoxForm.catForm.pd_ver,
-              tikv_ver: this.newBoxForm.catForm.tikv_ver,
-              tidb_ver: this.newBoxForm.catForm.tidb_ver,
+              chooseCreatedCats: this.newBoxForm.catForm.chooseCreatedCats,
+              pd_ver: {
+                type: this.newBoxForm.catForm.pd_ver.type,
+                value: this.newBoxForm.catForm.pd_ver.value,
+                platform: this.newBoxForm.catForm.pd_ver.platform,
+              },
+              tikv_ver: {
+                type: this.newBoxForm.catForm.tikv_ver.type,
+                value: this.newBoxForm.catForm.tikv_ver.value,
+                platform: this.newBoxForm.catForm.tikv_ver.platform
+              },
+              tidb_ver: {
+                type: this.newBoxForm.catForm.tidb_ver.type,
+                value: this.newBoxForm.catForm.tidb_ver.value,
+                platform: this.newBoxForm.catForm.tidb_ver.platform
+              },
               pd_size: this.newBoxForm.catForm.pd_size,
               tidb_size: this.newBoxForm.catForm.tidb_size,
               tikv_size: this.newBoxForm.catForm.tikv_size,
@@ -426,6 +516,12 @@ export default {
 }
 </script>
 <style>
+  .cat .el-select .el-input {
+    width: 400px;
+  }
 
+  .test .el-select .el-input {
+    width: 400px;
+  }
 </style>
 

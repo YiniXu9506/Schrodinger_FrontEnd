@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import CreateCase from '@/views/CreateTestTemplate'
 import CreateBox from '@/views/CreateBox'
 import BoxInstance from '@/views/BoxInstance'
+import CreateCat from '@/views/CreateCat'
 
 Vue.use(Router)
 
@@ -31,6 +32,11 @@ export default new Router({
       path: '/createbox',
       name: 'CreateBox',
       component: CreateBox
+    },
+    {
+      path: '/createcat',
+      name: 'CreateCat',
+      component: CreateCat
     },
     {
       path: '/boxinstance',
