@@ -6,21 +6,29 @@
         <strong><span style="font-size:15px;">Created Test Template Pool</span></strong>
         <el-button style="float: right;" type="primary" @click="clickCreateTestTemplate">Create Test Template</el-button>
       </div>
-      <div style="margin-bottom: 20px">
+      <!-- <div style="margin-bottom: 20px">
         <el-input placeholder="search created test template"  prefix-icon="el-icon-search" :autofocus='true'
                   v-model="searchContent" @input="handleSearch"></el-input>
-      </div>
-      <el-popover v-for="(item, index) in filteredData" :key="index" trigger="hover" placement="right" width="150" >
+      </div> -->
+      <!-- <el-popover v-for="(item, index) in filteredData" :key="index" trigger="hover" placement="right" width="150" >
         <div style="color: red"><Strong>Double Click Me to Update</Strong></div>
         <Strong>Creator: </Strong> {{item.creator}} <br>
         <Strong>Status: </Strong> {{item.status}} <br>
         <Strong>Type: </Strong> {{item.type}} <br>
-        <!-- <Strong>Git Repo: </Strong> {{item.source.git_repo}}
-        <Strong>Image: </Strong> {{item.source.image}} -->
         <el-button style="margin-left: 20px; margin-bottom: 20px" slot="reference" @dblclick.native="clickUpdateTestTemplate(item.name)">
             {{item.name}}
         </el-button>
-      </el-popover>
+      </el-popover> -->
+      <el-table :data="createdTestTemplateList.list">
+        <el-table-column v-for="(item, index) in createdTestTemplateList.prop" :key="index" :label="createdTestTemplateList.label[index]"
+        :prop="item">
+        </el-table-column>
+        <el-table-column label="Operation">
+          <template slot-scope="scope">
+            <el-button @click="clickUpdateTestTemplate(scope.row.name)">Update</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
     </el-card>
   </div>
   <div>
@@ -45,7 +53,7 @@
             </strong>
           </big>
         </div>
-
+        <div class="source">
         <el-form-item label="Binary Name:" prop="source.binary_name">
           <el-input v-model="testTemplateForm.source.binary_name"></el-input>
         </el-form-item>
@@ -74,6 +82,7 @@
         <el-form-item label="Image Address:" prop="source.image">
           <el-input v-model="testTemplateForm.source.image"></el-input>
         </el-form-item>
+        </div>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="createTestTemplateDialog = false; clearTestTemplateForm()">Cancel</el-button>
@@ -179,7 +188,11 @@ export default {
       select: '',
       searchContent: '',
       filteredData: [],
-      createdTestTemplateList: [],
+      createdTestTemplateList: {
+        label: ['ID', 'Name', 'Binary Name'],
+        prop: ['id', 'name', 'source.binary_name'],
+        list: []
+      },
       createdTestTemplateDetail: '',
       createTestTemplateDialog: false,
       updateTestTemplateDialog: false,
@@ -222,18 +235,18 @@ export default {
       ajax.getTestTemplate().then((result) => {
         if(result.data.data.length == 0) {
           console.log('there is no created test')
-          this.createdTestTemplateList = []
-          this.filteredData = this.createdTestTemplateList
+          this.createdTestTemplateList.list = []
+          // this.filteredData = this.createdTestTemplateList.list
           return
         } else {
           console.log('hhhhresult.data.data', result.data.data)
-          this.createdTestTemplateList = result.data.data
+          this.createdTestTemplateList.list = result.data.data
           // const res = _.values(this.createdTestTemplateList)
           // res.forEach(item => {
           //   var i = item
           //   this.createdTestTemplateNames.push(i.name)
           // })
-          this.filteredData = this.createdTestTemplateList
+          // this.filteredData = this.createdTestTemplateList
           // this.filteredData = this.createdTestTemplateNames
           // console.log('createdTestTemplateNames', this.createdTestTemplateNames)
           }
@@ -311,7 +324,7 @@ export default {
           return
         }
         this.createTestTemplateDialog = false
-        this.createdTestTemplateList.unshift(this.testTemplateForm)
+        this.createdTestTemplateList.list.unshift(this.testTemplateForm)
         // this.createdTestTemplateList.push(this.testTemplateForm)
         this.$notify({
           title: "SUCCESS",
@@ -367,10 +380,10 @@ export default {
         })
         ajax.getTestTemplate().then((result) => {
           console.log('inside update created testtemplate')
-          this.createdTestTemplateList = result.data.data;
-          this.filteredData = this.createdTestTemplateList
+          this.createdTestTemplateList.list = result.data.data;
+          // this.filteredData = this.createdTestTemplateList
         }).catch(() => {})
-        console.log('after update, the createdTesttemplate list: ', this.createdTestTemplateList)
+        console.log('after update, the createdTesttemplate list: ', this.createdTestTemplateList.list)
         this.clearTestTemplateForm();
       }).catch((resp) => {
         this.$notify({
@@ -440,15 +453,15 @@ export default {
       }
     },
 
-    search: function(filter_data, searchName) {
-      let res = filter_data
+    // search: function(filter_data, searchName) {
+    //   let res = filter_data
 
-      res = this.createdTestTemplateList.filter((d) => {
-        console.log('d is: ', d)
-         return (d.name).toLowerCase().indexOf(searchName.toLowerCase()) > -1
-      })
-      return res
-    },
+    //   res = this.createdTestTemplateList.filter((d) => {
+    //     console.log('d is: ', d)
+    //      return (d.name).toLowerCase().indexOf(searchName.toLowerCase()) > -1
+    //   })
+    //   return res
+    // },
 
     handleSearch: function() {
       let filter_data = this.filteredData
@@ -464,13 +477,22 @@ export default {
 }
 </script>
 <style>
-  .createCaseForm {
-    margin-top: 30px;
+  .createdTestTemplatePool {
+    /* display: inline-block; */
+    width: auto;
+    height: 700px;
+    overflow: auto;
   }
-  .el-form.el-form-item.el-input {
+  /* .box-card {
+    display: inline-block;
+    width: auto;
+    height: 300px;
+    overflow: auto
+  } */
+  /* .el-form.el-form-item.el-input {
     width: 12px;
-  }
-  .el-select .el-input {
+  } */
+  .source .el-select .el-input {
     width: 130px;
   }
 </style>
