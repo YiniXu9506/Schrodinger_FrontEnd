@@ -56,66 +56,159 @@
           <el-input v-model="newBoxForm.catForm.config_map"></el-input>
         </el-form-item>
       </el-collapse-item> -->
-      <el-collapse-item title='CAT' name='cat' class="cat">
-        <el-form-item label="Cat From" prop="catForm.chooseCreatedCats">
-           <el-radio v-model="newBoxForm.catForm.chooseCreatedCats" :label="true">Created Cat Pool</el-radio>
-           <el-radio v-model="newBoxForm.catForm.chooseCreatedCats" :label="false">Create New Cat</el-radio>
+      <el-collapse-item title='CAT' name='cat'>
+        <el-form-item label="Cat From" prop="catForm.selected_cat">
+          <el-radio-group v-model="newBoxForm.catForm.selected_cat">
+            <el-radio border :label="newBoxForm.catForm.selected_cat != null">Created Cat Pool</el-radio>
+            <el-radio border :label="''">Create New Cat</el-radio>
+          </el-radio-group>
         </el-form-item>
-        <el-form-item v-if="newBoxForm.catForm.chooseCreatedCats" label="Pick Cat" prop="catForm.cat">
-          <el-select v-model="newBoxForm.catForm.cat" multiple placeholder="Please select cat" style="width: 400px;">
+        <el-form-item v-if="newBoxForm.catForm.selected_cat != null" label="Pick Cat" prop="catForm.selected_cat"  class="cat">
+          <el-select v-model="newBoxForm.catForm.selected_cat" placeholder="Please select cat" style="width: 400px;">
             <el-option v-for="(item, index) in createdCatPool" :key="index" :value="item.name"></el-option>
           </el-select>
         </el-form-item>
-        <div v-if="!newBoxForm.catForm.chooseCreatedCats">
-          <el-form-item label="PD Verion:" prop="catForm.pd_ver">
-          <el-input v-model="newBoxForm.catForm.pd_ver.value" class="input-with-select" placeholder="Enter PD version value" width="200px">
-            <el-select v-model="newBoxForm.catForm.pd_ver.type" slot="prepend" style="width: 130px" placeholder="Select type">
-              <el-option label="branch" value="branch"></el-option>
-              <el-option label="hash" value="hash"></el-option>
-              <el-option label="tag" value="tag"></el-option>
-            </el-select>
-            <el-select v-model="newBoxForm.catForm.pd_ver.platform" slot="append" style="width: 200px" placeholder="Compile to platform">
-              <el-option label="Centos7" value="centos7"></el-option>
-            </el-select>
-          </el-input>
-        </el-form-item>
-        <el-form-item label="TiKV Verion:" prop="catForm.tikv_ver">
-          <el-input v-model="newBoxForm.catForm.tikv_ver.value" class="input-with-select" placeholder="Enter TiKV version value">
-            <el-select v-model="newBoxForm.catForm.tikv_ver.type" slot="prepend" style="width: 130px" placeholder="Select type">
-              <el-option label="branch" value="branch"></el-option>
-              <el-option label="hash" value="hash"></el-option>
-              <el-option label="tag" value="tag"></el-option>
-            </el-select>
-            <el-select v-model="newBoxForm.catForm.tikv_ver.platform" slot="append" style="width: 200px" placeholder="Compile to platform">
-              <el-option label="Unportable Centos7" value="unportable_centos7"></el-option>
-              <el-option label="Centos7" value="centos7"></el-option>
-            </el-select>
-          </el-input>
-        </el-form-item>
-        <el-form-item label="TiDB Verion:" prop="catForm.tidb_ver">
-          <el-input v-model="newBoxForm.catForm.tidb_ver.value" class="input-with-select" placeholder="Enter TiDB version value">
-            <el-select v-model="newBoxForm.catForm.tidb_ver.type" slot="prepend" style="width: 130px" placeholder="Select type">
-              <el-option label="branch" value="branch"></el-option>
-              <el-option label="hash" value="hash"></el-option>
-              <el-option label="tag" value="tag"></el-option>
-            </el-select>
-            <el-select v-model="newBoxForm.catForm.tidb_ver.platform" slot="append" style="width: 200px" placeholder="Compile to platform">
-              <el-option label="Centos7" value="centos7"></el-option>
-            </el-select>
-          </el-input>
-        </el-form-item>
-        <el-form-item label="PD Size:" prop="catForm.pd_size">
-          <el-input v-model.number="newBoxForm.catForm.pd_size"></el-input>
-        </el-form-item>
-        <el-form-item label="TiDB Size:" prop="catForm.tidb_size">
-          <el-input v-model.number="newBoxForm.catForm.tidb_size"></el-input>
-        </el-form-item>
-        <el-form-item label="Tikv Size:" prop="catForm.tikv_size">
-          <el-input v-model.number="newBoxForm.catForm.tikv_size"></el-input>
-        </el-form-item>
-        <el-form-item label="Config Map:" prop="catForm.config_map">
-          <el-input v-model="newBoxForm.catForm.config_map"></el-input>
-        </el-form-item>
+        <div v-if="newBoxForm.catForm.selected_cat == '' " class="create-box-cat">
+          <!-- <el-form-item label="PD Verion:" prop="catForm.pd_ver" class="input-with-select">
+            <el-input v-model="newBoxForm.catForm.pd_ver.value" placeholder="Enter PD version value" width="200px">
+              <el-select v-model="newBoxForm.catForm.pd_ver.type" slot="prepend" placeholder="Select type">
+                <el-option label="branch" value="branch"></el-option>
+                <el-option label="hash" value="hash"></el-option>
+                <el-option label="tag" value="tag"></el-option>
+              </el-select>
+              <el-select v-model="newBoxForm.catForm.pd_ver.platform" class="platform-select-input" slot="append" placeholder="Compile to platform">
+                <el-option label="Centos7" value="centos7"></el-option>
+              </el-select>
+            </el-input>
+          </el-form-item>
+          <el-form-item label="TiKV Verion:" prop="catForm.tikv_ver" class="input-with-select">
+            <el-input v-model="newBoxForm.catForm.tikv_ver.value" placeholder="Enter TiKV version value">
+              <el-select v-model="newBoxForm.catForm.tikv_ver.type" slot="prepend" placeholder="Select type">
+                <el-option label="branch" value="branch"></el-option>
+                <el-option label="hash" value="hash"></el-option>
+                <el-option label="tag" value="tag"></el-option>
+              </el-select>
+              <el-select v-model="newBoxForm.catForm.tikv_ver.platform" slot="append" placeholder="Compile to platform">
+                <el-option label="Unportable Centos7" value="unportable_centos7"></el-option>
+                <el-option label="Centos7" value="centos7"></el-option>
+              </el-select>
+            </el-input>
+          </el-form-item>
+          <el-form-item label="TiDB Verion:" prop="catForm.tidb_ver" class="input-with-select">
+            <el-input v-model="newBoxForm.catForm.tidb_ver.value" placeholder="Enter TiDB version value">
+              <el-select v-model="newBoxForm.catForm.tidb_ver.type" slot="prepend" placeholder="Select type">
+                <el-option label="branch" value="branch"></el-option>
+                <el-option label="hash" value="hash"></el-option>
+                <el-option label="tag" value="tag"></el-option>
+              </el-select>
+              <el-select v-model="newBoxForm.catForm.tidb_ver.platform" slot="append" placeholder="Compile to platform">
+                <el-option label="Centos7" value="centos7"></el-option>
+              </el-select>
+            </el-input>
+          </el-form-item> -->
+          <el-form-item label="PD Verion:" required>
+            <el-col :span="6">
+              <el-form-item prop="catForm.pd_ver.type">
+                <el-select v-model="newBoxForm.catForm.pd_ver.type" placeholder="Select type">
+                  <el-option label="branch" value="branch"></el-option>
+                  <el-option label="hash" value="hash"></el-option>
+                  <el-option label="tag" value="tag"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="10">
+              <el-form-item prop="catForm.pd_ver.value">
+                <el-input v-if="newBoxForm.catForm.pd_ver.type == ''" v-model="newBoxForm.catForm.pd_ver.value" class="input-with-select" placeholder="Enter PD version value"></el-input>
+                <el-input v-if="newBoxForm.catForm.pd_ver.type == 'branch'" v-model="newBoxForm.catForm.pd_ver.value" class="input-with-select" placeholder="eg.master/release-1.0"></el-input>
+                <el-input v-if="newBoxForm.catForm.pd_ver.type == 'hash'" v-model="newBoxForm.catForm.pd_ver.value" class="input-with-select" placeholder="Enter hash value"></el-input>
+                <el-input v-if="newBoxForm.catForm.pd_ver.type == 'tag'" v-model="newBoxForm.catForm.pd_ver.value" class="input-with-select" placeholder="Enter tag of git repo"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item prop="catForm.pd_ver.platform">
+                <el-select v-model="newBoxForm.catForm.pd_ver.platform" placeholder="Compile to platform">
+                  <el-option label="Centos7" value="centos7"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-form-item>
+          <el-form-item label="PD Size:" prop="catForm.pd_size">
+            <el-input v-model="newBoxForm.catForm.pd_size" style="width: 200px;"></el-input>
+          </el-form-item>
+
+          <el-form-item label="TiKV Verion:" required>
+            <el-col :span="6">
+              <el-form-item prop="catForm.tikv_ver.type">
+                <el-select v-model="newBoxForm.catForm.tikv_ver.type" placeholder="Select type">
+                  <el-option label="branch" value="branch"></el-option>
+                  <el-option label="hash" value="hash"></el-option>
+                  <el-option label="tag" value="tag"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="10">
+              <el-form-item prop="catForm.tikv_ver.value">
+                <el-input v-if="newBoxForm.catForm.tikv_ver.type == ''" v-model="newBoxForm.catForm.tikv_ver.value" class="input-with-select" placeholder="Enter PD version value"></el-input>
+                <el-input v-if="newBoxForm.catForm.tikv_ver.type == 'branch'" v-model="newBoxForm.catForm.tikv_ver.value" class="input-with-select" placeholder="eg.master/release-1.0"></el-input>
+                <el-input v-if="newBoxForm.catForm.tikv_ver.type == 'hash'" v-model="newBoxForm.catForm.tikv_ver.value" class="input-with-select" placeholder="Enter hash value"></el-input>
+                <el-input v-if="newBoxForm.catForm.tikv_ver.type == 'tag'" v-model="newBoxForm.catForm.tikv_ver.value" class="input-with-select" placeholder="Enter tag of git repo"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item prop="catForm.tikv_ver.platform">
+                <el-select v-model="newBoxForm.catForm.tikv_ver.platform" placeholder="Compile to platform">
+                  <el-option label="Unportable Centos7" value="unportable_centos7"></el-option>
+                  <el-option label="Centos7" value="centos7"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-form-item>
+          <el-form-item label="TiKV Size:" prop="catForm.tikv_size">
+            <el-input v-model="newBoxForm.catForm.tikv_size" style="width: 200px;"></el-input>
+          </el-form-item>
+
+          <el-form-item label="TiDB Verion:" required>
+            <el-col :span="6">
+              <el-form-item prop="catForm.tidb_ver.type">
+                <el-select v-model="newBoxForm.catForm.tidb_ver.type" placeholder="Select type">
+                  <el-option label="branch" value="branch"></el-option>
+                  <el-option label="hash" value="hash"></el-option>
+                  <el-option label="tag" value="tag"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="10">
+              <el-form-item prop="catForm.tidb_ver.value">
+                <el-input v-if="newBoxForm.catForm.tidb_ver.type == ''" v-model="newBoxForm.catForm.tidb_ver.value" class="input-with-select" placeholder="Enter PD version value"></el-input>
+                <el-input v-if="newBoxForm.catForm.tidb_ver.type == 'branch'" v-model="newBoxForm.catForm.tidb_ver.value" class="input-with-select" placeholder="eg.master/release-1.0"></el-input>
+                <el-input v-if="newBoxForm.catForm.tidb_ver.type == 'hash'" v-model="newBoxForm.catForm.tidb_ver.value" class="input-with-select" placeholder="Enter hash value"></el-input>
+                <el-input v-if="newBoxForm.catForm.tidb_ver.type == 'tag'" v-model="newBoxForm.catForm.tidb_ver.value" class="input-with-select" placeholder="Enter tag of git repo"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item prop="catForm.tidb_ver.platform">
+                <el-select v-model="newBoxForm.catForm.tidb_ver.platform" placeholder="Compile to platform">
+                  <el-option label="Centos7" value="centos7"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-form-item>
+          <el-form-item label="TiDB Size:" prop="catForm.tidb_size">
+            <el-input v-model="newBoxForm.catForm.tidb_size" style="width: 200px;"></el-input>
+          </el-form-item>
+
+          <!-- <el-form-item label="PD Size:" prop="catForm.pd_size">
+            <el-input v-model.number="newBoxForm.catForm.pd_size"></el-input>
+          </el-form-item>
+          <el-form-item label="TiDB Size:" prop="catForm.tidb_size">
+            <el-input v-model.number="newBoxForm.catForm.tidb_size"></el-input>
+          </el-form-item>
+          <el-form-item label="Tikv Size:" prop="catForm.tikv_size">
+            <el-input v-model.number="newBoxForm.catForm.tikv_size"></el-input>
+          </el-form-item> -->
+          <el-form-item label="Config Map:" prop="catForm.config_map">
+            <el-input v-model="newBoxForm.catForm.config_map"></el-input>
+          </el-form-item>
         </div>
       </el-collapse-item>
       <el-collapse-item title="Tests" name="tests" class="test">
@@ -178,7 +271,7 @@
         </el-form-item>
       </el-collapse-item>
     </el-collapse>
-    <div style="margin-top: 10px;">
+    <div class="my-footer" style="margin-top: 10px;">
       <el-form-item>
         <el-button type="primary" @click="submitForm('newBoxForm')">Submit</el-button>
         <el-button @click="resetForm('newBoxForm')">Reset</el-button>
@@ -335,8 +428,7 @@ export default {
           data: ''
         },
         catForm: {
-          chooseCreatedCats: true,
-          cat:'',
+          selected_cat:' ',
           pd_ver: {
             type: '',
             value: '',
@@ -423,7 +515,7 @@ export default {
           ajax.createBox({
             name: this.newBoxForm.miscConfigForm.name,
             cat: {
-              chooseCreatedCats: this.newBoxForm.catForm.chooseCreatedCats,
+              selected_cat: this.newBoxForm.catForm.selected_cat,
               pd_ver: {
                 type: this.newBoxForm.catForm.pd_ver.type,
                 value: this.newBoxForm.catForm.pd_ver.value,
@@ -491,6 +583,10 @@ export default {
       });
     },
 
+    // handleSelectedCatChange() {
+    //   console.log('inside handleSelectedCatChange')
+    //   if()
+    // },
 
     resetForm(formName) {
       console.log("click reset form")
@@ -516,12 +612,29 @@ export default {
 }
 </script>
 <style>
-  .cat .el-select .el-input {
+  /* .cat .el-select .el-input {
     width: 400px;
   }
 
   .test .el-select .el-input {
     width: 400px;
   }
+
+  .create-box-cat .el-select .el-input {
+    width: 130px;
+  }
+
+  .input-with-select .el-input {
+    width: 500px;
+  } */
+
+  .my-footer {
+    padding: 10px 20px 20px;
+    text-align: right;
+    box-sizing: border-box;
+  }
+  /* .create-box-cat .el-input {
+    width: 500px
+  } */
 </style>
 

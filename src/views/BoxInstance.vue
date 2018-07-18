@@ -24,7 +24,7 @@
         <el-menu v-if="boxInstanceList.length" :default-active="boxInstanceList[0].name" width="auto">
           <el-submenu index="1">
             <template slot="title"><Icon type="ios-box" style="margin-right: 15px"></Icon>Boxes</template>
-            <el-menu-item v-for="(instance, index) in boxInstanceList" :key="index" :index="instance.name" @click.native="getBoxDetail(instance)">{{instance.name}}</el-menu-item>
+            <el-menu-item v-for="(instance, index) in boxInstanceList" :key="index" :index="instance.name" @click.native="getBoxDetail(instance.id)">{{instance.name}}</el-menu-item>
           </el-submenu>
         </el-menu>
       </el-aside>
@@ -111,7 +111,7 @@
           </el-breadcrumb>
         </div>
         <el-main>
-          <el-table :data="testTable.list">
+          <el-table :data="testTable.list" :header-cell-style="{background: '#ebeef5'}">
             <el-table-column v-for="(item, index) in testTable.prop" :key="index" :prop="item"
                             :label="testTable.label[index]">
             </el-table-column>
@@ -455,10 +455,14 @@ export default {
       })
     },
 
-    getBoxDetail: function(instance) {
+    getBoxDetail: function(instanceID) {
+      console.log('get box detail click other box, ', instanceID)
       this.showExperimentDetail = false
       this.showBoxDetail = true
-      this.boxInstanceDetail = instance
+      // this.boxInstanceDetail = instance
+      ajax.getBoxDetailByID(instanceID).then(result => {
+        this.boxInstanceDetail = result.data.data
+      })
       this.getExperiments(this.boxInstanceDetail.id)
      },
 
