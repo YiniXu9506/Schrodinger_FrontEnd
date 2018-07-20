@@ -26,9 +26,9 @@
       </div>
       <div v-if="infoSection == 'Cat'">
         <Strong>Labels: </Strong> {{boxInfoCard.labels}} <br>
-        <Strong>PD Version: </Strong> {{boxInfoCard.pd_version.type}}:{{boxInfoCard.pd_version.value}} <br>
-        <Strong>TiKV Version: </Strong> {{boxInfoCard.tikv_version.type}}:{{boxInfoCard.tikv_version.value}} <br>
-        <Strong>TiDB Version: </Strong> {{boxInfoCard.tidb_version.type}}:{{boxInfoCard.tidb_version.value}} <br>
+        <Strong>PD Version: </Strong> {{boxInfoCard.pd_ver.type}}:{{boxInfoCard.pd_ver.value}} <br>
+        <Strong>TiKV Version: </Strong> {{boxInfoCard.tikv_ver.type}}:{{boxInfoCard.tikv_ver.value}} <br>
+        <Strong>TiDB Version: </Strong> {{boxInfoCard.tidb_ver.type}}:{{boxInfoCard.tidb_ver.value}} <br>
         <Strong>PD Size: </Strong> {{boxInfoCard.pd_size}} <br>
         <Strong>TiDB Size: </Strong> {{boxInfoCard.tidb_size}}<br>
         <Strong>TiKV Size: </Strong>{{boxInfoCard.tikv_size}}<br>
@@ -79,9 +79,9 @@
       </div>
       <div v-if="infoSection == 'Cat'">
         <Strong>Labels: </Strong> {{experimentInfoCard.labels}} <br>
-        <Strong>PD Version: </Strong> {{experimentInfoCard.pd_version.type}}:{{experimentInfoCard.pd_version.value}} <br>
-        <Strong>TiKV Version: </Strong> {{experimentInfoCard.tikv_version.type}}:{{experimentInfoCard.tikv_version.value}} <br>
-        <Strong>TiDB Version: </Strong> {{experimentInfoCard.tidb_version.type}}:{{experimentInfoCard.tidb_version.value}} <br>
+        <Strong>PD Version: </Strong> {{experimentInfoCard.pd_ver.type}}:{{experimentInfoCard.pd_ver.value}} <br>
+        <Strong>TiKV Version: </Strong> {{experimentInfoCard.tikv_ver.type}}:{{experimentInfoCard.tikv_ver.value}} <br>
+        <Strong>TiDB Version: </Strong> {{experimentInfoCard.tidb_ver.type}}:{{experimentInfoCard.tidb_ver.value}} <br>
         <Strong>PD Size: </Strong> {{experimentInfoCard.pd_size}} <br>
         <Strong>TiDB Size: </Strong> {{experimentInfoCard.tidb_size}}<br>
         <Strong>TiKV Size: </Strong>{{experimentInfoCard.tikv_size}}<br>

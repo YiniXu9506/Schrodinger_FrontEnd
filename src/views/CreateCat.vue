@@ -7,10 +7,10 @@
         <el-button style="float: right;" type="primary" @click="clickCreateCat">Create Cat</el-button>
       </div>
 
-      <el-table :data="createdCatList.list" :header-cell-style="{background: '#ebeef5'}">
+      <el-table :data="createdCatList.list" :header-cell-style="{background: '#ebeef5'}" height="650">
         <el-table-column type="expand">
-          <template slot-scope="props">
-            <el-form label-position="left" inline class="my-table-expand">
+          <!-- <template slot-scope="props">
+            <el-form label-position="left" inline class="my-table-expand" label-width="14rem">
               <el-form-item label="Cat Name">
                 <span>{{props.row.name}}</span>
               </el-form-item>
@@ -48,7 +48,8 @@
                 <span>{{props.row.config_map}}</span>
               </el-form-item>
             </el-form>
-          </template>
+          </template> -->
+          hello there
         </el-table-column>
         <el-table-column v-for="(item, index) in createdCatList.prop" :key="index" :label="createdCatList.label[index]"
         :prop="item">
@@ -121,7 +122,7 @@
         </el-col>
       </el-form-item>
       <el-form-item label="PD Size:" prop="pd_size">
-        <el-input v-model="catForm.pd_size" style="width: 200px;"></el-input>
+        <el-input v-model.number="catForm.pd_size" style="width: 200px;"></el-input>
       </el-form-item>
 
       <el-form-item label="TiKV Verion:" required>
@@ -152,7 +153,7 @@
         </el-col>
       </el-form-item>
       <el-form-item label="TiKV Size:" prop="tikv_size">
-        <el-input v-model="catForm.tikv_size" style="width: 200px;"></el-input>
+        <el-input v-model.number="catForm.tikv_size" style="width: 200px;"></el-input>
       </el-form-item>
 
       <el-form-item label="TiDB Verion:" required>
@@ -182,7 +183,7 @@
         </el-col>
       </el-form-item>
       <el-form-item label="TiDB Size:" prop="tidb_size">
-        <el-input v-model="catForm.tidb_size" style="width: 200px;"></el-input>
+        <el-input v-model.number="catForm.tidb_size" style="width: 200px;"></el-input>
       </el-form-item>
 
       <el-form-item label="Config Map:" prop="config_map">
@@ -669,5 +670,9 @@ export default {
     width: 270px;
   } */
 
+.box-card{
+  height: 100%;
+  overflow-x: auto
+}
 </style>
 
