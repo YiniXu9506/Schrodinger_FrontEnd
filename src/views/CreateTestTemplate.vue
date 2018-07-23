@@ -7,9 +7,13 @@
         <el-button style="float: right;" type="primary" @click="clickCreateTestTemplate">Create Test Template</el-button>
       </div>
       <el-table :data="createdTestTemplateList.list" :header-cell-style="{background: '#ebeef5'}" height="650">
+        <el-table-column type="expand">
+        Test Template Details come here
+        </el-table-column>
         <el-table-column v-for="(item, index) in createdTestTemplateList.prop" :key="index" :label="createdTestTemplateList.label[index]"
         :prop="item">
         </el-table-column>
+
         <el-table-column label="Operation">
           <template slot-scope="scope">
             <el-button type="primary" icon="el-icon-edit" circle @click="clickUpdateTestTemplate(scope.row.name)"></el-button>
@@ -178,7 +182,7 @@ export default {
 
   created() {
     this.fetchTestTemplates()
-    this.pollStatus()
+    // this.pollStatus()
   },
 
   methods: {
@@ -278,7 +282,8 @@ export default {
           message: 'Create Case Template Success!'
         });
         this.clearTestTemplateForm()
-        this.pollStatus()
+        // this.pollStatus()
+        this.fetchTestTemplates()
       }).catch((resp) => {
         this.$notify({
           title: "ERROR 2",
@@ -374,7 +379,7 @@ export default {
     },
 
     deleteTestTemplateByName(testName) {
-      console.log('click delete test')
+      console.log('click delete test, test name is ', testName)
       ajax.deleteTestTemplateByName(testName).then(result => {
         if(result.data.code == 200) {
           this.$notify({
@@ -389,6 +394,7 @@ export default {
             duration: 0
           })
         }
+        this.fetchTestTemplates()
       }).catch(resp => {
         this.$notify.error({
           title: 'Error',

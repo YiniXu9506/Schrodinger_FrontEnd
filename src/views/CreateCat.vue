@@ -49,7 +49,7 @@
               </el-form-item>
             </el-form>
           </template> -->
-          hello there
+          Cat Details come here
         </el-table-column>
         <el-table-column v-for="(item, index) in createdCatList.prop" :key="index" :label="createdCatList.label[index]"
         :prop="item">
@@ -62,17 +62,22 @@
         </el-table-column>
         <el-table-column label="PD Version" prop="pd_ver">
           <template slot-scope="scope">
-            {{scope.row.pd_ver.type}}:{{scope.row.pd_ver.value}}
+            {{scope.row.config_version.pd_version.type}}:{{scope.row.config_version.pd_version.value}}
           </template>
         </el-table-column>
         <el-table-column label="TiKV Version" prop="tikv_ver">
           <template slot-scope="scope">
-            {{scope.row.tikv_ver.type}}:{{scope.row.tikv_ver.value}}
+            {{scope.row.config_version.tikv_version.type}}:{{scope.row.config_version.tikv_version.value}}
           </template>
         </el-table-column>
         <el-table-column label="TiDB Version" prop="tidb_ver">
           <template slot-scope="scope">
-            {{scope.row.tidb_ver.type}}:{{scope.row.tidb_ver.value}}
+            {{scope.row.config_version.tidb_version.type}}:{{scope.row.config_version.tidb_version.value}}
+          </template>
+        </el-table-column>
+        <el-table-column label="Stage" prop="stage">
+          <template slot-scope="scope">
+            {{scope.row.stage}}
           </template>
         </el-table-column>
         <el-table-column label="Operation" prop="owner">
@@ -85,8 +90,9 @@
       </el-table>
     </el-card>
   </div>
+
   <!-- create Cat dialog -->
-   <el-dialog title="Create Cat" :visible.sync="createCatFormDialog">
+   <el-dialog title="Create Cat" :visible.sync="createCatFormDialog" @close="handleCloseDialog">
      <el-form :model="catForm" :rules="validationRules" ref="catForm" label-width="8rem" class="demo-form-inline">
       <el-form-item label="Cat Name" prop="name">
         <el-input v-model="catForm.name" style="width: 200px;"></el-input>
@@ -193,7 +199,7 @@
     <div slot="footer" class="dialog-footer">
       <el-button @click="createCatFormDialog = false; clearCatForm()">Cancel</el-button>
       <el-button @click="resetForm('catForm')">Reset</el-button>
-      <el-button v-if="updateCatFormDialog == 'true'" type="primary" @click="submitUpdateForm('catForm')">Save</el-button>
+      <el-button v-if="updateCatFormDialog == true" type="primary" @click="submitUpdateForm('catForm')">Save</el-button>
       <el-button v-else type="primary" @click="submitNewForm('catForm')">Create</el-button>
     </div>
    </el-dialog>
@@ -317,14 +323,12 @@ export default {
       createCatFormDialog: false,
       updateCatFormDialog: false,
       catDetial: '',
+      createdCatNames: [],
       createdCatList: {
-        // label: ['Name', 'PD Version', 'TiDB Version', 'TiKV Version'],
-        // prop: ['name', 'pd_ver.type', 'tidb_ver.type', 'tikv_ver.type'],
         label: ['Name'],
         prop: ['name'],
         list: []
       },
-      createdCatNames: [],
       catForm: {
         labels: '',
         name: '',
@@ -349,12 +353,10 @@ export default {
         config_map: ''
       },
       validationRules: {
-        'labels': [{required: true, validator: checkString, trigger: 'change'}],
         'name': [{required: true, validator: checkString, trigger: 'change'}, {validator: checkUnique, trigger: 'blur'}],
         'pd_ver.type': [{required: true, validator: checkString, trigger: 'change'}],
         'pd_ver.value': [{required: true, validator: checkString, trigger: 'change'}],
         'pd_ver.platform': [{required: true, validator: checkString, trigger: 'change'}],
-        // 'pd_ver': [{required: true, validator: checkEmpty, trigger: 'blur'}],
         'tikv_ver.type': [{required: true, validator: checkString, trigger: 'change'}],
         'tikv_ver.value': [{required: true, validator: checkString, trigger: 'change'}],
         'tikv_ver.platform': [{required: true, validator: checkString, trigger: 'change'}],
@@ -387,13 +389,9 @@ export default {
               console.log('response successful',result.data.data)
               debugger
               this.createdCatList.list = result.data.data
+              console.log('this.createdCatList.list is ', this.createdCatList.list)
               debugger
-              const res = _.values(this.createdCatList.list)
-              res.forEach(item => {
-                var i = item
-                this.createdCatNames.push(i.name)
-              })
-              console.log('createdCatNames', this.createdCatNames)
+              this.getCreatedCatNames()
             }
           }
       }).catch(resp => {
@@ -403,17 +401,30 @@ export default {
           })
         })
     },
+
+    getCreatedCatNames() {
+      this.createdCatNames = []
+      const res = _.values(this.createdCatList.list)
+      res.forEach(item => {
+        var i = item
+        this.createdCatNames.push(i.name)
+      })
+      console.log('createdCatNames', this.createdCatNames)
+    },
+
     clickCreateCat() {
       console.log('click create cat')
+      debugger
       // this.clearCatForm()
       this.resetForm('catForm')
+      debugger
       this.createCatFormDialog = true
     },
 
     handleUpdateCatClick(catID) {
       console.log('inside handle updatecat click, catID is ', catID)
-      this.createCatFormDialog = true
       this.updateCatFormDialog = true
+      this.createCatFormDialog = true
       ajax.getCatDetailByID(catID).then(result =>{
         console.log('getcatdetail success, result.data.data', result.data.data)
         this.catDetial = result.data.data
@@ -421,25 +432,30 @@ export default {
           labels: this.catDetial.labels,
           name: this.catDetial.name,
           pd_ver: {
-            type: this.catDetial.pd_ver.type,
-            value: this.catDetial.pd_ver.value,
-            platform: this.catDetial.pd_ver.platform
+            type: this.catDetial.config_version.pd_version.type,
+            value: this.catDetial.config_version.pd_version.value,
+            platform: this.catDetial.config_version.pd_version.platform
           },
           tikv_ver: {
-            type: this.catDetial.tikv_ver.type,
-            value: this.catDetial.tikv_ver.value,
-            platform: this.catDetial.tikv_ver.platform
+            type: this.catDetial.config_version.tikv_version.type,
+            value: this.catDetial.config_version.tikv_version.value,
+            platform: this.catDetial.config_version.tikv_version.platform
           },
           tidb_ver: {
-            type: this.catDetial.tidb_ver.type,
-            value: this.catDetial.tidb_ver.value,
-            platform: this.catDetial.tidb_ver.platform
+            type: this.catDetial.config_version.tidb_version.type,
+            value: this.catDetial.config_version.tidb_version.value,
+            platform: this.catDetial.config_version.tidb_version.platform
           },
           pd_size: this.catDetial.pd_size,
           tikv_size: this.catDetial.tikv_size,
           tidb_size: this.catDetial.tidb_size,
           config_map: this.catDetial.config_map
         }
+        var catName = this.catDetial.name
+        var idx = this.createdCatNames.indexOf(catName)
+        console.log('this catName is',catName)
+        this.createdCatNames.splice(idx, 1)
+        console.log('after splice, the created catnames are ', this.createdCatNames)
       }).catch(resp => {
         this.$notify.error({
           title: 'Error in handleUpdateCatClick',
@@ -476,22 +492,20 @@ export default {
             tidb_size: this.catForm.tidb_size,
             config_map: this.catForm.config_map
           }).then(result => {
-            console.log('the catform going to update is: ', this.catForm)
+            console.log('the catform going to create is: ', this.catForm)
             console.log('the resulst inside createCats', result)
             if(result.data.code == 200) {
               this.createCatFormDialog = false
               this.createdCatList.list.unshift(this.catForm)
               debugger
               console.log('the new create cat is: ', this.createdCatList.list)
+              this.fetchCreatedCat()
               debugger
               this.$notify({
                 title: "SUCCESS",
                 type: 'success',
                 message: 'Create Case Template Success!'
               });
-              debugger
-
-              console.log('the new create cat is: ', this.createdCatList.list)
               this.clearCatForm()
             }
           }).catch((resp) => {
@@ -539,8 +553,13 @@ export default {
                 title: 'Success',
                 message: 'Update Cat' + this.catDetial.name + 'Success'
               })
+              this.getCreatedCatNames()
+              debugger
               this.clearCatForm()
+              debugger
               this.updateCatFormDialog = false
+              this.createCatFormDialog = false
+
             } else {
               this.$notify.error({
                 title: 'Error',
@@ -554,7 +573,7 @@ export default {
             })
           })
         } else {
-          console.log('the update form is invalid')
+          console.log('this form is invalid')
         }
       })
     },
@@ -575,6 +594,7 @@ export default {
             duration: 0
           })
         }
+        this.fetchCreatedCat()
       }).catch(resp => {
         this.$notify.error({
           title: 'Error',
@@ -586,6 +606,9 @@ export default {
 
     clearCatForm: function() {
       console.log('inside clear cat form')
+      console.log('this.createdCatList.list ', this.createdCatList.list)
+      console.log('this.createdcatnames ', this.createdCatNames)
+      debugger
       this.catForm = {
         labels: '',
         name: '',
@@ -633,11 +656,17 @@ export default {
         console.log('AGAIN!! inside resetform, the cat form is :', this.catForm)
         debugger
         console.log('this cat list inside restForm: ', this.createdCatList)
+        console.log('this.catform is ', this.catForm)
         // this.clearCatForm()
         this.$refs[formName].resetFields()
-
+        console.log('this catform after resestfield ', this.catForm)
         console.log('this cat list inside restForm: ', this.createdCatList)
       }
+    },
+    handleCloseDialog() {
+      console.log('inside handle close click')
+      console.log('the catform is ', this.catForm)
+      this.getCreatedCatNames()
     }
   }
 }

@@ -33,10 +33,18 @@
       <el-container v-if="getDetail && showBoxDetail">
         <el-header style="height:400px;">
           <el-row type="flex" class="row-bg" justify="end">
-            <div class="box-operation">
-              <el-button round  @click.native="handleEdit"><Icon type="edit" style="margin-right: 7px;" size="15"></Icon> Edit </el-button>
+            <div v-if="boxStopped" class="box-operation">
+              <el-button round disabled @click.native="handleEdit"><Icon type="edit" style="margin-right: 7px;" size="15"></Icon> Edit </el-button>
+              <el-button type="primary" disabled round @click.native="handleManualTrigger"><Icon type="android-hand" style="margin-right: 7px;" size="15"></Icon>Manual Trigger </el-button>
+              <el-button type="info" disabled round @click.native="handleStop"><Icon type="stop" style="margin-right: 7px;" size="15"></Icon> Stop </el-button>
+              <el-button type="primay" round @click.native="handleRecover"><Icon type="refresh" style="margin-right: 7px;" size="15"></Icon> Recover </el-button>
+              <el-button type="danger" disabled round @click.native="handleDelete"><Icon type="android-delete" style="margin-right: 7px;" size="15"></Icon>Delete </el-button>
+            </div>
+            <div v-else class="box-operation">
+              <el-button round @click.native="handleEdit"><Icon type="edit" style="margin-right: 7px;" size="15"></Icon> Edit </el-button>
               <el-button type="primary" round @click.native="handleManualTrigger"><Icon type="android-hand" style="margin-right: 7px;" size="15"></Icon>Manual Trigger </el-button>
               <el-button type="info" round @click.native="handleStop"><Icon type="stop" style="margin-right: 7px;" size="15"></Icon> Stop </el-button>
+              <el-button type="primay" disabled round @click.native="handleRecover"><Icon type="refresh" style="margin-right: 7px;" size="15"></Icon> Recover </el-button>
               <el-button type="danger" round @click.native="handleDelete"><Icon type="android-delete" style="margin-right: 7px;" size="15"></Icon>Delete </el-button>
             </div>
           </el-row>
@@ -144,8 +152,10 @@
           <el-collapse>
             <el-collapse-item title='CAT' name='cat'>
               <el-form-item label="Cat From" prop="catForm.choice">
-                  <el-radio border v-model="updateBoxForm.catForm.choice" label="select">Created Cat Pool</el-radio>
-                  <el-radio border v-model="updateBoxForm.catForm.choice" label="create">Create New Cat</el-radio>
+                <el-radio-group v-model="updateBoxForm.catForm.choice" @change="handleCatChoiceChange">
+                  <el-radio border label="select">Created Cat Pool</el-radio>
+                  <el-radio border label="create">Create New Cat</el-radio>
+                </el-radio-group>
               </el-form-item>
               <el-form-item v-if="updateBoxForm.catForm.choice == 'select'" label="Pick Cat" prop="catForm.selected_cat"  class="cat">
                 <el-select v-model="updateBoxForm.catForm.selected_cat" placeholder="Please select cat" style="width: 400px;">
@@ -153,6 +163,9 @@
                 </el-select>
               </el-form-item>
               <div v-if="updateBoxForm.catForm.choice == 'create' " class="create-box-cat">
+                <el-form-item label="Labels" prop="catForm.labels">
+                  <el-input v-model="updateBoxForm.catForm.labels" style="width: 200px;"></el-input>
+                </el-form-item>
                 <el-form-item label="PD Verion:" required>
                   <el-col :span="6">
                     <el-form-item prop="catForm.pd_ver.type">
@@ -326,7 +339,29 @@
 
     <!-- test detail dialog -->
     <el-dialog title="Test Detail" :visible.sync="testDetailDialog">
+      <!-- <el-form label-position="">
+      </el-form> -->
       {{testDetail}}
+      <!-- <el-form label-position="left">
+        <el-form-item label="ID "><span>{{testDetail.id}}</span>
+        </el-form-item>
+        <el-form-item label="Experiment ID"><span>{{testDetail.experiment_id}}</span>
+        </el-form-item>
+        <el-form-item label="Creator"><span>{{testDetail.template.creator}}</span>
+        </el-form-item>
+        <el-form-item label="Create Time"><span>{{testDetail.template.create_time}}</span>
+        </el-form-item>
+        <el-form-item label="Update Time"><span>{{testDetail.template.update_time}}</span>
+        </el-form-item>
+        <el-form-item label="Binary Name"><span>{{testDetail.template.source.binary_name}}</span>
+        </el-form-item>
+        <el-form-item label="Type"><span>{{testDetail.template.source.type}}</span>
+        </el-form-item>
+        <el-form-item label="Git Value"><span>{{testDetail.template.source.git_value.git_type}}:{{testDetail.template.source.git_value.value}}</span>
+        </el-form-item>
+        <el-form-item label="Git Repo"><span>{{testDetail.template.source.git_repo}}</span>
+        </el-form-item>
+      </el-form> -->
     </el-dialog>
     </div>
 </template>
@@ -383,6 +418,7 @@ export default {
       testDetailDialog: false,
       noBoxInstance: false,
       hasBoxInstance: false,
+      boxStopped: false,
       boxInstanceList: [],
       boxInstanceDetail: {},
       createdCatPool:[],
@@ -392,6 +428,7 @@ export default {
       updateBoxDialog: false,
       experimentDetail: '',
       testTemplateList: [],
+      catDetail: '',
       experimentTable: {
         label: ['ID', 'Name', 'Create Time', 'Update Time','Status', 'Stage'],
         prop: ['id', 'name', 'create_time', 'update_time', 'status','stage'],
@@ -432,9 +469,9 @@ export default {
             value: '',
             platform: ''
           },
-          pd_size: '',
-          tidb_size: '',
-          tikv_size: '',
+          pd_size: 0,
+          tidb_size: 0,
+          tikv_size: 0,
           config_map: ''
         },
         testForm: {
@@ -499,7 +536,13 @@ export default {
 
     fetchInitialBox: function() {
       this.boxInstanceDetail = this.boxInstanceList[0]
-      console.log('this.boxInstanceDetail: ', this.boxInstanceDetail)
+      console.log('this.boxInstanceDetail kkkkkk: ', this.boxInstanceDetail)
+      if(this.boxInstanceDetail.cat.selected_cat != null) {
+        console.log('select cat')
+        // ajax.getCatDetailByID(this.box)
+        // get cat detail
+      }
+      // ajax.getCatDetailByID()
     },
 
     getExperiments: function(boxId) {
@@ -520,7 +563,7 @@ export default {
       // this.boxInstanceDetail = instance
       ajax.getBoxDetailByID(instanceID).then(result => {
         console.log('box detail is hhhh: ', result.data.data)
-        this.boxInstanceDetail = result.data.data[0]
+        this.boxInstanceDetail = result.data.data
         console.log('this.boxinstancedetail id: ',this.boxInstanceDetail, this.boxInstanceDetail.id)
         this.getExperiments(this.boxInstanceDetail.id)
       })
@@ -687,6 +730,7 @@ export default {
     },
 
     handleStop: function() {
+      this.boxStopped = true
       ajax.stopBoxByID(this.boxInstanceDetail.id).then((result) => {
         if(result.data.code !== 200) {
           this.$notify.error({
@@ -730,6 +774,32 @@ export default {
         })
       })
     },
+
+   handleRecover() {
+     this.boxStopped = false
+     console.log('click recover and teh boxdetail is', this.boxInstanceDetail)
+     ajax.recoverBoxByID(this.boxInstanceDetail.id).then(result => {
+       if(result.data.code == 200) {
+         console.log('return success, the result is, ', result.data.data)
+         this.$notify({
+           title: 'Success',
+           type: 'success',
+           message: 'Recover Box '+ this.boxInstanceDetail.name + ' Success'
+         })
+       } else {
+         this.$notify.error({
+           title: 'Error',
+           message: 'Recover Box '+ this.boxInstanceDetail.name + ' Failed',
+         })
+       }
+     }).catch(resp => {
+       this.$notify.error({
+         title: 'Error',
+         message: resp.message,
+         duration: 0
+       })
+     })
+   },
 
     saveBoxForm(formName) {
       this.$refs[formName].validate((valid) => {
@@ -792,6 +862,7 @@ export default {
             ajax.getBoxDetailByID(this.boxInstanceDetail.id).then(result => {
               this.boxInstanceDetail = result.data.data
               console.log('after update, the new box detail is: ',this.boxInstanceDetail.name, this.boxInstanceDetail.id,  this.boxInstanceDetail)
+              debugger
             }).catch((resp) => {
               this.$notify.error({
                 title: 'Error',
@@ -800,7 +871,10 @@ export default {
             })
 
             ajax.getBox().then((result) => {
+
               this.boxInstanceList = result.data.data
+              console.log('boxinstancelsitL', this.boxInstanceList)
+              debugger
             }).catch(resp => {
               this.$notify.error({
                 title: 'Update Error',
@@ -834,9 +908,29 @@ export default {
       if(index !== -1) {
         this.updateBoxForm.ruleForm.splice(index, 1)
       }
+    },
+
+    handleCatChoiceChange(catChoice) {
+      console.log('inside hanvlecathchoicechange,catchoice is ', catChoice)
+      if(catChoice == 'create') {
+        this.updateBoxForm.catForm.selected_cat = ''
+      } else {
+        this.updateBoxForm.catForm.labels = '',
+        this.updateBoxForm.catForm.pd_ver.type = '',
+        this.updateBoxForm.catForm.pd_ver.value = '',
+        this.updateBoxForm.catForm.pd_ver.platform = ''
+        this.updateBoxForm.catForm.tikv_ver.type = '',
+        this.updateBoxForm.catForm.tikv_ver.value = '',
+        this.updateBoxForm.catForm.tikv_ver.platform = '',
+        this.updateBoxForm.catForm.tidb_ver.type = '',
+        this.updateBoxForm.catForm.tidb_ver.value = '',
+        this.updateBoxForm.catForm.tidb_ver.platform = '',
+        this.updateBoxForm.catForm.pd_size = '',
+        this.updateBoxForm.catForm.tidb_size = '',
+        this.updateBoxForm.catForm.tikv_size = '',
+        this.updateBoxForm.catForm.config_map = ''
+      }
     }
-
-
   }
 }
 </script>

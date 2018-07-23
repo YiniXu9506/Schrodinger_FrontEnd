@@ -11,6 +11,30 @@
           <el-col :span="2"><div class="grid-content bg-purple"><Strong>ID: </Strong></div></el-col>
           <el-col :span="10" :offset="1"><div class="grid-content bg-purple">{{boxInfoCard.id}}</div></el-col>
         </el-row> -->
+        <!-- <el-table :data="boxInfoCard"> -->
+          <!-- <el-form label-position="left">
+            <el-form-item label="ID "><span>{{boxInfoCard.id}}</span>
+            </el-form-item>
+            <el-form-item label="Name"><span>{{boxInfoCard.name}}</span>
+            </el-form-item>
+            <el-form-item label="State"><span>{{boxInfoCard.state}}</span>
+            </el-form-item>
+            <el-form-item label="Create Time"><span>{{boxInfoCard.create_time}}</span>
+            </el-form-item>
+            <el-form-item label="Update Time"><span>{{boxInfoCard.update_time}}</span>
+            </el-form-item>
+            <el-form-item label="Destroy TiDB Cluster"><span>{{boxInfoCard.config.destory_tidb_cluster}}</span>
+            </el-form-item>
+            <el-form-item label="Prepare"><span>{{boxInfoCard.config.prepare}}</span>
+            </el-form-item>
+            <el-form-item label="Slack"><span>{{boxInfoCard.config.slack}}</span>
+            </el-form-item>
+            <el-form-item label="Timeout"><span>{{boxInfoCard.config.timeout}}</span>
+            </el-form-item>
+            <el-form-item label="Type"><span>{{boxInfoCard.config.type}}</span>
+            </el-form-item>
+          </el-form> -->
+        <!-- </el-table> -->
         <Strong>ID: </Strong> {{boxInfoCard.id}} <br>
         <Strong>Name: </Strong> {{boxInfoCard.name}} <br>
         <Strong>State: </Strong> {{boxInfoCard.state}} <br>
@@ -148,6 +172,24 @@ export default {
   .bg-purple {
     background: #d3dce6;
   }
+
+.box-card .el-form-item__label {
+      text-align: right;
+      font-weight: bold;
+      float: left;
+      font-size: 14px;
+      color: black;
+      line-height: 40px;
+      padding: 0 12px 0 0;
+      -webkit-box-sizing: border-box;
+      box-sizing: border-box;
+  }
+  .box-card .el-form-item__content {
+    color: #606266;
+    line-height: 40px;
+    position: relative;
+    font-size: 14px;
+}
 </style>
 
 

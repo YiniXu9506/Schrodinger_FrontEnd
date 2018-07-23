@@ -10,11 +10,14 @@
             <el-radio border v-model="newBoxForm.catForm.choice" label="select">Created Cat Pool</el-radio>
             <el-radio border v-model="newBoxForm.catForm.choice" label="create">Create New Cat</el-radio>
         </el-form-item>
-        <el-form-item v-if="newBoxForm.catForm.choice == 'select'" label="Pick Cat" prop="catForm.selected_cat"  class="cat">
-          <el-select v-model="newBoxForm.catForm.selected_cat" placeholder="Please select cat" style="width: 400px;">
-            <el-option v-for="(item, index) in createdCatPool" :key="index" :value="item.name"></el-option>
-          </el-select>
-        </el-form-item>
+        <div v-if="newBoxForm.catForm.choice == 'select'">
+          <el-form-item label="Pick Cat" prop="catForm.selected_cat"  class="cat">
+            <el-select v-model="newBoxForm.catForm.selected_cat" placeholder="Please select cat" style="width: 400px;">
+              <el-option v-for="(item, index) in createdCatPool" :key="index" :value="item.name"></el-option>
+            </el-select>
+          </el-form-item>
+        </div>
+
         <div v-if="newBoxForm.catForm.choice == 'create' " class="create-box-cat">
           <el-form-item label="PD Verion:" required>
             <el-col :span="6">
@@ -133,9 +136,9 @@
               <el-col :span="6">
                 <el-form-item :prop="'ruleForm.'+index+'.type'">
                   <el-select v-model="newBoxForm.ruleForm[index].type" placeholder="Select rule type">
-                    <el-option label="Immediately Job" value="immediately job"></el-option>
-                    <el-option label="Crontab Job" value="crontab job"></el-option>
-                    <el-option label="Git Webhook" value="git webhook"></el-option>
+                    <el-option label="Immediately Job" value="IMMEDIATELY"></el-option>
+                    <el-option label="Crontab Job" value="CRONTAB"></el-option>
+                    <el-option label="Git Webhook" value="GIT"></el-option>
                   </el-select>
                 </el-form-item>
               </el-col>
@@ -246,8 +249,7 @@ export default {
           prepare: '',
           stop: '',
           destory_tidb_cluster: true,
-          type: '',
-          data: ''
+          type: ''
         },
         catForm: {
           choice: 'select',
@@ -267,9 +269,9 @@ export default {
             value: '',
             platform: ''
           },
-          pd_size: '',
-          tidb_size: '',
-          tikv_size: '',
+          pd_size: 0,
+          tidb_size: 0,
+          tikv_size: 0,
           config_map: ''
         },
         testForm: {
@@ -379,8 +381,7 @@ export default {
               prepare: this.newBoxForm.miscConfigForm.prepare,
               stop: this.newBoxForm.miscConfigForm.stop,
               destory_tidb_cluster: this.newBoxForm.miscConfigForm.destory_tidb_cluster,
-              type: this.newBoxForm.miscConfigForm.type,
-              data: this.newBoxForm.miscConfigForm.data
+              type: this.newBoxForm.miscConfigForm.type
             }
           }).then((result) => {
             console.log('result code', result.data.code)
@@ -415,11 +416,6 @@ export default {
         }
       });
     },
-
-    // handleSelectedCatChange() {
-    //   console.log('inside handleSelectedCatChange')
-    //   if()
-    // },
 
     resetForm(formName) {
       console.log("click reset form")

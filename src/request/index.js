@@ -472,89 +472,64 @@ const Proxy = '/api'
 // Mock.mock(/\/api\/boxes\/[\w-]+/, 'get', {
 //   'code': 200,
 //   'message': '',
-//   'data': [{
-//     'id|+1': 1,
-//     'name': 'getboxdetailbyboxid',
+//   'data': {
+//     'id': 15320546319,
+//     'name': 'box1',
 //     'state': 'ONLINE',
-//     'create_time': '2018-07-04 10:41:22',
-//     'update_time': '2018-07-04 10:41:22',
+//     'create_time': '2018-07-20 10:43:51',
+//     'update_time': '2018-07-20 10:43:51',
 //     'cat': {
-//       'labels': 'label1',
+//       'labels': '',
 //       'selected_cat': '',
+//       'name': '',
 //       'pd_ver': {
 //         'type': 'branch',
 //         'value': 'master',
 //         'platform': 'centos7'
 //       },
 //       'tikv_ver': {
-//         'type': 'branch',
-//         'value': 'master',
-//         'platform': 'centos7'
+//         'type': 'hash',
+//         'value': 'This hash value',
+//         'platform': 'unportable_centos7'
 //       },
 //       'tidb_ver': {
-//         'type': 'branch',
-//         'value': 'master',
+//         'type': 'tag',
+//         'value': 'This tag of git repo',
 //         'platform': 'centos7'
 //       },
 //       'pd_size': 1,
 //       'tidb_size': 1,
-//       'tikv_size': 3,
+//       'tikv_size': 1,
 //       'config_map': 'tidb-cluster-config-template'
 //     },
 //     'rules': [{
 //       'type': 'IMMEDIATELY',
-//       'value': 'value1'
+//       'value': 'this is rule value haha'
 //     },
 //     {
-//       'type': 'IMMEDIATELY',
-//       'value': 'value2'
-//     },
-//     {
-//       'type': 'IMMEDIATELY',
-//       'value': 'value3'
+//       'type': 'CRONTAB',
+//       'value': 'this is rule value haha'
 //     }
 //     ],
 //     'tests': {
 //       'in_order': true,
 //       'tests': [
-//         'bank',
-//         'test1',
-//         'test2',
-//         'test3'
+//         'test10',
+//         'test7'
 //       ]
 //     },
 //     'config': {
-//       'slack': '#schrodinger-alert',
-//       'prepare': null,
-//       'stop': null,
+//       'slack': 'this is slack channel',
+//       'prepare': 'this is prepare callback',
+//       'stop': 'this is stop callback',
 //       'destory_tidb_cluster': true,
 //       'timeout': 604800000000000,
-//       'type': '',
-//       'data': '',
-//       'Cat|2-4': [{
-//         'labels': 'label1',
-//         'pd_version': {
-//           'type': 'branch',
-//           'value': 'master',
-//           'platform': 'centos7'
-//         },
-//         'tikv_version': {
-//           'type': 'branch',
-//           'value': 'master',
-//           'platform': 'centos7'
-//         },
-//         'tidb_version': {
-//           'type': 'branch',
-//           'value': 'master',
-//           'platform': 'centos7'
-//         },
-//         'pd_size': 1,
-//         'tidb_size': 1,
-//         'tikv_size': 3,
-//         'config_map': 'tidb-cluster-config-template'
-//       }]
+//       'type': 'this is type'
+//     },
+//     'trigger_info': {
+//       'times': 1
 //     }
-//   }]
+//   }
 // })
 
 // // manual trigger box
@@ -785,7 +760,7 @@ class Ajax {
   }
 
   deleteTestTemplateByName (testTemplateName) {
-    return axios.delete(`$${Proxy}/tests/templates/${testTemplateName}`)
+    return axios.delete(`${Proxy}/tests/templates/${testTemplateName}`)
   }
 
   getBox () {
@@ -810,6 +785,10 @@ class Ajax {
 
   triggerBoxByID (boxID) {
     return axios.post(`${Proxy}/boxes/${boxID}/trigger`)
+  }
+
+  recoverBoxByID (boxID) {
+    return axios.post(`${Proxy}/boxes/${boxID}/recover`)
   }
 
   getBoxDetailByID (boxID) {
