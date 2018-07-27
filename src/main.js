@@ -6,13 +6,15 @@ import router from './router'
 
 // Using ElementUI ui framework in vue
 import ElementUI from 'element-ui'
+import locale from 'element-ui/lib/locale/lang/en'
 import 'element-ui/lib/theme-chalk/index.css'
 
 // Using iView ui framework in vue
 import iView from 'iview'
 import 'iview/dist/styles/iview.css'
 
-Vue.use(ElementUI)
+// Vue.use(ElementUI)
+Vue.use(ElementUI, {locale})
 Vue.use(iView)
 
 // Using vuex for state-management

@@ -4,6 +4,7 @@ import CreateCase from '@/views/CreateTestTemplate'
 import CreateBox from '@/views/CreateBox'
 import BoxInstance from '@/views/BoxInstance'
 import CreateCat from '@/views/CreateCat'
+import ExperimentDetail from '@/views/ExperimentDetail'
 
 Vue.use(Router)
 

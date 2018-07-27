@@ -6,12 +6,76 @@
         <strong><span style="font-size:15px;">Created Test Template Pool</span></strong>
         <el-button style="float: right;" type="primary" @click="clickCreateTestTemplate">Create Test Template</el-button>
       </div>
-      <el-table :data="createdTestTemplateList.list" :header-cell-style="{background: '#ebeef5'}" height="650">
+      <el-table :data="createdTestTemplateList.list" :header-cell-style="{background: '#ebeef5'}" height="650"
+                :row-key="getRowKeys" :expand-row-keys="expands" @row-click="toggleRowExpansion">
         <el-table-column type="expand">
-        Test Template Details come here
+          <!-- Test Template Details come here -->
+          <template slot-scope="props">
+            <el-form label-position="left">
+              <el-row>
+                <el-col :span="12">
+                  <el-form-item label="Name">
+                  <span>{{props.row.name}}</span>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item label="Source Type">
+                  <span>{{props.row.source.type}}</span>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <el-row>
+                <el-col :span="12">
+                  <el-form-item label="Binary Name">
+                  <span>{{props.row.source.binary_name}}</span>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <template v-if="props.row.source.type == 'git'">
+                <el-row>
+                  <el-col :span="12">
+                    <el-form-item label="Git Repo">
+                      <span>{{props.row.source.git_repo}}</span>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-form-item label="Git Value">
+                      <span>{{props.row.source.git_value.git_type}}:{{props.row.source.git_value.value}}</span>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+              </template>
+              <template v-else>
+                <el-row>
+                  <el-col :span="12">
+                    <el-form-item label="Binary URL">
+                      <span>{{props.row.source.url}}</span>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+              </template>
+              <template v-if="props.row.source.image != ''">
+                <el-row>
+                  <el-col :span="12">
+                    <el-form-item label="Image Address">
+                      <span>{{props.row.source.image}}</span>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+              </template>
+            </el-form>
+          </template>
         </el-table-column>
         <el-table-column v-for="(item, index) in createdTestTemplateList.prop" :key="index" :label="createdTestTemplateList.label[index]"
         :prop="item">
+        </el-table-column>
+        <el-table-column label="Prepare Stage" prop="status"
+                      :filters="[{text: 'NEW', value:'NEW'}, {text:'BUILDING', value: 'BUILDING'}, {text: 'ERROR', value: 'ERROR'}, {text: 'DONE', value: 'DONE'}]"
+                      :filter-method="filterStatus" filter-placement="bottom-end">
+          <template slot-scope="scope">
+            <el-tag :type="scope.row.status === 'ERROR' ? 'danger' : 'primary'">{{scope.row.status}}
+            </el-tag>
+          </template>
         </el-table-column>
 
         <el-table-column label="Operation">
@@ -25,70 +89,109 @@
   </div>
   <!-- create and update test dialog -->
   <div>
-    <el-dialog title="Create Test Template" :visible.sync="createTestTemplateDialog">
-      <el-form :inline="true" :model="testTemplateForm" :rules="rules" ref="testTemplateForm" label-width="8rem" class="demo-form-inline">
-        <el-form-item label="Name:" prop="name">
-          <el-input v-model="testTemplateForm.name"></el-input>
-        </el-form-item>
-        <el-form-item label="Creator:" prop="creator">
-          <el-input v-model="testTemplateForm.creator"></el-input>
-        </el-form-item>
-        <el-form-item label="Description:" prop="desc">
-          <el-input v-model="testTemplateForm.desc"></el-input>
-        </el-form-item>
-        <el-form-item label="Args:" prop="args">
-          <el-input v-model="testTemplateForm.args"></el-input>
-        </el-form-item>
-        <div class="sch-source" style="margin-bottom: 15px">
+    <el-dialog :visible.sync="createTestTemplateDialog">
+      <div slot="title">
+        <strong style="font-size: 22px"> Test Template</strong>
+        <el-tooltip class="item" effect="dark" placement="top-start">
+          <div slot="content">Create new test template for <br> cat testing in the future</div>
+          <Icon type="information-circled" style="margin-left: 10px"></Icon>
+        </el-tooltip>
+      </div>
+      <!-- <span><Icon type="information-circled"></Icon></span> -->
+      <el-form :model="testTemplateForm" :rules="rules" ref="testTemplateForm" label-width="10rem" :status-icon='true'	class="demo-form-inline">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="Test Name:" prop="name">
+              <el-input v-model="testTemplateForm.name" placeholder="Enter test name"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+          <el-form-item label="Test Creator:" prop="creator">
+            <el-input v-model="testTemplateForm.creator" placeholder="Enter test creator"></el-input>
+          </el-form-item>
+          </el-col>
+        </el-row>
+        <!-- <el-row>
+          <el-col :span="24"> -->
+            <el-form-item label="Description:" prop="desc">
+              <el-input v-model="testTemplateForm.desc" placeholder="Briefly descripe the purpose of this test"></el-input>
+            </el-form-item>
+          <!-- </el-col>
+        </el-row> -->
+        <div class="sch-source" style="margin-bottom: 15px; margin-top: 40px">
           <big>
             <strong>
               <span>Source: </span>
             </strong>
+              <span style="font-size: 14px">select an existing binary test file or compile one from git</span>
           </big>
         </div>
         <div class="source">
-          <el-form-item label="Binary Name:" prop="source.binary_name">
-            <el-input v-model="testTemplateForm.source.binary_name"></el-input>
-          </el-form-item>
-          <el-form-item label="Source Type:" prop="source.type">
-            <el-select v-model="testTemplateForm.source.type" placeholder="select source type" @change='sourceTypeChange'>
-              <el-option label="git" value="git"></el-option>
-              <el-option label="bin" value="bin"></el-option>
-            </el-select>
-          </el-form-item>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="Source Type:" prop="source.type">
+                <el-radio-group v-model="testTemplateForm.source.type" @change="sourceTypeChange">
+                  <el-radio label="git">git</el-radio>
+                  <el-radio label="bin">bin</el-radio>
+                </el-radio-group>
+                <!-- <el-select v-model="testTemplateForm.source.type" placeholder="select source type" @change='sourceTypeChange'>
+                  <el-option label="git" value="git"></el-option>
+                  <el-option label="bin" value="bin"></el-option>
+                </el-select> -->
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="13">
+              <el-form-item label="Binary Name:" prop="source.binary_name">
+                <el-input v-model="testTemplateForm.source.binary_name" placeholder="Enter name of the binary test file"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
           <div v-if="testTemplateForm.source.type == 'git'">
             <el-form-item label="Git Repo:" prop="source.git_repo">
               <el-input v-model="testTemplateForm.source.git_repo"></el-input>
             </el-form-item>
-            <el-form-item label="Git Value:" required>
-              <el-col :span="10">
-                <el-form-item prop="source.git_value.git_type">
-                  <el-select v-model="testTemplateForm.source.git_value.git_type" placeholder="Select git type">
+
+            <!-- <el-form-item > -->
+              <!-- <el-col :span="8"> -->
+                <el-form-item prop="source.git_value.git_type" label="Git Type:" required>
+                  <el-radio-group v-model="testTemplateForm.source.git_value.git_type">
+                    <el-radio label="branch">branch</el-radio>
+                    <el-radio label="tag">tag</el-radio>
+                    <el-radio label="hash">hash</el-radio>
+                  </el-radio-group>
+                  <!-- <el-select v-model="testTemplateForm.source.git_value.git_type" placeholder="Select git type">
                     <el-option label="branch" value="branch"></el-option>
                     <el-option label="tag" value="tag"></el-option>
                     <el-option label="hash" value="hash"></el-option>
-                  </el-select>
+                  </el-select> -->
                 </el-form-item>
-              </el-col>
-              <el-col :span="14">
-                <el-form-item  prop="source.git_value.value">
-                  <el-input v-model="testTemplateForm.source.git_value.value" placeholder="Enter git value">
-                  </el-input>
+              <!-- </el-col> -->
+              <!-- <el-col :span="16"> -->
+                <el-form-item v-if="testTemplateForm.source.git_value.git_type == 'branch'" label="Git Value" prop="source.git_value.value" required>
+                  <el-input v-model="testTemplateForm.source.git_value.value"></el-input>
                 </el-form-item>
-              </el-col>
-            </el-form-item>
-            <el-form-item label="Image Address" prop="source.image">
-              <el-input v-model="testTemplateForm.source.image"></el-input>
-            </el-form-item>
+                <el-form-item v-if="testTemplateForm.source.git_value.git_type == 'tag'" label="Git Value" prop="source.git_value.value" required>
+                  <el-input v-model="testTemplateForm.source.git_value.value" placeholder="Tag of git repo"></el-input>
+                </el-form-item>
+                <el-form-item v-if="testTemplateForm.source.git_value.git_type == 'hash'" label="Git Value" prop="source.git_value.value" required>
+                  <el-input v-model="testTemplateForm.source.git_value.value" placeholder="eg.05b9e47b617b68aeb868bcaec8355961a181581d"></el-input>
+                </el-form-item>
+              <!-- </el-col> -->
+            <!-- </el-form-item> -->
           </div>
           <div v-if="testTemplateForm.source.type == 'bin'">
             <el-form-item label="Binary URL:" prop="source.url">
               <el-input v-model="testTemplateForm.source.url"></el-input>
             </el-form-item>
-            <el-form-item label="Image Address:" prop="source.image">
-              <el-input v-model="testTemplateForm.source.image"></el-input>
-            </el-form-item>
           </div>
+          <el-form-item label="Docker Image" prop="source.image">
+              <el-input v-model="testTemplateForm.source.image" placeholder="Enter docker execution image"></el-input>
+            </el-form-item>
+          <el-form-item label="Args:" prop="args">
+            <el-input v-model="testTemplateForm.args" placeholder="Execution arguments"></el-input>
+          </el-form-item>
         </div>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -143,12 +246,14 @@ export default {
     return {
       stopPolling: false,
       testStatusArray: [],
+      preRowId: 0,
+      expands: [],
       createdTestTemplateDetail: '',
       createTestTemplateDialog: false,
       updateTestTemplateDialog: false,
       createdTestTemplateList: {
-        label: ['ID', 'Name', 'Source Type','Create Time', 'Update Time', 'Prepare Stage'],
-        prop: ['id', 'name', 'source.type', 'create_time', 'update_time', 'status'],
+        label: ['ID', 'Name', 'Source Type','Create Time', 'Update Time'],
+        prop: ['id', 'name', 'source.type', 'create_time', 'update_time'],
         list: []
       },
       testTemplateForm: {
@@ -159,18 +264,18 @@ export default {
         source: {
           binary_name: '',
           image: '',
-          type: '',
+          type: 'git',
           url: '',
           git_value: {
-            git_type: '',
+            git_type: 'branch',
             value: ''
           },
           git_repo: ''
         }
       },
       rules: {
-        name: [{required: true, validator: checkString, trigger: 'change'}],
-        'source.binary_name': [{required: true, validator: checkString, trigger: 'change'}],
+        name: [{required: true, validator: checkString, trigger: 'blur'}],
+        'source.binary_name': [{required: true, validator: checkString, trigger: 'blur'}],
         'source.type': [{required: true, validator: checkString, trigger: 'blur'}],
         'source.url': [{required: true, validator: checkString, trigger: 'blur'}],
         'source.git_value.git_type': [{required: true, validator: checkString, trigger: 'blur'}],
@@ -182,10 +287,27 @@ export default {
 
   created() {
     this.fetchTestTemplates()
-    // this.pollStatus()
+    this.pollStatus()
   },
 
   methods: {
+    getRowKeys(row) {
+      return row.id
+    },
+
+    toggleRowExpansion(row) {
+      console.log('hello from toggle ', row)
+      if(row.id == this.preRowId) {
+        this.preRowId = 0
+        this.expands = []
+        return
+      }
+      this.preRowId = row.id
+      this.expands = []
+      this.expands.push(row.id)
+      this.$router.push({ name: 'CreateTestTemplate', params: { testid: row.id}})
+    },
+
     pollStatus() {
       console.log('polling status')
       var timeId = setInterval(() => {
@@ -194,7 +316,7 @@ export default {
           console.log('stop polling status')
         }
         this.fetchTestTemplates()}
-      ,3000)
+      ,10000)
     },
 
     fetchTestTemplates: function() {
@@ -212,6 +334,7 @@ export default {
             var i = item
             this.testStatusArray.push(i.status)
           })
+
           console.log('this testStatsus array: ', this.testStatusArray)
           if(!this.testStatusArray.includes('NEW') && !this.testStatusArray.includes('BUILDING')) {
             this.stopPolling = true
@@ -223,6 +346,7 @@ export default {
 
     clickCreateTestTemplate: function() {
       this.resetForm('testTemplateForm')
+      this.clearTestTemplateForm()
       this.createTestTemplateDialog = true
     },
 
@@ -281,9 +405,11 @@ export default {
           type: 'success',
           message: 'Create Case Template Success!'
         });
+        // this.clearTestTemplateForm()
+        this.resetForm('testTemplateForm')
         this.clearTestTemplateForm()
-        // this.pollStatus()
         this.fetchTestTemplates()
+        this.pollStatus()
       }).catch((resp) => {
         this.$notify({
           title: "ERROR 2",
@@ -292,10 +418,6 @@ export default {
           duration: 0
         });
       })
-
-      // console.log('the status of test is: ', result.data.data.status)
-      // debugger
-
     },
 
     updateTestTemplate: function () {
@@ -330,6 +452,8 @@ export default {
         }
         this.updateTestTemplateDialog = false
         this.createTestTemplateDialog = false
+        this.resetForm('testTemplateForm')
+        this.clearTestTemplateForm()
         // this.updateTestTemplate = false
         this.$notify({
           title: "SUCCESS",
@@ -342,7 +466,7 @@ export default {
           // this.filteredData = this.createdTestTemplateList
         }).catch(() => {})
         console.log('after update, the createdTesttemplate list: ', this.createdTestTemplateList.list)
-        this.clearTestTemplateForm();
+        // this.clearTestTemplateForm();
       }).catch((resp) => {
         this.$notify({
           title: "ERROR",
@@ -379,28 +503,38 @@ export default {
     },
 
     deleteTestTemplateByName(testName) {
-      console.log('click delete test, test name is ', testName)
-      ajax.deleteTestTemplateByName(testName).then(result => {
-        if(result.data.code == 200) {
-          this.$notify({
-            title: 'Success',
-            type: 'success',
-            message: 'Delete Test: ' + testName + ' Success'
-          })
-        } else {
+      this.$confirm('Continue to Delete The Test', 'Warning', {
+        confirmButtonText: 'Yes',
+        cancelButtonText: 'Cancel',
+        type:'warning',
+        center: true
+      }).then(() => {
+        console.log('click delete test, test name is ', testName)
+        ajax.deleteTestTemplateByName(testName).then(result => {
+          if(result.data.code == 200) {
+            this.$notify({
+              title: 'Success',
+              type: 'success',
+              message: 'Delete Test: ' + testName + ' Success'
+            })
+          } else {
+            this.$notify.error({
+              title: 'Error',
+              message: 'Delete Test: ' + testName + ' Failed',
+              duration: 0
+            })
+          }
+          this.fetchTestTemplates()
+        }).catch(resp => {
           this.$notify.error({
             title: 'Error',
-            message: 'Delete Test: ' + testName + ' Failed',
+            message: resp.message,
             duration: 0
           })
-        }
-        this.fetchTestTemplates()
-      }).catch(resp => {
-        this.$notify.error({
-          title: 'Error',
-          message: resp.message,
-          duration: 0
         })
+      }).catch(() => {
+        console.log('click cancel')
+        return
       })
     },
 
@@ -414,11 +548,11 @@ export default {
         source: {
           binary_name: '',
           image: '',
-          type: '',
+          type: 'git',
           url: '',
           git_value: {
-            git_type: '',
-            value: ''
+            git_type: 'branch',
+            value: 'master'
           },
           git_repo: ''
         }
@@ -450,6 +584,10 @@ export default {
         console.log('this.testTemplateForm.source.url ', this.testTemplateForm.source.git_value)
       }
       console.log('handle suorce type change')
+    },
+
+    filterStatus(value, row) {
+      return row.status === value
     }
   }
 }
@@ -460,6 +598,25 @@ export default {
     width: auto;
     /* height: 600px; */
     overflow: auto;
+  }
+  .box-card .el-form-item__label {
+    text-align: right;
+    /* font-weight: bold; */
+    float: left;
+    font-size: 14px;
+    /* color: black; */
+    color: #99a9bf;
+    line-height: 40px;
+    padding: 0 12px 0 0;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+
+  .el-table__column-filter-trigger i {
+    color: black;
+    font-size: 20px;
+    -webkit-transform: scale(.75);
+    transform: scale(.75);
   }
   /* .box-card {
     display: inline-block;

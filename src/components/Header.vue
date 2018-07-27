@@ -9,10 +9,10 @@
 
     <div class="tabs">
       <Tabs type="card" v-model="activeTab" @on-click="tabClicked">
-        <TabPane label="Box Instance" icon="ios-box" name="boxinstance"></TabPane>
-        <TabPane label="Create Test Template" icon="compose" name="createtesttemplate"></TabPane>
-        <TabPane label="Create Cat" icon="ios-box-outline" name="createcat"></TabPane>
+        <TabPane label="Homepage" icon="ios-box" name="boxinstance"></TabPane>
         <TabPane label="Create Box" icon="ios-box-outline" name="createbox"></TabPane>
+        <TabPane label="Cat Pool" icon="social-octocat" name="createcat"></TabPane>
+        <TabPane label="Create Test Template" icon="compose" name="createtesttemplate"></TabPane>
       </Tabs>
     </div>
   </div>
@@ -31,9 +31,24 @@
     methods: {
       tabClicked(tab) {
         console.log('hello from tab clicked', tab)
+        console.log('hello form this.activetab: ', this.activeTab)
         this.$router.push({path: this.activeTab})
       }
+    },
+    watch: {
+    '$route' (to, from) {
+      // 对路由变化作出响应...
+      if(from.fullPath == '/createbox' && to.fullPath == '/boxinstance') {
+        console.log('to', to)
+        console.log('from', from)
+        console.log('fullpath: ', from.fullPath)
+        this.activeTab = (to.fullPath).slice(1)
+      }
+
+      // this.$router.push({path: this.activeTab})
     }
+  }
+
   };
 
 </script>

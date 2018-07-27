@@ -807,6 +807,10 @@ class Ajax {
     return axios.post(`${Proxy}/cats`, catData)
   }
 
+  getCatDetailByName (catName) {
+    return axios.get(`${Proxy}/cats/byname/${catName}`)
+  }
+
   updateCat (catID, catData) {
     return axios.put(`${Proxy}/cats/${catID}/upgrade`, catData)
   }

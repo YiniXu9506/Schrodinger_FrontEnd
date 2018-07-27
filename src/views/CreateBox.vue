@@ -1,14 +1,18 @@
 <template>
 <div>
-  <el-form :model="newBoxForm" inline :rules="validationRules" ref="newBoxForm" label-width="10rem" class="demo-form-inline">
-    <el-form-item label="Box Name:" prop="miscConfigForm.name" label-width="7rem">
-      <el-input v-model="newBoxForm.miscConfigForm.name" placeholder="Enter box name"></el-input>
-    </el-form-item>
+  <el-form :model="newBoxForm" :rules="validationRules" ref="newBoxForm" label-width="13rem" class="demo-form-inline">
+    <el-row>
+      <el-col :span="10" :offset="2">
+        <el-form-item label="Box Name:" prop="miscConfigForm.name" label-width="7rem">
+          <el-input v-model="newBoxForm.miscConfigForm.name" placeholder="Enter box name"></el-input>
+        </el-form-item>
+      </el-col>
+    </el-row>
     <el-collapse v-model="activeName">
       <el-collapse-item title='CAT' name='cat'>
         <el-form-item label="Cat From" prop="catForm.choice">
-            <el-radio border v-model="newBoxForm.catForm.choice" label="select">Created Cat Pool</el-radio>
-            <el-radio border v-model="newBoxForm.catForm.choice" label="create">Create New Cat</el-radio>
+            <el-radio v-model="newBoxForm.catForm.choice" label="select">Cat Pool</el-radio>
+            <el-radio v-model="newBoxForm.catForm.choice" label="create">Create New Cat</el-radio>
         </el-form-item>
         <div v-if="newBoxForm.catForm.choice == 'select'">
           <el-form-item label="Pick Cat" prop="catForm.selected_cat"  class="cat">
@@ -32,7 +36,7 @@
             <el-col :span="10">
               <el-form-item prop="catForm.pd_ver.value">
                 <el-input v-if="newBoxForm.catForm.pd_ver.type == ''" v-model="newBoxForm.catForm.pd_ver.value" class="input-with-select" placeholder="Enter PD version value"></el-input>
-                <el-input v-if="newBoxForm.catForm.pd_ver.type == 'branch'" v-model="newBoxForm.catForm.pd_ver.value" class="input-with-select" placeholder="eg.master/release-1.0"></el-input>
+                <el-input v-if="newBoxForm.catForm.pd_ver.type == 'branch'" v-model="newBoxForm.catForm.pd_ver.value" class="input-with-select" placeholder="eg.master or release-1.0"></el-input>
                 <el-input v-if="newBoxForm.catForm.pd_ver.type == 'hash'" v-model="newBoxForm.catForm.pd_ver.value" class="input-with-select" placeholder="Enter hash value"></el-input>
                 <el-input v-if="newBoxForm.catForm.pd_ver.type == 'tag'" v-model="newBoxForm.catForm.pd_ver.value" class="input-with-select" placeholder="Enter tag of git repo"></el-input>
               </el-form-item>
@@ -62,7 +66,7 @@
             <el-col :span="10">
               <el-form-item prop="catForm.tikv_ver.value">
                 <el-input v-if="newBoxForm.catForm.tikv_ver.type == ''" v-model="newBoxForm.catForm.tikv_ver.value" class="input-with-select" placeholder="Enter PD version value"></el-input>
-                <el-input v-if="newBoxForm.catForm.tikv_ver.type == 'branch'" v-model="newBoxForm.catForm.tikv_ver.value" class="input-with-select" placeholder="eg.master/release-1.0"></el-input>
+                <el-input v-if="newBoxForm.catForm.tikv_ver.type == 'branch'" v-model="newBoxForm.catForm.tikv_ver.value" class="input-with-select" placeholder="eg.master or release-1.0"></el-input>
                 <el-input v-if="newBoxForm.catForm.tikv_ver.type == 'hash'" v-model="newBoxForm.catForm.tikv_ver.value" class="input-with-select" placeholder="Enter hash value"></el-input>
                 <el-input v-if="newBoxForm.catForm.tikv_ver.type == 'tag'" v-model="newBoxForm.catForm.tikv_ver.value" class="input-with-select" placeholder="Enter tag of git repo"></el-input>
               </el-form-item>
@@ -93,7 +97,7 @@
             <el-col :span="10">
               <el-form-item prop="catForm.tidb_ver.value">
                 <el-input v-if="newBoxForm.catForm.tidb_ver.type == ''" v-model="newBoxForm.catForm.tidb_ver.value" class="input-with-select" placeholder="Enter PD version value"></el-input>
-                <el-input v-if="newBoxForm.catForm.tidb_ver.type == 'branch'" v-model="newBoxForm.catForm.tidb_ver.value" class="input-with-select" placeholder="eg.master/release-1.0"></el-input>
+                <el-input v-if="newBoxForm.catForm.tidb_ver.type == 'branch'" v-model="newBoxForm.catForm.tidb_ver.value" class="input-with-select" placeholder="eg.master or release-1.0"></el-input>
                 <el-input v-if="newBoxForm.catForm.tidb_ver.type == 'hash'" v-model="newBoxForm.catForm.tidb_ver.value" class="input-with-select" placeholder="Enter hash value"></el-input>
                 <el-input v-if="newBoxForm.catForm.tidb_ver.type == 'tag'" v-model="newBoxForm.catForm.tidb_ver.value" class="input-with-select" placeholder="Enter tag of git repo"></el-input>
               </el-form-item>
@@ -129,56 +133,95 @@
         </div>
       </el-collapse-item>
 
-      <el-collapse-item title="Rules" name="rules">
-        <el-form-item v-for="(rule, index) in newBoxForm.ruleForm" label-width="7rem" :key="rule.key" :label="'Rule ' + index"
-                    required>
+      <el-collapse-item title="Trigger Rules" name="rules">
+        <!-- <el-form-item v-for="(rule, index) in newBoxForm.ruleForm" label-width="7rem" :key="rule.key" label="Rule Type" required>
             <el-row>
-              <el-col :span="6">
-                <el-form-item :prop="'ruleForm.'+index+'.type'">
-                  <el-select v-model="newBoxForm.ruleForm[index].type" placeholder="Select rule type">
+              <el-col> -->
+                <el-form-item v-for="(rule, index) in newBoxForm.ruleForm" :key="rule.key" label="Rule Type: " :prop="'ruleForm.'+index+'.type'" required>
+                  <el-radio-group v-model="newBoxForm.ruleForm[index].type">
+                    <el-radio label="IMMEDIATELY">Immediately Job
+                      <el-tooltip class="item" effect="dark" content="Trigger an experiment immediately">
+                        <Icon type="information-circled" style="margin-left: 5px"></Icon>
+                      </el-tooltip>
+                    </el-radio>
+                    <el-radio label="CRONTAB">Crontab Job
+                      <el-tooltip class="item" effect="dark" content="Trigger an experiment at customized time">
+                        <Icon type="information-circled" style="margin-left: 5px"></Icon>
+                      </el-tooltip>
+                    </el-radio>
+                    <el-radio label="GIT">Git Update
+                      <el-tooltip class="item" effect="dark" content="Trigger an experiment when tiDB code been updated">
+                        <Icon type="information-circled" style="margin-left: 5px"></Icon>
+                      </el-tooltip>
+                    </el-radio>
+                  </el-radio-group>
+                  <!-- <el-select v-model="newBoxForm.ruleForm[index].type" placeholder="Select rule type">
                     <el-option label="Immediately Job" value="IMMEDIATELY"></el-option>
                     <el-option label="Crontab Job" value="CRONTAB"></el-option>
                     <el-option label="Git Webhook" value="GIT"></el-option>
-                  </el-select>
+                  </el-select> -->
                 </el-form-item>
-              </el-col>
-              <el-col :span="10">
-                <el-form-item :prop="'ruleForm.'+index+'.type'">
-                  <el-input v-model="newBoxForm.ruleForm[index].value" class="input-with-select" placeholder="Enter rule value"></el-input>
+              <!-- </el-col>
+            </el-row> -->
+            <el-row>
+              <el-col>
+                <el-form-item v-if="newBoxForm.ruleForm[index].type == 'CRONTAB'" v-for="(rule, index) in newBoxForm.ruleForm" :key="rule.key" :prop="'ruleForm.'+index+'.type'" required="">
+                  <template slot="label">Timed Trigger:
+                    <el-tooltip class="item" effect="dark">
+                      <div slot="content">Format:* * * * *<br> 1st col: minute, <br>2nd col: hour, <br>3rd col: date, <br>4th col: month, <br>5th col: year <br><br><br>
+                          <a href="https://blog.csdn.net/bsf5521/article/details/76522222">Click me for more details</a></div>
+                      <Icon type="information-circled" style="margin-left: 5px"></Icon>
+                    </el-tooltip>
+                  </template>
+                  <el-input v-model="newBoxForm.ruleForm[index].value" class="input-with-select" placeholder="eg. 30 6 * * * (Means trigger an experiment at 6:30AM everyday)"></el-input>
                 </el-form-item>
-              </el-col>
-              <el-col :span="1" :offset="1">
-                <el-button @click.prevent="handleRemove(rule)">Remove</el-button>
               </el-col>
             </el-row>
-          <br>
-        </el-form-item>
-        <el-row>
+          <!-- <br> -->
+        <!-- </el-form-item> -->
+        <!-- <el-row>
           <el-col :span="1" :offset="1">
             <Button type="dashed" @click="handleAdd()" icon="plus-round">Add rule</Button>
           </el-col>
-        </el-row>
+        </el-row> -->
       </el-collapse-item>
 
       <el-collapse-item title="Misc Config" name="miscConfig">
-        <el-form-item label="Slack Channel:" prop="miscConfigForm.slack">
+        <el-form-item prop="miscConfigForm.slack">
+          <template slot="label">Slack Channel:
+            <el-tooltip class="item" effect="dark" content="Send experiment reports to Slack channel #">
+              <Icon type="information-circled" style="margin-left: 5px"></Icon>
+            </el-tooltip>
+          </template>
           <el-input v-model="newBoxForm.miscConfigForm.slack"></el-input>
         </el-form-item>
-        <el-form-item label="Prepare Callback:" prop="miscConfigForm.prepare">
+        <el-form-item prop="miscConfigForm.prepare">
+          <template slot="label">Prepare Callback:
+            <el-tooltip class="item" effect="dark" content="Execute callbacks preparing clusters">
+              <Icon type="information-circled" style="margin-left: 5px"></Icon>
+            </el-tooltip>
+          </template>
           <el-input v-model="newBoxForm.miscConfigForm.prepare"></el-input>
         </el-form-item>
-        <el-form-item label="Stop Callback:" prop="miscConfigForm.stop">
+        <el-form-item prop="miscConfigForm.stop">
+          <template slot="label">Stop Callback:
+            <el-tooltip class="item" effect="dark" content="Execute callbacks stopping clusters">
+              <Icon type="information-circled" style="margin-left: 5px"></Icon>
+            </el-tooltip>
+          </template>
           <el-input v-model="newBoxForm.miscConfigForm.stop"></el-input>
-        </el-form-item>
-        <el-form-item label="DestoryTidbCluster:" prop="miscConfigForm.destory_tidb_cluster">
-          <el-radio border v-model="newBoxForm.miscConfigForm.destory_tidb_cluster" :label=true>Yes</el-radio>
-          <el-radio border v-model="newBoxForm.miscConfigForm.destory_tidb_cluster" :label=false>No</el-radio>
         </el-form-item>
         <el-form-item label="Type:" prop="miscConfigForm.type">
           <el-input v-model="newBoxForm.miscConfigForm.type"></el-input>
         </el-form-item>
-        <el-form-item label="Data:" prop="miscConfigForm.data">
-          <el-input v-model="newBoxForm.miscConfigForm.data"></el-input>
+        <el-form-item prop="miscConfigForm.destory_tidb_cluster">
+          <template slot="label">Destory TiDB Cluster:
+            <el-tooltip class="item" effect="dark" content="Destroy TiDB cluster after finishing all experiments">
+              <Icon type="information-circled" style="margin-left: 5px"></Icon>
+            </el-tooltip>
+          </template>
+          <el-radio border v-model="newBoxForm.miscConfigForm.destory_tidb_cluster" :label=true>Yes</el-radio>
+          <el-radio border v-model="newBoxForm.miscConfigForm.destory_tidb_cluster" :label=false>No</el-radio>
         </el-form-item>
       </el-collapse-item>
     </el-collapse>
@@ -254,6 +297,7 @@ export default {
         catForm: {
           choice: 'select',
           selected_cat:'',
+          labels: '',
           pd_ver: {
             type: '',
             value: '',
@@ -291,7 +335,7 @@ export default {
         // 'miscConfigForm.stop':[{required: true, validator: checkArrayEmpty, trigger: 'blur'}],
         // 'miscConfigForm.destory_tidb_cluster':[{required: true, validator: checkEmpty, trigger: 'change'}],
         // 'miscConfigForm.type':[{required: true, validator: checkString, trigger: 'blur'}],
-        'catForm.labels': [{required: true, validator: checkString, trigger: 'change'}],
+        // 'catForm.labels': [{required: true, validator: checkString, trigger: 'change'}],
         'catForm.name': [{required: true, validator: checkString, trigger: 'change'}],
         'catForm.selected_cat': [{required: true, validator: checkString, trigger: 'change'}],
         'catForm.pd_ver.type': [{required: true, validator: checkString, trigger: 'change'}],
@@ -346,69 +390,69 @@ export default {
       this.$refs[formName].validate((valid) => {
         // debugger
         if (valid) {
-          console.log('form is valid!')
-          ajax.createBox({
-            name: this.newBoxForm.miscConfigForm.name,
-            cat: {
-              selected_cat: this.newBoxForm.catForm.selected_cat,
-              pd_ver: {
-                type: this.newBoxForm.catForm.pd_ver.type,
-                value: this.newBoxForm.catForm.pd_ver.value,
-                platform: this.newBoxForm.catForm.pd_ver.platform,
+            ajax.createBox({
+              name: this.newBoxForm.miscConfigForm.name,
+              cat: {
+                selected_cat: this.newBoxForm.catForm.selected_cat,
+                labels: this.newBoxForm.catForm.labels,
+                pd_ver: {
+                  type: this.newBoxForm.catForm.pd_ver.type,
+                  value: this.newBoxForm.catForm.pd_ver.value,
+                  platform: this.newBoxForm.catForm.pd_ver.platform,
+                },
+                tikv_ver: {
+                  type: this.newBoxForm.catForm.tikv_ver.type,
+                  value: this.newBoxForm.catForm.tikv_ver.value,
+                  platform: this.newBoxForm.catForm.tikv_ver.platform
+                },
+                tidb_ver: {
+                  type: this.newBoxForm.catForm.tidb_ver.type,
+                  value: this.newBoxForm.catForm.tidb_ver.value,
+                  platform: this.newBoxForm.catForm.tidb_ver.platform
+                },
+                pd_size: this.newBoxForm.catForm.pd_size,
+                tidb_size: this.newBoxForm.catForm.tidb_size,
+                tikv_size: this.newBoxForm.catForm.tikv_size,
+                config_map: this.newBoxForm.catForm.config_map
               },
-              tikv_ver: {
-                type: this.newBoxForm.catForm.tikv_ver.type,
-                value: this.newBoxForm.catForm.tikv_ver.value,
-                platform: this.newBoxForm.catForm.tikv_ver.platform
+              rules: this.newBoxForm.ruleForm,
+              tests: {
+                in_order: this.newBoxForm.testForm.in_order,
+                tests: this.newBoxForm.testForm.tests
               },
-              tidb_ver: {
-                type: this.newBoxForm.catForm.tidb_ver.type,
-                value: this.newBoxForm.catForm.tidb_ver.value,
-                platform: this.newBoxForm.catForm.tidb_ver.platform
-              },
-              pd_size: this.newBoxForm.catForm.pd_size,
-              tidb_size: this.newBoxForm.catForm.tidb_size,
-              tikv_size: this.newBoxForm.catForm.tikv_size,
-              config_map: this.newBoxForm.catForm.config_map
-            },
-            rules: this.newBoxForm.ruleForm,
-            tests: {
-              in_order: this.newBoxForm.testForm.in_order,
-              tests: this.newBoxForm.testForm.tests
-            },
-            config: {
-              slack: this.newBoxForm.miscConfigForm.slack,
-              prepare: this.newBoxForm.miscConfigForm.prepare,
-              stop: this.newBoxForm.miscConfigForm.stop,
-              destory_tidb_cluster: this.newBoxForm.miscConfigForm.destory_tidb_cluster,
-              type: this.newBoxForm.miscConfigForm.type
-            }
-          }).then((result) => {
-            console.log('result code', result.data.code)
-            if(result.data.code != 200) {
+              config: {
+                slack: this.newBoxForm.miscConfigForm.slack,
+                prepare: this.newBoxForm.miscConfigForm.prepare,
+                stop: this.newBoxForm.miscConfigForm.stop,
+                destory_tidb_cluster: this.newBoxForm.miscConfigForm.destory_tidb_cluster,
+                type: this.newBoxForm.miscConfigForm.type
+              }
+            }).then((result) => {
+              console.log('result code', result.data.code)
+              if(result.data.code != 200) {
+                this.$notify.error({
+                  title: 'Error',
+                  message: result.data.message
+                });
+                return
+              }
+
+              this.$notify({
+                title: 'Submit success!',
+                message: 'Create box SUCCESS',
+                type: 'success'
+              })
+
+              this.$router.push({name: 'BoxInstance'})
+            }).catch((resp) => {
+              // debugger
+              console.log('inside catch')
               this.$notify.error({
-                title: 'Error',
-                message: result.data.message
-              });
-              return
-            }
-
-            this.$notify({
-              title: 'Submit success!',
-              message: 'Create box SUCCESS',
-              type: 'success'
+                title: "ERROR",
+                message: resp.message,
+                duration: 0
+              })
             })
-
-            this.$router.push({name: 'BoxInstance'})
-          }).catch((resp) => {
-            // debugger
-            console.log('inside catch')
-            this.$notify.error({
-              title: "ERROR",
-              message: resp.message,
-              duration: 0
-            })
-          })
         } else {
           this.activeName = ['miscConfig', 'cat', 'tests', 'rules']
           console.log('check validation Failed');
@@ -457,6 +501,10 @@ export default {
     width: 500px;
   } */
 
+  .el-select {
+    width: 100%;
+  }
+
   .my-footer {
     padding: 10px 20px 20px;
     text-align: right;
@@ -465,5 +513,12 @@ export default {
   /* .create-box-cat .el-input {
     width: 500px
   } */
+
+  .el-collapse-item__header {
+    font-size: 15px;
+  }
+  .ivu-tabs.ivu-tabs-card>.ivu-tabs-bar .ivu-tabs-tab {
+    font-size: 16px;
+  }
 </style>
 

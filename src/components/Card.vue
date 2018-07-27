@@ -1,5 +1,5 @@
 <template>
-  <div id="card">
+  <div class="card">
     <!-- show box config cards -->
     <el-card class="box-card" v-if="box">
       <div slot="header" class="clearfix">
@@ -45,7 +45,7 @@
         <Strong>Prepare: </Strong>{{boxInfoCard.config.prepare}}<br>
         <Strong>Slack: </Strong>{{boxInfoCard.config.slack}}<br>
         <Strong>Stop: </Strong>{{boxInfoCard.config.stop}}<br>
-        <Strong>Timeout: </Strong>{{boxInfoCard.config.timeout}}<br>
+        <Strong>Timeout: </Strong>{{(boxInfoCard.config.timeout)/(Math.pow(10, 9)*3600)}} hours<br>
         <Strong>Type: </Strong>{{boxInfoCard.config.type}}<br>
       </div>
       <div v-if="infoSection == 'Cat'">
@@ -150,6 +150,10 @@ export default {
     margin-bottom: 12px;
   } */
 
+  .card {
+    height: 300px;
+    /* height: 100%; */
+  }
   .clearfix:before,
   .clearfix:after {
     display: table;
@@ -160,7 +164,7 @@ export default {
     clear: both
   }
   .box-card {
-    height: 300px;
+    /* height: 300px; */
     float:none;
     overflow-y: auto;
     overflow-x: auto;
